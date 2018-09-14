@@ -1,0 +1,47 @@
+.overlay {
+    position: fixed;
+    height: 0%;
+    width: 100%;
+    z-index: 100;
+    bottom: 0;
+    left: 0;
+    background-color: var(--main-silver-white);
+    overflow-x: hidden;
+    transition: .4s;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.overlay-content {
+    position: relative;
+    padding-left: 5%; 
+    width: 100%;
+    text-align: left;
+    margin-top: 50px;
+}
+
+.overlay-content a {
+    padding: 8px;
+    margin-left: 4px;
+    text-decoration: none;
+    font-size: 17px;
+    font-weight: normal;
+    color: var(--main-green);
+    display: block;
+    transition: 0.3s;
+}
+
+.overlay a:hover, .overlay a:focus {
+    font-style: oblique;
+}
+
+#small_screen_dropdown a{
+	font-size: 13px;
+}
+
+.overlay .closebtn {
+    position: absolute;
+    top: 0px;
+    right: 15px;
+    font-size: 40px;
+}

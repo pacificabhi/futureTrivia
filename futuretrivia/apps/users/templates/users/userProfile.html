@@ -1,0 +1,19 @@
+{% extends 'trivia/basetrivia.html' %}
+
+
+{% block title %}
+
+	{% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}
+
+{% endblock %}
+
+{% block authnavmenu %}
+	<a class="btn btn-light" href="{% url 'userlogin' %}">Login</a>
+	<a class="btn btn-light" href="{% url 'userregister' %}">Register</a>
+
+{% endblock %}
+
+{% block content %}
+	<h1>{% if exist and active %}{{ user.username }}{% else %}No User found{% endif %}</h1>
+
+{% endblock %}

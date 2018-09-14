@@ -25,7 +25,7 @@ SECRET_KEY = 'l)8it_rqod%xu6s+3q4a_7p#x9-esj*ub$xm-zj(&**y96)_*6'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["172.31.88.98", "192.168.0.55", "127.0.0.1"]
 
 
 # Application definition
@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'trivia',
-    'users',
+    'apps.trivia',
+    'apps.users',
 ]
 
 MIDDLEWARE = [
@@ -124,3 +124,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'futuretrivia/static/'),
+    os.path.join(BASE_DIR, 'apps/users/static/'),
+]
