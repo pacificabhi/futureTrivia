@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block navmenu %}
-	<!--<a href="{% url 'userregister' %}" class="btn btn-success btn-sm nav-menu-item" role="button">Register</a>-->
+	<!--<a href="{% url 'usersignup' %}" class="btn btn-success btn-sm nav-menu-item" role="button">Signup</a>-->
 {% endblock %}
 
 {% block content %}
@@ -52,7 +52,7 @@
 			username=encodeURIComponent(username);
 			password=encodeURIComponent(password);
 			var q = "username="+username+"&password="+password+"&csrfmiddlewaretoken="+token;
-			xhttp.open("POST", "/users/login/", true);
+			xhttp.open("POST", "{% url 'userlogin' %}", true);
 			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 			xhttp.send(q);
 
@@ -85,8 +85,8 @@
 		</div>
 		<form onsubmit="return false;">
 
-			<div class="container-fluid m-0 p-0" style="text-align: left;" id="form_error_container">
-				<div class="alert alert-danger"  id="form_error">
+			<div class="container-fluid m-0 p-0 form_error_container" style="text-align: left;" id="form_error_container">
+				<div class="alert alert-danger form_error"  id="form_error">
 					hello
 				</div>
 			</div>
@@ -122,7 +122,7 @@
 		<hr>
 
 		<div class="container mt-2">
-			<span><a href="{% url 'userregister' %}">Create new account</a></span>
+			<span><a href="{% url 'usersignup' %}">Create new account</a></span>
 		</div>
 	</div>
 </div>

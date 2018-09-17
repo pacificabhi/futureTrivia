@@ -1,4 +1,5 @@
 {% extends 'trivia/basetrivia.html' %}
+{% load tz %}
 
 {% block title %}
 	
@@ -7,13 +8,192 @@
 {% endblock %}
 
 
-{% block authnavmenu %}
-	<a class="btn btn-light" href="{% url 'userlogin' %}">Login</a>
-	<a class="btn btn-light" href="{% url 'userregister' %}">Register</a>
-
-{% endblock %}
-
 {% block content %}
-	<h1>dsd</h1>
+	
+<div class="container">
+	<div class="row">
+
+		<!-- Contest List-->
+
+		<div class="col-md-8 text-left mt-3">
+
+			<div class="container-fluid text-secondary m-0 py-3">
+				<h4>Trivia Games</h4><hr>
+			</div>
+
+			<!-- Contest Block-->
+
+			<div class="container-fluid pt-3">
+				<div class="container-fluid">
+					<div class="text-success font-weight-bold" style="font-size: 18px;">Active Contests<hr></div>
+					
+
+					{% for trivia in trivias.present %}
+
+					<div class="card my-3 border-success">
+						<div class="card-header font-weight-bold">
+							<a class="text-secondary" style="text-decoration: none; font-size: 15px" href="{% url 'triviadetails' code=trivia.0.code %}">{{ trivia.0.name }}</a>
+						</div>
+
+						<div class="card-body">
+							<ul class="nav">
+								<li class="nav-item pr-3">
+									<span class="text-dark icon-clock"></span> &nbsp;<span class="text-secondary">{% timezone 'Asia/Kolkata' %}{{ trivia.0.start_time }} IST {% endtimezone %}</span>
+								</li>
+								<li class="nav-item pr-3">
+									<span class="text-dark icon-alarmclock"></span> &nbsp;<span class="text-secondary">{{ trivia.0.duration }} minutes</span>
+								</li>
+								<li class="nav-item pr-3">
+									<span class="text-dark icon-browser"></span> &nbsp;<span class="text-secondary" title="">{% if trivia.0.live %} Real Time {% else %}Portal {% endif %}</span>
+								</li>
+								<li class="nav-item pr-3">
+									<span class="text-dark icon-book-open"></span> &nbsp;<span class="text-secondary" title="">{{ trivia.0.category }}</span>
+								</li>
+							</ul>
+
+							<div class="container my-2 text-right">
+								{% if request.user.is_authenticated %}
+									{% if trivia.1 %}
+										{% if trivia.0 not in request.user.userdetails.trivias.all %}
+											<button class="btn btn-outline-success" onclick="register_contest_and_view(this,'{{ trivia.0.code }}')">Register</button>
+										{% else %}
+											<a class="btn btn-outline-success" href="{% url 'triviadetails' code=trivia.0.code %}">View</a>
+
+										{% endif %}
+									{% else %}
+										<button class="btn btn-outline-success" disabled>Registration Ended</button>	
+									{% endif %}
+									
+								{% else %}
+									<button class="btn btn-outline-success" onclick="show_popup('Sign in to register')">Register</button>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+
+					{% endfor %}
+
+					
+				</div>
+			</div>
+
+			<div class="container-fluid pt-3">
+				<div class="container-fluid">
+					<div class="text-success font-weight-bold" style="font-size: 18px;">Future Contests<hr></div>
+					
+
+					{% for trivia in trivias.future %}
+
+					<div class="card my-3 border-success">
+						<div class="card-header font-weight-bold">
+							<a class="text-secondary" style="text-decoration: none; font-size: 15px" href="{% url 'triviadetails' code=trivia.0.code %}">{{ trivia.0.name }}</a>
+						</div>
+
+						<div class="card-body">
+							<ul class="nav">
+								<li class="nav-item pr-3">
+									<span class="text-dark icon-clock"></span> &nbsp;<span class="text-secondary">{% timezone 'Asia/Kolkata' %}{{ trivia.0.start_time }} IST {% endtimezone %}</span>
+								</li>
+								<li class="nav-item pr-3">
+									<span class="text-dark icon-alarmclock"></span> &nbsp;<span class="text-secondary">{{ trivia.0.duration }}</span>
+								</li>
+								<li class="nav-item pr-3">
+									<span class="text-dark icon-browser"></span> &nbsp;<span class="text-secondary" title="">{% if trivia.0.live %} Real Time {% else %}Portal {% endif %}</span>
+								</li>
+								<li class="nav-item pr-3">
+									<span class="text-dark icon-book-open"></span> &nbsp;<span class="text-secondary" title="">{{ trivia.0.category }}</span>
+								</li>
+							</ul>
+
+							<div class="container my-2 text-right">
+								{% if request.user.is_authenticated %}
+									{% if trivia.1 %}
+										{% if trivia.0 not in request.user.userdetails.trivias.all %}
+											<button class="btn btn-outline-success" onclick="register_contest_and_view(this,'{{ trivia.0.code }}')">Register</button>
+										{% else %}
+											<a class="btn btn-outline-success" href="{% url 'triviadetails' code=trivia.0.code %}">View</a>
+
+										{% endif %}
+									{% else %}
+										<button class="btn btn-outline-success" disabled>Registration Ended</button>	
+									{% endif %}
+									
+								{% else %}
+									<button class="btn btn-outline-success" onclick="show_popup('Sign in to register')">Register</button>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+
+					{% endfor %}
+
+					
+				</div>
+			</div>
+
+			<div class="container-fluid pt-3">
+				<div class="container-fluid">
+					<div class="text-success font-weight-bold" style="font-size: 18px;">Past Contests<hr></div>
+					
+
+					{% for trivia in trivias.past %}
+
+					<div class="card my-3 border-success">
+						<div class="card-header font-weight-bold">
+							<a class="text-secondary" style="text-decoration: none; font-size: 15px" href="{% url 'triviadetails' code=trivia.0.code %}">{{ trivia.0.name }}</a>
+						</div>
+
+						<div class="card-body">
+							<ul class="nav">
+								<li class="nav-item pr-3">
+									<span class="text-dark icon-clock"></span> &nbsp;<span class="text-secondary">{% timezone 'Asia/Kolkata' %}{{ trivia.0.start_time }} IST {% endtimezone %}</span>
+								</li>
+								<li class="nav-item pr-3">
+									<span class="text-dark icon-alarmclock"></span> &nbsp;<span class="text-secondary">{{ trivia.0.duration }}</span>
+								</li>
+								<li class="nav-item pr-3">
+									<span class="text-dark icon-browser"></span> &nbsp;<span class="text-secondary" title="">{% if trivia.0.live %} Real Time {% else %}Portal {% endif %}</span>
+								</li>
+								<li class="nav-item pr-3">
+									<span class="text-dark icon-book-open"></span> &nbsp;<span class="text-secondary" title="">{{ trivia.0.category }}</span>
+								</li>
+							</ul>
+
+							<div class="container my-2 text-right">
+								<a class="btn btn-outline-success" href="{% url 'triviadetails' code=trivia.0.code %}">View</a>
+							</div>
+						</div>
+					</div>
+
+					{% endfor %}
+
+					
+				</div>
+			</div>
+
+
+
+		</div>
+
+		<!--contest given-->
+
+		<div class="col-md-4 text-left">
+			{% if request.user.is_authenticated %}
+			<div class="container text-dark font-weight-bold my-3">
+				Participated Contests
+			</div>
+
+			<div class="container">
+				{% for trivia in request.user.userdetails.trivias.all %}
+					<a class="text-secondary" href="{% url 'triviadetails' code=trivia.code %}" style="text-decoration: none">{{ trivia.name }}</a><br>
+				{% endfor %}
+			</div>
+
+			{% endif %}
+			
+		</div>
+	</div>
+</div>
+
 
 {% endblock %}

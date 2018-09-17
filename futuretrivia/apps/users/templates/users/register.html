@@ -1,7 +1,7 @@
 {% extends 'users/baseauth.html' %}
 
 {% block title %}
-	Register for Future Trivia
+	Sign up for Future Trivia
 {% endblock %}
 
 {% block navmenu %}
@@ -13,7 +13,7 @@
 
 <script type="text/javascript">
 	
-	function register_user(){
+	function signup_user(){
 
 		var username = document.getElementById("id_username").value;
 		var email = document.getElementById("id_email").value;
@@ -41,7 +41,7 @@
 						document.getElementById("form_error").innerHTML=s;
 						document.getElementById("form_error_container").style.display="block";
 						reg_btn.disabled=false;
-						reg_btn.innerHTML="Register";
+						reg_btn.innerHTML="Sign up";
 
 					}
 				}
@@ -51,7 +51,7 @@
 			email=encodeURIComponent(email);
 			password=encodeURIComponent(password);
 			var q = "username="+username+"&email="+email+"&password="+password+"&csrfmiddlewaretoken="+token;
-			xhttp.open("POST", "/users/register/", true);
+			xhttp.open("POST", "{% url 'usersignup' %}", true);
 			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 			xhttp.send(q);
 
@@ -80,12 +80,12 @@
 	<div class="container-fluid p-2" style="max-width: 360px;">
 		<div class="container">
 			<div class="text-dark">
-				<h4>Register for Future Trivia</h4>
+				<h4>Sign up for Future Trivia</h4>
 			</div>
 		</div>
 		<form onsubmit="return false">
-			<div class="container-fluid m-0 p-0" style="text-align: left;" id="form_error_container">
-				<div class="alert alert-danger"  id="form_error">
+			<div class="container-fluid m-0 p-0 form_error_container" style="text-align: left;" id="form_error_container">
+				<div class="alert alert-danger form_error"  id="form_error">
 					hello
 				</div>
 			</div>
@@ -117,7 +117,7 @@
 
 		<div class="input-group mt-3" style="">
 			<div class="container p-1" style="">
-				<button class="btn btn-outline-success px-5" onclick="register_user()" id="reg_btn">Register</button>
+				<button class="btn btn-outline-success px-5" onclick="signup_user()" id="reg_btn">Sign up</button>
 			</div>
 		</div>
 

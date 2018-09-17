@@ -1,23 +1,24 @@
 .overlay {
     position: fixed;
-    height: 0%;
-    width: 100%;
-    z-index: 100;
-    bottom: 0;
-    left: 0;
-    background-color: var(--main-silver-white);
+    height: 100%;
+    width: 0%;
+    z-index: +1000;
+    top: 0;
+    right: 0;
+    margin: 0;
     overflow-x: hidden;
     transition: .4s;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
+
 .overlay-content {
     position: relative;
     padding-left: 5%; 
     width: 100%;
     text-align: left;
-    margin-top: 50px;
+    margin-top: 80px;
 }
 
 .overlay-content a {
@@ -26,7 +27,7 @@
     text-decoration: none;
     font-size: 17px;
     font-weight: normal;
-    color: var(--main-green);
+    color: var(--main-silver-white);
     display: block;
     transition: 0.3s;
 }
@@ -41,7 +42,17 @@
 
 .overlay .closebtn {
     position: absolute;
+    text-decoration: none;
     top: 0px;
     right: 15px;
     font-size: 40px;
+}
+
+.brand-name{
+	font-size: 20px;
+	font-weight: bold;
+	font-family: "Aclonica";
+	letter-spacing: 0px;
+	border: solid 0px red;
+	color: var(--main-silver-white) !important;
 }

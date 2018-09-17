@@ -1,11 +1,24 @@
+
+
+.brand-name{
+	font-size: 20px;
+	font-weight: bold;
+	font-family: "Aclonica";
+	letter-spacing: 0px;
+	border: solid 0px red;
+	color: var(--main-green) !important;
+}
+
+
 .overlay {
     position: fixed;
     height: 100%;
     width: 0%;
-    z-index: +1000;
+    z-index: 100;
     top: 0;
     right: 0;
     margin: 0;
+    background-color: var(--main-silver-white);
     overflow-x: hidden;
     transition: .4s;
     overflow-y: auto;
@@ -18,7 +31,7 @@
     padding-left: 5%; 
     width: 100%;
     text-align: left;
-    margin-top: 80px;
+    margin-top: 50px;
 }
 
 .overlay-content a {
@@ -27,7 +40,7 @@
     text-decoration: none;
     font-size: 17px;
     font-weight: normal;
-    color: var(--main-silver-white);
+    color: var(--main-green);
     display: block;
     transition: 0.3s;
 }
@@ -46,13 +59,4 @@
     top: 0px;
     right: 15px;
     font-size: 40px;
-}
-
-.brand-name{
-	font-size: 20px;
-	font-weight: bold;
-	font-family: "Aclonica";
-	letter-spacing: 0px;
-	border: solid 0px red;
-	color: var(--main-silver-white) !important;
 }

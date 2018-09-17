@@ -1,0 +1,284 @@
+{% extends 'trivia/basetrivia.html' %}
+{% load static %}
+{% load tz %}
+
+
+{% block title %}
+	
+	Future Trivia
+
+{% endblock %}
+
+
+{% block content %}
+
+
+{% if exist %}
+
+{% if not private or authentic %}
+<style type="text/css">
+	#triviaPoster{
+		width: 100% !important;
+		height: 35vh;
+		min-height: 180px;
+		background-image: url({% if trivia.poster %}{{ trivia.poster }}{% else %}{% static 'trivia/images/defaultTrivia.png' %}{% endif %});
+		background-repeat: no-repeat;
+		background-size: 100% 100%; 
+	}
+
+	#timingDetails{
+		position: absolute;
+		bottom: 0;
+		min-width: 250px;
+	}
+	
+	@media screen and (max-width: 768px){
+		#timingDetails{
+			position: relative;
+			border: 0px;
+
+		}
+	}
+
+	#adminIcon{
+		position: absolute;
+		top: -40px;
+		height: 70px;
+		width: 70px;
+		right: 0;
+		max-width: 70px;
+		max-height: 70px;
+		background-image: url({% static 'trivia/images/userIcon.png' %});
+		background-repeat: no-repeat;
+		background-size: 100% 100%; 
+	}
+	
+	@media screen and (max-width: 768px){
+		#adminIcon{
+			position: relative;
+
+		}
+	}
+
+
+
+</style>
+
+<!-- Trivia poster -->
+<div class="container-fluid m-0" style="" id="triviaPoster"></div>
+
+<!--Details Head-->
+<div class="container-fluid p-2 pt-4 bg-light">
+	<div class="row">
+
+		<!-- Admin Icon -->
+
+		<div class="col-md-2 mx-auto text-center">
+			<div class="card rounded" id="adminIcon"></div>
+		</div>
+
+		<!-- Contest main Detail -->
+
+		<div class="col-md-6" style="text-align: left;">
+			<p class="text-dark" style="font-size: 22px;">{{ trivia.name }} {% if ended %}<span class="text-danger" style="font-size: 13px;">(Ended)</span>{% endif %}</p>
+			<div class="container-fluid my-1" style="font-size: 11px;">
+				 <ul class="nav">
+					<li class="nav-item pr-3">
+						{% if private %}
+							<span class="text-dark icon-lock"></span> &nbsp;<span class="text-secondary">Private</span>
+						{% else %}
+							<span class="text-dark icon-globe"></span> &nbsp;<span class="text-secondary">Public</span>
+						{% endif %}
+					</li>
+					<li class="nav-item pr-3">
+						<span class="text-dark icon-browser"></span> &nbsp;<span class="text-secondary" title="">{% if trivia.live %} Real Time {% else %}Portal {% endif %}</span>
+					</li>
+					<li class="nav-item pr-3">
+						<span class="text-dark icon-book-open"></span> &nbsp;<span class="text-secondary" title="">{{ trivia.category }}</span>
+					</li>
+				</ul>
+				
+			</div>
+
+			<hr>
+
+
+
+		</div>
+
+		<!-- Timing Details Container -->
+
+		<div class="col-md-4">
+			<div class="card rounded-0 text-left" id="timingDetails" style="">
+				
+		
+				<div class="row p-2">
+					<div class="col-md-5">
+						<span class="text-secondary" style="font-size: 15px;">Starts At </span>
+					</div>
+
+					<div class="col-md-7">
+						<b><span class="text-dark" style="font-size: 11px;">{{ trivia.start_time }}</span></b>
+					</div>
+				</div>
+
+				<div class="row p-2">
+					<div class="col-md-5">
+						<span class="text-secondary" style="font-size: 15px;">Ends At: </span>
+					</div>
+
+					<div class="col-md-7">
+						<b><span class="text-dark" style="font-size: 11px;">{{ endtime }}</span></b>
+					</div>
+				</div>
+
+				<div class="row p-2">
+					<div class="col-md-5">
+						<span class="text-secondary" style="font-size: 15px;">Duration </span>
+					</div>
+
+					<div class="col-md-7">
+						<b><span class="text-dark" style="font-size: 11px;">{{ trivia.duration }} minutes</span></b>
+					</div>
+				</div>
+
+				<div class="row p-2">
+					<div class="col-md">
+						{% if ended %}
+							<a class="btn btn-block btn-outline-success" href="#"> See Leaderboard</a>
+						{% else %}
+							{% if request.user.is_authenticated %}
+								{% if can_register %}
+									{% if trivia not in request.user.userdetails.trivias.all %}
+										<button class="btn btn-block btn-outline-success" onclick="register_contest_and_enter(this,'{{ trivia.code }}', '{{ can_start }}')">Register</button>
+									{% else %}
+										<button class="btn btn-block btn-outline-success"  onclick="window.location.assign('#')" {% if not can_start %}disabled{% endif %}>Enter</button>
+
+									{% endif %}
+								{% else %}
+									<button class="btn btn-block btn-outline-success" disabled>Registration Ended</button>	
+								{% endif %}
+								
+							{% else %}
+								<button class="btn btn-block btn-outline-success" onclick="show_popup('Sign in to register')">Register</button>
+							{% endif %}
+						
+						
+						{% endif %}
+					</div>
+
+				</div>
+					 
+				
+
+			</div>
+		</div>
+
+		<!-- Timing Details container Ends -->
+
+
+	</div>
+</div>
+
+
+<!-- ANNOOUNCEMENTS ABOUT CONTEST -->
+
+<div class="container text-left my-5 py-4" style="font-size: 16px">
+	<div class="row">
+		<div class="col-md-3 font-weight-bold">
+			ANNOUNCEMENTS
+		</div>
+
+		<div class="col-md-9 text-dark py-2">
+			{{ trivia.announcements }}
+		</div>
+	</div>
+
+
+</div>
+
+
+
+<!-- ABOUT CONTEST -->
+
+<div class="container text-left my-5 py-4" style="font-size: 16px">
+	<div class="row">
+		<div class="col-md-3 font-weight-bold">
+			ABOUT CONTEST
+		</div>
+
+		<div class="col-md-9 text-dark py-2">
+			{{ trivia.about }}
+		</div>
+	</div>
+
+
+</div>
+
+
+
+<!-- PRIZES CONTEST -->
+
+<div class="container text-left my-5 py-4" style="font-size: 16px">
+	<div class="row">
+		<div class="col-md-3 font-weight-bold">
+			PRIZES
+		</div>
+
+		<div class="col-md-9 text-dark py-2">
+			{{ trivia.prize }}
+		</div>
+	</div>
+
+
+</div>
+
+{% elif private %}
+
+
+
+
+
+<div class="container-fluid p-4 form-container mt-3" style="">
+	<div class="container-fluid p-2" style="max-width: 360px;">
+		<div class="container">
+			<div class="text-dark">
+				<h4>Private Contest</h4>
+			</div>
+		</div>
+		<form method="post" action="">
+			{% if auth_error %}
+			<div class="container-fluid m-0 p-0 form_error_container" style="text-align: left; display: block;" id="form_error_container">
+				<div class="alert alert-danger form_error"  id="form_error" style="display: block;">
+					{{ auth_error }}
+				</div>
+			</div>
+			{% endif %}
+
+		{% csrf_token %}
+
+		<div class="input-group mt-1 form-list" style="">
+			<div class="container p-1" style="">
+				<input type="password" class="mt-2 text-dark" placeholder="Password" id="id_password" name="password" required>
+			</div>
+		</div>
+
+
+		<div class="input-group mt-1" style="">
+			<div class="container p-1" style="">
+				<button class="btn btn-sm btn-outline-success px-5" onclick="" id="auth_btn">Enter</button>
+			</div>
+		</div>
+
+		</form>
+
+	</div>
+</div>
+
+{% endif %}
+
+{% else %}
+	Not Found
+{% endif %}
+
+{% endblock %}

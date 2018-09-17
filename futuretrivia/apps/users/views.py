@@ -4,22 +4,26 @@ from django.urls import reverse
 from .user_validation import *
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
+from .models import UserDetails
+from apps.trivia.models import Trivia
+import pytz, datetime
+
 
 # Create your views here.
 
 
 def userLogin(request):
 
-	if(request.user.is_authenticated):
+	if request.user.is_authenticated:
 		return HttpResponseRedirect(reverse('userprofile', kwargs={'username':request.user.username}))
 
-	if(request.method == "POST"):
-		context={"success": True}
-		errors=[]
+	if request.method == "POST":
+		context = {"success": True}
+		errors = []
 		username = request.POST.get("username").strip().lower()
 		password = request.POST.get("password")
 
-		u=get_user(username)
+		u = get_user(username)
 
 		if not u:
 			errors.append("No Account Found")
@@ -48,15 +52,15 @@ def userLogout(request):
 	return HttpResponseRedirect(reverse('userlogin'))
 
 
-def userRegister(request):
+def userSignup(request):
 
 	#print(request.user.is_authenticated)
-	if(request.user.is_authenticated):
+	if request.user.is_authenticated:
 		return HttpResponseRedirect(reverse('userprofile', kwargs={'username':request.user.username}))
 
-	if(request.method == "POST"):
-		context={"success": True}
-		errors=[]
+	if request.method == "POST":
+		context = {"success": True}
+		errors = []
 		email = request.POST.get("email").strip().lower()
 		username = request.POST.get("username").strip().lower()
 		password = request.POST.get("password")
@@ -79,9 +83,11 @@ def userRegister(request):
 			context["errors"]=errors
 			return JsonResponse(context)
 
-		u = User.objects.create(username=username, email=email)
+		u = User.objects.create(username = username, email = email)
 		u.set_password(password)
 		u.save()
+
+		ud = UserDetails.objects.create(user = u)
 
 		login(request, u)
 
@@ -95,8 +101,8 @@ def dashboard(request):
 
 
 def userProfile(request, username):
-	user=User.objects.filter(username=username).first()
-	context={"exist":False, "active": False}
+	user = User.objects.filter(username=username).first()
+	context = {"exist":False, "active": False}
 	if user:
 		context["exist"]=True
 		if user.is_active:
@@ -106,3 +112,32 @@ def userProfile(request, username):
 
 
 	return render(request, 'users/userProfile.html', context)
+
+
+
+def registerContest(request):
+	context={"success": False}
+
+	if not request.user.is_authenticated:
+		context["error"] = "Sign in to Register"
+		return JsonResponse(context)
+
+	code = request.GET.get("code")
+	trivia = Trivia.objects.filter(code=code).first()
+	
+	if not trivia:
+		context["error"] = "Contest Not Found"
+		return JsonResponse(context)
+
+	now=datetime.datetime.now().replace(tzinfo=pytz.utc)
+	portal_endtime = trivia.start_time + datetime.timedelta(seconds=trivia.portal_duration)
+
+	if now > portal_endtime:
+		context["error"] = "Registration ended"
+		return JsonResponse
+
+	request.user.userdetails.trivias.add(trivia)
+	context["success"] = True
+
+	return JsonResponse(context)
+	
