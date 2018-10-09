@@ -11,6 +11,7 @@ class UserDetails(models.Model):
 	security_question = models.CharField(max_length=100, blank=True, null=True)
 	security_answer = models.CharField(max_length=100, blank=True, null=True)
 	country = models.CharField(max_length=100, blank=True, null=True, default="India")
+	last_active = models.DateTimeField(blank=True, null=True)
 
 
 	def __str__(self):

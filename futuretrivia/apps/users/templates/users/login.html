@@ -29,9 +29,10 @@
 			reg_btn.innerHTML="Verifying";
 			var xhttp = new XMLHttpRequest();
 			xhttp.onreadystatechange = function(){
+				//console.log(this.status);
 				if(this.readyState == 4 && this.status == 200){
 					var resp = JSON.parse(this.responseText);
-					if(resp.success == true){
+					if(resp.success == true || resp.loggedin == true){
 						reg_btn.innerHTML="Logging you in";
 						window.location.reload();
 					} else {
@@ -46,6 +47,8 @@
 						reg_btn.innerHTML="Login";
 
 					}
+				} else if(this.readyState == 4 && this.status == 403){
+					window.location.reload();
 				}
 			}
 			var token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
@@ -83,6 +86,11 @@
 				<h4>Login to Future Trivia</h4>
 			</div>
 		</div>
+
+		<!--<a href="">Login with Facebook</a>
+
+		<p><strong>-- OR --</strong></p>-->
+
 		<form onsubmit="return false;">
 
 			<div class="container-fluid m-0 p-0 form_error_container" style="text-align: left;" id="form_error_container">

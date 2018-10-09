@@ -1,0 +1,299 @@
+{% extends 'trivia/gamebase.html' %}
+{% load static %}
+
+{% block title %}{{ trivia.name }}{% endblock %}
+
+{% block headscripts %}
+
+
+{% endblock %}
+
+
+{% block content %}
+
+{%if request.user.is_authenticated %}
+
+{% if not started_by_user and can_begin %}
+
+<div class="container" id="instructions">
+	<div class="row py-2">
+
+		<div class="col">
+			<div class="card">
+				<div class="card-header text-left">
+
+					<span class="font-weight-bold" style="font-size: 18px;">Instructions</span>
+				</div>
+
+				<div class="card-body text-left px-1">
+					<ol>
+						<li>
+							There will be <b>{{ total_number_of_questions }}</b> Questions.
+						</li>
+						<li>For multiple choice questions, choose option accordingly.</li>
+						<li>
+						{% if trivia.question_timing %}
+							Each Question shoould be solved in restricted timing.
+
+						{% else %}
+
+							Read Question carefully. 
+						{% endif %}
+						</li>
+
+						<li>
+						{% if not trivia.can_change_answer %}
+							You <b>cannot change answer</b> once submitted.
+
+						{% else %}
+
+							You can update your answer.
+						{% endif %}
+						</li>
+						<li>Every question weightage can be different.</li>
+					</ol>
+				</div>
+			</div>
+
+
+		</div>
+		
+	</div>
+
+</div>
+
+</div>
+<div>
+<button class="btn btn-outline-success" onclick="startWar(this, this.nextSibling)" id="startwarbtn" data-triviacode="{{ trivia.code }}">Start War</button><span class="loader ml-2" id="startwarloader"></span>
+</div>
+<script type="text/javascript">
+	
+	function startWar(btn, loader){
+		//var code = $("#startWarbtn").data("triviacode");
+		var xhttp = new XMLHttpRequest();
+		btn.disabled=true;
+		loader.style.display="inline-block";
+		xhttp.onreadystatechange = function(){
+			if(this.readyState == 4 && this.status == 200){
+				var resp = JSON.parse(this.responseText);
+				if(resp.success){
+					window.location.reload();
+				} else {
+					show_top_popup(resp.error, false, 1000);
+					btn.disabled=false;
+					loader.style.display="none";
+				}
+			} else if(this.readyState == 4) {
+				show_popup("Internal Server Error");
+				btn.disabled=false;
+				loader.style.display="none";
+			}
+
+		};
+
+		xhttp.open("GET", "{% url 'triviastart' code=trivia.code %}", true);
+		xhttp.send();
+
+	}
+
+</script>
+
+
+{% elif started_by_user %}
+	
+	<style type="text/css">
+		
+		#quesnav {
+			
+		    height: 100%;
+		    width: 80%;
+		    max-width: 320px;
+		    position: fixed;
+		    z-index: 10;
+		    top: 0;
+		    right: 0;
+		    background-color: rgba(235, 235, 240, 1);
+		    overflow-x: hidden;
+		    overflow-y: auto;
+		    transition: 0.5s;
+		    padding-top: 42px;
+		    border-left: solid 1px rgba(210,210,210,1);
+		    
+		}
+
+
+		#main {
+		    transition: margin-right .5s;
+		    padding: 16px;
+		    margin-right: 0;
+		}
+
+		.close-arrow{
+			display: none;
+			font-size:20px;
+			cursor:pointer;
+			position: relative;
+			top: 0;
+			left: 5px;
+			font-weight: bold;
+		}
+
+		
+
+		@media screen and (max-width: 986px){
+			.close-arrow{
+				display: inline-flex;
+			}
+
+			#quesnav{
+				width: 0;
+			}
+
+			#playarea{
+				margin-right: 0;
+			}
+		}
+
+		@media screen and (min-width: 986px){
+
+			#quesnav{
+				width: 80% !important;
+			}
+
+			#playarea{
+				margin-right: 330px !important;
+
+			}
+		}
+
+
+
+	</style>
+
+
+	<script>
+		function openNav() {
+			var change=screen.width * .9;
+			if(change>350){
+
+				change=350;
+			}
+			document.getElementById("quesnav").style.width = change+"px";
+		    //document.getElementById("main").style.marginRight = change+"px";
+		    //document.getElementById("navbartop").style.marginRight = change+"px";
+		}
+
+		function closeNav() {
+		    document.getElementById("quesnav").style.width = "0";
+		    //document.getElementById("main").style.marginRight= "0";
+		    //document.getElementById("navbartop").style.marginRight = "0";
+		}
+	</script>
+
+
+	<div id="main">
+
+		<div id="quesnav" class="sidenav text-left">
+			<span class="text-success close-arrow" style="" onclick="closeNav()">&#10230;</span>
+
+			<div class="container-fluid mt-2" id="ques_list">
+				
+			</div>
+		</div>
+
+		<div class="container-fluid text-right p-0" id="question-extra-top">
+			<span class="text-success close-arrow" style="" onclick="openNav()">&#10229; <span style="font-size: 12px;">all questions</span></span>
+		</div>
+
+		<div class="" id="playarea" style="border: solid 1px red;">
+			
+		</div>
+		
+
+
+
+	</div>
+
+	<script type="text/javascript">
+
+		window.onload=function(){
+
+			main = document.getElementById("main");
+			playarea = document.getElementById("playarea");
+			ques_list = document.getElementById("ques_list");
+			question_objects_array="";
+			curr_ques=1;
+			loadContest();
+
+		};
+
+		function load_questions(code){
+			var xhttp = new XMLHttpRequest();
+
+			xhttp.onreadystatechange = function(){
+				if(this.readyState == 4 && this.status == 200){
+					var resp = JSON.parse(this.responseText);
+					if(resp.success){
+						question_objects_array=resp.questions;
+						show_next_ques();
+					} else {
+						show_top_popup(resp.error, true, 4000);
+					}
+				} else if(this.readyState == 4) {
+					show_popup("Internal Server Error");
+					btn.disabled=false;
+					loader.style.display="none";
+				}
+
+			};
+
+			xhttp.open("GET", "{% url 'alltriviaquestions' code=trivia.code %}", true);
+			xhttp.send();
+
+		}
+
+		function show_next_ques(){
+
+
+		}
+
+		function loadContest(){
+			load_questions();
+
+		}
+
+
+	</script>
+
+{% else %}
+	<div class=" alert alert-info">
+
+	{% if ended %}
+		Contest ended
+	{% elif trivia not in request.user.userdetails.trivias.all %}
+		You are not registered for this event
+	<br>
+	<a href="{% url 'triviadetails' code=trivia.code %}" class="btn btn-outline-info">Go To Contest Page</a>
+
+	{% elif started_by_user %}
+		You are in contest
+		<br>
+		<a href="" class="btn btn-outline-info">See Questions</a>
+
+	{% elif not can_begin %}
+		Contest is not started yet
+
+	{% endif %}
+
+
+	</div>
+
+{% endif %}
+
+
+
+
+
+{% endif %}
+
+{% endblock %}

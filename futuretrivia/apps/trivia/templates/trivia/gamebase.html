@@ -1,0 +1,158 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<link rel="shortcut icon" href="{% static 'futuretrivia/favicon.png' %}">
+
+	<!-- Latest compiled and minified CSS -->
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+	<link rel="stylesheet" type="text/css" href="{% static 'futuretrivia/futuretrivia.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'trivia/trivia.css' %}">
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+	<!-- Popper JS -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+
+	<!-- Latest compiled JavaScript for bootstrap-->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+	<script src="{% static 'futuretrivia/futuretrivia.js' %}"></script>
+	<script src="{% static 'trivia/triviaplay.js' %}"></script>
+	<title>{% block title %}{% endblock %}</title>
+
+	<style type="text/css">
+		.navbar{
+			height: auto;
+			z-index: 100;
+		}
+
+		#navbartop{
+			transition: margin-left .7s;
+			margin-left: 0;
+		}
+
+
+		.loader {
+			position: relative;
+			display: none;
+			border: 2px dotted rgba(180, 180, 180, 1);
+			border-radius: 50%;
+			border-top: 2px dotted rgba(140, 140, 140, 1);
+			width: 20px;
+			height: 20px;
+			top: 6px;
+			float: none;
+			z-index: 0;
+			-webkit-animation: spin 1.4s linear infinite; /* Safari */
+			animation: spin 1.4s linear infinite;
+		}
+
+		/* Safari */
+		@-webkit-keyframes spin {
+			0% { -webkit-transform: rotate(0deg); }
+		 	100% { -webkit-transform: rotate(360deg); }
+		}
+
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}
+
+	</style>
+	<link href='https://fonts.googleapis.com/css?family=Aclonica' rel='stylesheet'>
+
+	{% block headscripts %}
+
+
+	{% endblock %}
+</head>
+<body style="background-color: rgba(235, 235, 240, 1); font-size: 13px; overflow-x: hidden;">
+
+<!-- POPUP -->
+
+
+
+<div id="alert_popup_container" class="row h-100 justify-content-center align-items-center no-select" onclick="//this.style.display='none'">
+	<div class="alert_body p-4">
+		<div class="" id="alert_data">
+			Alert Pop up
+		</div>
+	</div>
+</div>
+
+<style type="text/css">
+	
+	#top_popup_text{
+		display: block;
+		width: 100%;
+		max-width: 600px;
+		min-width: 150px;
+		z-index: +99999;
+
+	}
+
+	#top_popup{
+		top: -300px;
+		transition: 0.3s;
+	}
+
+</style>
+<center>
+<div class="container fixed-top p-0" id="top_popup">
+	<div id="top_popup_text" class="alert alert-info">
+		
+	</div>
+</div>
+</center>
+<!-- NAVIGATION BAR -->
+<!-- Small Screen Navigation Overlay -->
+
+<nav class="navbar navbar-expand-lg navbar-light bg-dark p-1 text-right" style="" id="navbartop">
+	<!--<a class="navbar-brand brand-name" href="{% url 'index' %}">Future Trivia</a>-->
+	<style type="text/css">
+		
+	</style>
+
+	<script type="text/javascript">
+	
+	</script>
+
+	<li class="nav-item dropdown" style="list-style: none; right: 0px;">
+		<a class="nav-link dropdown-toggle text-light no-select" style="font-size: 13px; cursor: pointer;" id="navbarMenuDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ request.user.username }}</a>
+		<div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarMenuDropdown" style="font-size: 13px !important">
+			
+			<a class="dropdown-item text-danger" href="{% url 'userlogout' %}">Logout</a>
+		</div>
+	</li>
+
+
+</nav>
+
+
+   
+
+
+
+<center>
+	<div style="position: relative; margin: 0px 0px 0px 0px;width: 100%; margin-top: 0px;">
+	{% block content %}
+
+	{% endblock %}
+	</div>
+</center>
+
+
+{% block bodyscripts %}
+
+{% endblock %}
+
+</body>
+</html>

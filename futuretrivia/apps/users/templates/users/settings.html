@@ -1,0 +1,89 @@
+{% extends 'trivia/basetrivia.html' %}
+{% load static %}
+
+
+{% block title %}
+
+	{% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}
+
+{% endblock %}
+
+
+{% if request.user.is_authenticated %}
+
+{% block content %}
+		
+
+<script type="text/javascript">
+
+</script>
+
+
+
+<div class="container">
+	<div class="row py-4">
+		<div class="col-md-3 py-3 text-left">
+
+			<script type="text/javascript">
+				window.onload=function(){
+					var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+					var stblk = document.getElementById("settingsnavigation");
+					var xbtn = document.getElementById("settingsnavigationbtn");
+					xbtn.style.display = "block";
+					if(width > 800){
+						stblk.classList.add("show");
+						xbtn.style.display="none";
+						xbtn.disabled = true;
+					}
+					
+				};
+			</script>
+
+			<button class="btn btn-success btn-block dropdown-toggle" type="button" data-toggle="collapse" data-target="#settingsnavigation" id="settingsnavigationbtn" style="display: none;">Settings</button>
+			<div class="m-0 p-0 collapse" id="settingsnavigation">
+			<div class="container rounded py-2 text-light" id="settingsHead">
+				<ul class="nav nav-tabs flex-column">
+				    <li class="nav-item btn btn-sm">
+				    	<a class="btn btn-sm btn-block text-success text-left {{ accountclass }}" href="{% url 'accountsettings' %}"><span class="icon-profile-male"></span> Account Settings</a>
+				    </li>
+				    <li class="nav-item btn btn btn-sm">
+				    	<a class="btn btn-sm btn-block text-success text-left {{ securityclass }}" href="{% url 'securitysettings' %}"><span class="icon-shield"></span> Security</a>
+				    </li>
+				    <li class="nav-item btn btn btn-sm">
+				    	<a class="btn btn-sm btn-block text-success text-left {{ socialclass }}" href="{% url 'socialsettings' %}"><span class="icon-globe"></span> Social Accounts</a>
+				    </li>
+				    <li class="nav-item btn btn btn-sm">
+				    	<a class="btn btn-sm btn-block text-success text-left {{ additionalclass }}" href="{% url 'additionalsettings' %}"><span class="icon-puzzle"></span> Additional Settings</a>
+				    </li>
+			  	</ul>
+				
+			</div>
+			</div>
+		</div>
+
+		<div class="col-md-9 py-3">
+			<div class="container border rounded pt-3 text-left text-dark">
+				{% block subsetting %}
+				
+
+				{% endblock %}
+			</div>
+				
+		</div>
+	</div>
+	
+</div>
+
+
+
+{% endblock %}
+
+{% else %}
+<script type="text/javascript">
+	function(){
+		window.location.assign("{% url 'userlogin' %}");	
+	}
+</script>
+
+
+{% endif %}

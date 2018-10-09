@@ -1,0 +1,66 @@
+{% extends 'users/settings.html' %}
+
+
+{% block subsetting %}
+
+<style type="text/css">
+	
+	label{
+		font-size: 10px;
+	}
+
+	input{
+
+		max-width: 300px;
+		max-height: 26px;
+		font-size: 13px !important;
+	}
+
+	.loader {
+		position: relative;
+		display: none;
+		border: 2px dotted rgba(180, 180, 180, 1);
+		border-radius: 50%;
+		border-top: 2px dotted rgba(140, 140, 140, 1);
+		width: 20px;
+		height: 20px;
+		top: 6px;
+		float: none;
+		z-index: 0;
+		-webkit-animation: spin 1.4s linear infinite; /* Safari */
+		animation: spin 1.4s linear infinite;
+		}
+
+		/* Safari */
+		@-webkit-keyframes spin {
+			0% { -webkit-transform: rotate(0deg); }
+		 	100% { -webkit-transform: rotate(360deg); }
+		}
+
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}
+
+</style>
+
+{% if accountset %}
+
+	{% include 'users/accountsetting.html' %}
+
+{% elif securityset %}
+	
+	{% include 'users/securitysetting.html' %}
+
+	
+{% elif additionalset %}
+
+	{% include 'users/additionalsetting.html' %}
+
+{% elif socialset %}
+
+	{% include 'users/socialsetting.html' %}
+
+{% endif %}
+
+{% endblock %}

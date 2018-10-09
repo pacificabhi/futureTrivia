@@ -1,45 +1,39 @@
 from django.shortcuts import render
-from .models import Trivia
+from .models import *
 import pytz, datetime
 from django.http import *
+from django.utils.safestring import mark_safe
+import json, ast
+from .utility import *
+from django.contrib.auth.decorators import login_required
+from django.core import serializers
+
 
 # Create your views here.
 
 def triviaGames(request):
 
 	context={}
-	now=datetime.datetime.now().replace(tzinfo=pytz.utc)
+	now=get_current_time()
 	trivias=Trivia.objects.filter(private=False).order_by('start_time')
 	
 	present=[]
 	past=[]
 	future=[]
 
-	#print(request.user.userdetails.trivias.all())
-
-	#tz=pytz.timezone('Asia/Kolkata')
-
 	for triv in trivias:
-		#print(trivia.code)
-		#print(triv not in request.user.userdetails.trivias.all(), " ", triv.code)
-		trivia = triv
-		endtime = triv.start_time + datetime.timedelta(seconds=triv.duration) #finding end time
-		portal_endtime = triv.start_time + datetime.timedelta(seconds=triv.portal_duration) #finding registration end time
 		
-		trivia.duration=trivia.duration//60;
-		tr = []
-		if now > portal_endtime: #Checking if registration ended
-			tr = [trivia, False]
-		else:
-			tr = [trivia, True]
-
-
+		trivia = triv
+		endtime = get_endtime(triv) #finding end time
+		portal_endtime = endtime #finding registration end time
+		
+		
 		if triv.start_time > now: #if contest started and active now
-			future.append(tr)
+			future.append(triv)
 		elif endtime < now:
-			past.append(tr)
+			past.append(triv)
 		else:
-			present.append(tr)
+			present.append(triv)
 
 
 		context["trivias"]={"present":present, "past": past, "future": future}
@@ -68,12 +62,12 @@ def triviaDetails(request, code):
 
 	if trivia:
 		context["private"]=trivia.private
-		now = datetime.datetime.now().replace(tzinfo=pytz.utc)
+		now = get_current_time()
 
 		if (not trivia.private) or context["authentic"]:
 
-			endtime = trivia.start_time + datetime.timedelta(seconds=trivia.duration)
-			regendtime = trivia.start_time + datetime.timedelta(seconds=trivia.portal_duration) #getting registration end time
+			endtime = get_endtime(trivia)
+			#regendtime = endtime #getting registration end time
 				
 			#removing Trailing spaces
 
@@ -89,11 +83,16 @@ def triviaDetails(request, code):
 			if endtime < now:  #if contest ended
 				context["ended"]=True
 			else:
-				if regendtime > now: # if registration ended
-					context["can_register"] = True
+				# if registration ended
+				context["can_register"] = True
 
-				if trivia.start_time < now and endtime > now:  # if contest is active now
+				before_start = (int)((trivia.start_time-now).total_seconds())
+				before_start -= 120
+				context["before_start"]=before_start
+
+				if before_start <= 0 and endtime > now:  # if contest is active now
 					context["can_start"]=True
+				#print(context["can_start"])
 
 			context["trivia"] = trivia
 			context["endtime"] = endtime
@@ -117,15 +116,124 @@ def registerContest(request):
 		context["error"] = "Contest Not Found"
 		return JsonResponse(context)
 
-	now=datetime.datetime.now().replace(tzinfo=pytz.utc)
-	portal_endtime = trivia.start_time + datetime.timedelta(seconds=trivia.portal_duration)
+	now=get_current_time()
+	portal_endtime = get_endtime()
 
 	if now > portal_endtime:
 		context["error"] = "Registration ended"
 		return JsonResponse
 
+
 	request.user.userdetails.trivias.add(trivia)
 	context["success"] = True
 
 	return JsonResponse(context)
+
+
+
+
+@login_required
+def triviaPlay(request, code):
+
+	trivia = Trivia.objects.filter(code=code).first()
+
+	#intialising
+	context = {"user_applicable":False, "ended": True, "started_by_user": False}
+
+	if trivia:
+		context["user_applicable"]=True
+
+		now = get_current_time()
+		endtime = get_endtime(trivia)
+
+		if now<endtime:
+			context["ended"] = False
+			if trivia in request.user.userdetails.trivias.all():
+				started_by_user = bool(TriviaResult.objects.filter(username=request.user, trivia=trivia).count())
+				context["started_by_user"] = started_by_user
+				if trivia.start_time < now:  # if contest is active now
+					context["can_begin"]=True
+					context["total_number_of_questions"]=len(trivia.question_set.all())
+
+		context["trivia"]=trivia
+
+
+	return render(request, 'trivia/triviaplay.html', context)
 	
+
+@login_required
+def triviaStart(request, code):
+	context = {"success": False}
+	if not request.user.is_authenticated:
+		context["error"]="You are not logged in"
+		context["success"]=False
+		return JsonResponse(context)
+
+	trivia = Trivia.objects.filter(code=code).first()
+	if trivia:
+		if trivia not in request.user.userdetails.trivias.all():
+			context["error"]="You are not registered for this contest."
+			context["success"]=False
+			return JsonResponse(context)
+
+		result = TriviaResult.objects.filter(username=request.user, trivia=trivia).first()
+		now = get_current_time()
+		if not result:
+			started_at = now
+			if not trivia.individual_timing:
+				started_at = trivia.start_time
+
+			tr = TriviaResult.objects.create(username=request.user, trivia=trivia, start_time=started_at, modified_at=now)
+			context["success"]=False
+		else:
+			context["success"]=False
+			context["already_started"]=True
+
+	else:
+		context["error"]="Contest does not exist"
+		return JsonResponse(context)
+
+	return JsonResponse(context)
+
+
+@login_required
+def allTriviaQuestions(request, code):
+	context={"success":False}
+	if not request.user.is_authenticated:
+		context["error"]="You are not logged in"
+		context["success"]=False
+		return JsonResponse(context)
+
+	trivia = Trivia.objects.filter(code=code).first()
+
+	if trivia:
+		result = TriviaResult.objects.filter(username=request.user, trivia=trivia).first()
+		if not result:
+			context["error"]="You are not registered for this contest."
+			context["success"]=False
+			return JsonResponse(context)
+
+		
+
+
+		questions_objects = trivia.question_set.all()
+		all_questions=[]
+		for q in questions_objects:
+			
+			que = get_question(q)
+			all_questions.append(que)
+
+
+		context["success"]=True
+		context["questions"]=all_questions
+
+
+	else:
+		context["error"]="Contest does not exist"
+		context["success"]=False
+		return JsonResponse(context)
+
+
+
+
+	return JsonResponse(context)

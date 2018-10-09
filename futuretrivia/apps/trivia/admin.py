@@ -5,3 +5,5 @@ from .models import *
 # Register your models here.
 
 admin.site.register(Trivia)
+admin.site.register(Question)
+admin.site.register(TriviaResult)

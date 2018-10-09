@@ -5,7 +5,7 @@
 
 {% block title %}
 	
-	Future Trivia
+	{{ trivia.name }}
 
 {% endblock %}
 
@@ -17,7 +17,9 @@
 
 {% if not private or authentic %}
 <style type="text/css">
+
 	#triviaPoster{
+		position: absolute;
 		width: 100% !important;
 		height: 35vh;
 		min-height: 180px;
@@ -25,6 +27,46 @@
 		background-repeat: no-repeat;
 		background-size: 100% 100%; 
 	}
+
+	#triviaPosterContainer{
+		width: 100% !important;
+		height: 35vh;
+		left: 0;
+		top: 0;
+		justify-content: center;
+		overflow: visible; 
+		/*background: #333 url('http://files.mimoymima.com/images/loading.gif') no-repeat center center;*/ 
+	}
+
+	.loader {
+		position: absolute;
+		border: 5px solid rgba(180, 180, 180, 1);
+		border-radius: 50%;
+		border-top: 5px solid rgba(140, 140, 140, 1);
+		width: 40px;
+		height: 40px;
+		margin: 0 auto;
+		left: 50%;
+		overflow: hidden;
+		align-items: center;
+		justify-content: space-around;
+		display: flex;
+		float: none;
+		z-index: 0;
+		-webkit-animation: spin 1.4s linear infinite; /* Safari */
+		animation: spin 1.4s linear infinite;
+		}
+
+		/* Safari */
+		@-webkit-keyframes spin {
+			0% { -webkit-transform: rotate(0deg); }
+		 	100% { -webkit-transform: rotate(360deg); }
+		}
+
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}
 
 	#timingDetails{
 		position: absolute;
@@ -65,8 +107,10 @@
 </style>
 
 <!-- Trivia poster -->
+<div class="" id="triviaPosterContainer">
+<div class="loader"></div>
 <div class="container-fluid m-0" style="" id="triviaPoster"></div>
-
+</div>
 <!--Details Head-->
 <div class="container-fluid p-2 pt-4 bg-light">
 	<div class="row">
@@ -80,7 +124,7 @@
 		<!-- Contest main Detail -->
 
 		<div class="col-md-6" style="text-align: left;">
-			<p class="text-dark" style="font-size: 22px;">{{ trivia.name }} {% if ended %}<span class="text-danger" style="font-size: 13px;">(Ended)</span>{% endif %}</p>
+			<p class="text-dark" style="font-size: 22px;">{{ trivia.name }} {% if ended %}<span class="text-danger" style="font-size: 13px;">(Ended)</span>{% elif can_start %}<span class="text-success" style="font-size: 13px;">(War is On)</span>{% endif %}</p>
 			<div class="container-fluid my-1" style="font-size: 11px;">
 				 <ul class="nav">
 					<li class="nav-item pr-3">
@@ -97,7 +141,68 @@
 						<span class="text-dark icon-book-open"></span> &nbsp;<span class="text-secondary" title="">{{ trivia.category }}</span>
 					</li>
 				</ul>
+				{% if trivia in request.user.userdetails.trivias.all %}
+					{% if ended %}
+						<p><span class="text-dark icon-lightbulb"></span> <span> You were participated in this contest</span></p>
+					{% else %}
+						<p><span class="text-dark icon-lightbulb"></span> <span> You are registered for this event</span></p>
 				
+					{% endif %}
+
+				{% endif %}
+
+				{% if not can_start and not ended %}
+					<script type="text/javascript">
+						$(document).ready(function(){
+							before_start = $("#before_start").data("timeleft");
+							setInterval(calc_beforestart, 1000);
+							before_start_elem=document.getElementById("before_start");
+						});
+
+						function calc_beforestart(){
+							before_start-=1;
+							if(before_start<=1){
+
+								window.location.reload();
+							} else {
+
+								s=" ";
+								var days = Math.floor(before_start/86400);
+								var rem = before_start%86400;
+								var hours = Math.floor(rem/3600);
+								rem = rem%3600;
+								var mins = Math.floor(rem/60);
+								var sec = rem%60;
+
+								if(days>0){
+									s+=(days + " days ");
+
+								}
+
+								if(hours>0){
+									s+=(hours + " hours ");
+
+								}
+
+								if(mins>0){
+									s+=(mins + " minutes ");
+
+								}
+
+								s+=(sec+" seconds");
+								before_start_elem.innerHTML = s;
+								//console.log(s);
+
+
+							}
+
+						}
+
+
+					</script>
+
+					<b>Before Start: </b> <span id="before_start" data-timeleft="{{ before_start }}"></span>
+				{% endif %}
 			</div>
 
 			<hr>
@@ -114,11 +219,11 @@
 		
 				<div class="row p-2">
 					<div class="col-md-5">
-						<span class="text-secondary" style="font-size: 15px;">Starts At </span>
+						<span class="text-secondary" style="font-size: 15px;">Starts At: </span>
 					</div>
 
 					<div class="col-md-7">
-						<b><span class="text-dark" style="font-size: 11px;">{{ trivia.start_time }}</span></b>
+						<b><span class="text-dark" style="font-size: 11px;">{% timezone 'Asia/Kolkata' %}{{ trivia.start_time }} IST {% endtimezone %}</span></b>
 					</div>
 				</div>
 
@@ -128,39 +233,51 @@
 					</div>
 
 					<div class="col-md-7">
-						<b><span class="text-dark" style="font-size: 11px;">{{ endtime }}</span></b>
+						<b><span class="text-dark" style="font-size: 11px;">{% timezone 'Asia/Kolkata' %}{{ endtime }} IST {% endtimezone %}</span></b>
 					</div>
 				</div>
 
+				{% if not trivia.question_timing %}
 				<div class="row p-2">
 					<div class="col-md-5">
-						<span class="text-secondary" style="font-size: 15px;">Duration </span>
+						<span class="text-secondary" style="font-size: 15px;">Duration</span>
 					</div>
 
 					<div class="col-md-7">
 						<b><span class="text-dark" style="font-size: 11px;">{{ trivia.duration }} minutes</span></b>
 					</div>
 				</div>
+				{% endif %}
 
 				<div class="row p-2">
 					<div class="col-md">
 						{% if ended %}
 							<a class="btn btn-block btn-outline-success" href="#"> See Leaderboard</a>
 						{% else %}
-							{% if request.user.is_authenticated %}
-								{% if can_register %}
-									{% if trivia not in request.user.userdetails.trivias.all %}
+							
+
+							{% if trivia in request.user.userdetails.trivias.all %}
+								{% if can_start %}
+								<a class="btn btn-block btn-outline-success" {% if not can_start %}disabled{% endif %} href="{% url 'triviaplay' code=trivia.code %}">Enter</a>
+								{% else %}
+									<button class="btn btn-block btn-outline-success" disabled>Registered</button>
+								{% endif %}
+
+							{% else %}
+								{% if request.user.is_authenticated %}
+									{% if can_register %}
 										<button class="btn btn-block btn-outline-success" onclick="register_contest_and_enter(this,'{{ trivia.code }}', '{{ can_start }}')">Register</button>
 									{% else %}
-										<button class="btn btn-block btn-outline-success"  onclick="window.location.assign('#')" {% if not can_start %}disabled{% endif %}>Enter</button>
+										<button class="btn btn-block btn-outline-success" disabled>Registration Ended</button>	
 
 									{% endif %}
+
+
 								{% else %}
-									<button class="btn btn-block btn-outline-success" disabled>Registration Ended</button>	
+
+									<span><a href="">Login</a> to register</span>
+
 								{% endif %}
-								
-							{% else %}
-								<button class="btn btn-block btn-outline-success" onclick="show_popup('Sign in to register')">Register</button>
 							{% endif %}
 						
 						
@@ -180,8 +297,10 @@
 	</div>
 </div>
 
+	
+</div>
 
-<!-- ANNOOUNCEMENTS ABOUT CONTEST -->
+<!-- ANNOUNCEMENTS ABOUT CONTEST -->
 
 <div class="container text-left my-5 py-4" style="font-size: 16px">
 	<div class="row">

@@ -7,6 +7,7 @@ from django.contrib.auth import login, logout, authenticate
 from .models import UserDetails
 from apps.trivia.models import Trivia
 import pytz, datetime
+from django.contrib.auth.decorators import login_required
 
 
 # Create your views here.
@@ -14,11 +15,14 @@ import pytz, datetime
 
 def userLogin(request):
 
-	if request.user.is_authenticated:
-		return HttpResponseRedirect(reverse('userprofile', kwargs={'username':request.user.username}))
+	nxt = request.GET.get("next")
 
 	if request.method == "POST":
-		context = {"success": True}
+		context = {"success": True, "loggedin": False}
+		if request.user.is_authenticated:
+			context["success"]=False
+			context["loggedin"]=True
+			return JsonResponse(context)
 		errors = []
 		username = request.POST.get("username").strip().lower()
 		password = request.POST.get("password")
@@ -45,7 +49,15 @@ def userLogin(request):
 
 		return JsonResponse(context)
 
+	if request.user.is_authenticated:
+		if nxt:
+			return HttpResponseRedirect(nxt)
+
+		return HttpResponseRedirect(reverse('userprofile', kwargs={'username':request.user.username}))
+	
 	return render(request, 'users/login.html', {})
+
+
 
 def userLogout(request):
 	logout(request)
@@ -55,11 +67,16 @@ def userLogout(request):
 def userSignup(request):
 
 	#print(request.user.is_authenticated)
-	if request.user.is_authenticated:
-		return HttpResponseRedirect(reverse('userprofile', kwargs={'username':request.user.username}))
+
+	nxt = request.GET.get("next")
 
 	if request.method == "POST":
-		context = {"success": True}
+		context = {"success": True, "loggedin": False}
+		if request.user.is_authenticated:
+			context["success"]=False
+			context["loggedin"]=True
+			return JsonResponse(context)
+
 		errors = []
 		email = request.POST.get("email").strip().lower()
 		username = request.POST.get("username").strip().lower()
@@ -70,10 +87,10 @@ def userSignup(request):
 		elif user_exists(username):
 			errors.append("Username already taken")
 
-		if not check_email_dns(email):
-			errors.append("Invalid Email")
-		elif user_exists(email):
+		if user_exists(email):
 			errors.append("Email already taken")
+		elif not check_email_dns(email):
+			errors.append("Invalid Email")
 
 		if not validate_password(password):
 			errors.append("Password must be 8 characters long")
@@ -93,12 +110,20 @@ def userSignup(request):
 
 		return JsonResponse(context)
 
-	return render(request, 'users/register.html', {})
+	if request.user.is_authenticated:
+
+		if nxt:
+			return HttpResponseRedirect(nxt)
+
+		return HttpResponseRedirect(reverse('userprofile', kwargs={'username':request.user.username}))
+	
+	return render(request, 'users/signup.html', {})
 
 def dashboard(request):
+	if request.user.is_authenticated:
+		return HttpResponseRedirect(reverse('userprofile', kwargs={'username':request.user.username}))
 
-	return render(request, 'users/dashboard.html', {})
-
+	return HttpResponseRedirect(reverse('userlogin'))
 
 def userProfile(request, username):
 	user = User.objects.filter(username=username).first()
@@ -107,11 +132,170 @@ def userProfile(request, username):
 		context["exist"]=True
 		if user.is_active:
 			context["active"]=True
-			context["user"]=user
+			context["profile"]=user
 
 
 
 	return render(request, 'users/userProfile.html', context)
+
+@login_required
+def userSettings(request):
+	context={}
+
+	return HttpResponseRedirect(reverse('accountsettings'))
+
+	if not request.user.is_authenticated:
+		return HttpResponseRedirect(reverse('userlogin'))
+
+
+	return render(request, 'users/settings.html', context)
+
+@login_required
+def accountSettings(request):
+
+
+	if request.method == "POST":
+		errors = []
+		context = {"success": True}
+		if not request.user.is_authenticated:
+			context["success"]=False
+			errors.append("You are not loggedin")
+			context["errors"]=errors
+			return JsonResponse(context)
+
+		fname = request.POST.get("fname").strip().title()
+		lname = request.POST.get("lname").strip().title()
+		email = request.POST.get("email").strip().lower()
+		
+
+		nerr = invalid_name(fname, lname)
+
+		if nerr:
+			errors.append(nerr)
+
+		
+		if request.user.email != email:
+			if user_exists(email):
+				errors.append("Email already taken")
+			elif not check_email_dns(email):
+				errors.append("Invalid Email")
+
+
+		if errors:
+			context["success"]=False
+			context["errors"]=errors
+			return JsonResponse(context)
+
+		request.user.first_name = fname
+		request.user.last_name = lname
+		request.user.email = email
+
+		request.user.save()
+		context["success"] = True
+
+		return JsonResponse(context)
+
+	if not request.user.is_authenticated:
+		return HttpResponseRedirect(reverse('userlogin'))
+	
+	context={"accountclass": "border-success", "accountset": True}
+
+
+	return render(request, 'users/subsettings.html', context)
+
+@login_required
+def securitySettings(request):
+
+
+
+	if request.method == "POST":
+		errors = []
+		context = {"success": True}
+
+		if not request.user.is_authenticated:
+			context["success"]=False
+			errors.append("You are not loggedin")
+			context["errors"]=errors
+			return JsonResponse(context)
+
+		cpass = request.POST.get("cpass")
+		passwd = request.POST.get("pass")
+		cnfpass = request.POST.get("cnfpass")
+		
+		if passwd != cnfpass:
+			context["success"]=False
+			errors.append("Confirm Password do not match")
+			context["errors"]=errors
+			return JsonResponse(context)
+
+		if not validate_password(passwd):
+			context["success"]=False
+			errors.append("Password must be 8 characters long")
+			context["errors"]=errors
+			return JsonResponse(context)
+
+		chk = authenticate(username=request.user.username, password=cpass)
+
+		if not chk:
+			context["success"]=False
+			errors.append("Wrong Password")
+			context["errors"]=errors
+			return JsonResponse(context)
+
+		request.user.set_password(passwd)
+		request.user.save()
+
+		new = authenticate(username=request.user.username, password=passwd)
+		login(request, new)
+		context["success"] = True
+
+		return JsonResponse(context)
+
+	if not request.user.is_authenticated:
+		return HttpResponseRedirect(reverse('userlogin'))
+
+	context={"securityclass": "border-success", "securityset": True}
+
+
+	return render(request, 'users/subsettings.html', context)
+
+
+
+
+@login_required
+def socialSettings(request):
+
+	if not request.user.is_authenticated:
+		return HttpResponseRedirect(reverse('userlogin'))
+
+
+	if request.method == "POST":
+		pass
+
+	context={"socialclass": "border-success", "socialset": True}
+
+
+	return render(request, 'users/subsettings.html', context)
+
+
+
+
+
+@login_required
+def additionalSettings(request):
+
+	if not request.user.is_authenticated:
+		return HttpResponseRedirect(reverse('userlogin'))
+
+
+	if request.method == "POST":
+		pass
+
+	context={"additionalclass": "border-success", "additionalset": True}
+
+
+	return render(request, 'users/subsettings.html', context)
+	
 
 
 

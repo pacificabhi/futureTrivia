@@ -14,16 +14,17 @@ def check_email_dns(email):
 	  },
 	  proxies=proxies
 	)
+	
 	j=json.loads(r.content.decode('ascii'))
 
 	return j["isValid"]
 
 
 
-def validate_name_errors(first_name, last_name):
+def invalid_name(first_name, last_name):
 	pattern=r'[^a-zA-Z]'
 	if(re.search(pattern, first_name) or re.search(pattern, last_name)):
-		return "Invalid Name, Only (A-Z) is allowed, No spaces are allowed"
+		return "Invalid Name, Only (A-Z) is allowed, No spaces allowed"
 	return False
 
 

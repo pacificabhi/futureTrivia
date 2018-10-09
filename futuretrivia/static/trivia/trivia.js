@@ -7,6 +7,7 @@ function register_contest_and_view(btn, code){
 		if(this.readyState == 4 && this.status == 200){
 			var resp = JSON.parse(this.responseText);
 			if(resp.success == true){
+				show_popup("You are registered");
 				btn.removeAttribute("onclick");
 				btn.setAttribute("onclick", "window.location.assign('/trivia/"+code+"')");// link to contest details
 				btn.innerHTML = "View";
@@ -21,7 +22,7 @@ function register_contest_and_view(btn, code){
 			btn.innerHTML = "Register";
 			btn.disabled=false;
 		}
-	}
+	};
 	var q = "code="+code;
 	xhttp.open("GET", "/users/registercontest?"+q, true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -39,6 +40,8 @@ function register_contest_and_enter(btn, code, enter){
 		if(this.readyState == 4 && this.status == 200){
 			var resp = JSON.parse(this.responseText);
 			if(resp.success == true){
+				window.location.reload();
+				show_popup("You are registered");
 				btn.removeAttribute("onclick");
 				btn.setAttribute("onclick", "window.location.assign('#')");
 				btn.innerHTML = "Enter";
@@ -58,7 +61,7 @@ function register_contest_and_enter(btn, code, enter){
 			btn.innerHTML = "Register";
 			btn.disabled=false;
 		}
-	}
+	};
 	var q = "code="+code;
 	xhttp.open("GET", "/users/registercontest?"+q, true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");

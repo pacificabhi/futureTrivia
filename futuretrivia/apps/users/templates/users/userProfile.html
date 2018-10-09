@@ -1,19 +1,85 @@
-{% extends 'users/usersbase.html' %}
+{% extends 'trivia/basetrivia.html' %}
+{% load static %}
 
 
 {% block title %}
 
-	{% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}
+	{% if request.user.first_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}
 
 {% endblock %}
 
-{% block authnavmenu %}
-	<a class="btn btn-light" href="{% url 'userlogin' %}">Login</a>
-	<a class="btn btn-light" href="{% url 'userregister' %}">Register</a>
-
-{% endblock %}
 
 {% block content %}
-	<h1>{% if exist and active %}{{ user.username }}{% else %}No User found{% endif %}</h1>
+		
+
+{% if exist and active %}
+
+<script type="text/javascript">
+
+	window.onload = function(){
+		navHeight = document.getElementById("navbartop").offsetHeight;
+		nameHead = document.getElementById("nameHead");
+		fixnameHead = document.getElementById("fixnameHead");
+		initialWidth = nameHead.offsetWidth;
+		fixnameHead.style.width = initialWidth+"px";
+		//alert(initialWidth);
+	};
+
+	window.onscroll=function(){
+		//var eleTop = $(ele).offset().top;
+		var bodyTop = $(window).scrollTop();
+
+		console.log("ele = "+navHeight+" , bodyTop = "+ bodyTop);
+
+		if(bodyTop >= nameHead.offsetHeight+nameHead.offsetTop-10){
+			//fixnameHead.style.position = "fixed";
+			fixnameHead.style.top = navHeight+"px";
+			
+		} else {
+			//fixnameHead.style.position = "fixed";
+			fixnameHead.style.top = "-100px";
+		}
+
+	};
+</script>
+
+
+
+<div class="container">
+	<div class="row py-4">
+		<div class="col-md-5 py-3">
+			<div class="container rounded-bottom bg-dark pt-2 text-left text-light" id="fixnameHead" style="z-index: +40; transition: 0.3s; top: -100px; position: fixed">
+				<div class="media p-0">
+					<img src="{% static 'trivia/images/userIcon.png' %}" alt="" class="mr-3 mt-0 mb-2 rounded-circle align-self-start" style="width:60px; border: solid 2px white;">
+					<div class="media-body">
+				    	<div class="container font-weight-bold" style="font-size: 20px;">{{ profile.get_full_name }}</div>
+				    	<div class="container text-secondary">@{{ profile.username }}</div>
+					</div>
+				</div>
+			</div>
+			<div class="container rounded bg-dark py-2 text-light" id="nameHead">
+				<img src="{% static 'trivia/images/userIcon.png' %}" alt="" class="mr-3 mt-0 mb-2 rounded-circle align-self-start" style="width:80px; border: solid 3px white;">
+				<div class="container font-weight-bold" style="font-size: 20px;">{{ profile.get_full_name }}</div>
+				<div class="container text-secondary">@{{ profile.username }}</div>
+				
+			</div>
+		</div>
+
+		<div class="col-md-7 py-3">
+			<div class="container rounded pt-0 text-left text-dark bg-light">
+			</div>
+		</div>
+	</div>
+	
+</div>
+
+<div style="height: 1000px;"></div>
+
+{% else %}
+	
+	not Found
+
+{% endif %}
+
 
 {% endblock %}
