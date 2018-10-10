@@ -26,7 +26,7 @@ class Trivia(models.Model):
 	#can_navigate = models.BooleanField(blank=False, null=False, default=False)
 	can_change_answer = models.BooleanField(blank=False, null=False, default=False)
 	individual_timing = models.BooleanField(blank=False, null=False, default=True)
-	question_timing = models.BooleanField(blank=False, null=False, default=True)
+	#question_timing = models.BooleanField(blank=False, null=False, default=True)
 	live = models.BooleanField(blank=False, null=False, default=False)
 	rated = models.BooleanField(blank=False, null=False, default=False)
 	private = models.BooleanField(blank=False, null=False, default=False)
@@ -47,7 +47,7 @@ class Question(models.Model):
 	negative_score = models.IntegerField(blank=False, null=False, default=0)
 	duration = models.IntegerField(blank=False, null=False, default=0)
 
-	options = models.TextField(blank=False, null=False, default='')
+	options = models.TextField(blank=False, null=False, default="{}")
 
 	correct_answer = models.IntegerField(blank=False, null=False, default=0)
 
@@ -67,7 +67,7 @@ class TriviaResult(models.Model):
 	start_time = models.DateTimeField(blank=True, null=True)
 	modified_at = models.DateTimeField(blank=True, null=True)
 
-	answers = models.TextField(blank=False, null=False, default="")
+	answers = models.TextField(blank=False, null=False, default="{}")
 
 	score = models.IntegerField(blank=False, null=False, default=0)
 

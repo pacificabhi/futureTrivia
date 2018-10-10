@@ -35,3 +35,16 @@ def get_question(q_obj):
 	question["options"] = options
 
 	return question
+
+def get_answer_status(q_obj, answers):
+	answer = {}
+	q_id = q_obj.id
+	answers = ast.literal_eval(answers)
+	if q_id in answers.keys():
+		answer["time_elapsed"] = answers[q_id]["time_elapsed"]
+		answer["opt_id"] = answers[q_id]["opt_id"]
+	else:
+		answer["time_elapsed"]=0
+		answer["opt_id"]=0
+
+	return answer

@@ -146,11 +146,17 @@ def triviaPlay(request, code):
 		now = get_current_time()
 		endtime = get_endtime(trivia)
 
-		if now<endtime:
-			context["ended"] = False
-			if trivia in request.user.userdetails.trivias.all():
-				started_by_user = bool(TriviaResult.objects.filter(username=request.user, trivia=trivia).count())
-				context["started_by_user"] = started_by_user
+		result = TriviaResult.objects.filter(username=request.user, trivia=trivia).first()
+		if result:
+			context["started_by_user"] = True
+			time_left = int((now-result.start_time).total_seconds())
+			if time_left>trivia.duration:
+				context["user_ended"] = True
+
+		if trivia in request.user.userdetails.trivias.all():
+			if now<endtime:
+				context["ended"] = False
+				
 				if trivia.start_time < now:  # if contest is active now
 					context["can_begin"]=True
 					context["total_number_of_questions"]=len(trivia.question_set.all())
@@ -184,9 +190,9 @@ def triviaStart(request, code):
 				started_at = trivia.start_time
 
 			tr = TriviaResult.objects.create(username=request.user, trivia=trivia, start_time=started_at, modified_at=now)
-			context["success"]=False
+			context["success"]=True
 		else:
-			context["success"]=False
+			context["success"]=True
 			context["already_started"]=True
 
 	else:
@@ -213,7 +219,20 @@ def allTriviaQuestions(request, code):
 			context["success"]=False
 			return JsonResponse(context)
 
-		
+		time_left = None
+
+		now = get_current_time()
+		if trivia.individual_timing:
+			time_left = int((now-result.start_time).total_seconds())
+		else:
+			time_left = int((now-trivia.start_time).total_seconds())
+
+		if time_left>trivia.duration:
+			context["ended"]=True
+			context["error"]="Contest Ended"
+			context["success"]=False
+			return JsonResponse(context)
+
 
 
 		questions_objects = trivia.question_set.all()
@@ -221,7 +240,11 @@ def allTriviaQuestions(request, code):
 		for q in questions_objects:
 			
 			que = get_question(q)
-			all_questions.append(que)
+			#print(result.answers)
+			#print(type(result.answers))
+			status = get_answer_status(q,result.answers)
+			q_obj = {"question":que, "status":status}
+			all_questions.append(q_obj)
 
 
 		context["success"]=True
