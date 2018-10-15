@@ -16,7 +16,7 @@
 
 <script type="text/javascript">
 	
-	function login_user(){
+	function login_user(loader){
 
 		var username = document.getElementById("id_username").value;
 		var password = document.getElementById("id_password").value;
@@ -26,14 +26,15 @@
 			document.getElementById("form_error_container").style.display="none";
 			var reg_btn = document.getElementById("reg_btn");
 			reg_btn.disabled=true;
-			reg_btn.innerHTML="Verifying";
+			reg_btn.innerHTML="Verifying...";
+			loader.style.display="inline-block";
 			var xhttp = new XMLHttpRequest();
 			xhttp.onreadystatechange = function(){
 				//console.log(this.status);
 				if(this.readyState == 4 && this.status == 200){
 					var resp = JSON.parse(this.responseText);
 					if(resp.success == true || resp.loggedin == true){
-						reg_btn.innerHTML="Logging you in";
+						reg_btn.innerHTML="Logging you in...";
 						window.location.reload();
 					} else {
 						var s="";
@@ -45,6 +46,7 @@
 						document.getElementById("form_error_container").style.display="block";
 						reg_btn.disabled=false;
 						reg_btn.innerHTML="Login";
+						loader.style.display="none";
 
 					}
 				} else if(this.readyState == 4 && this.status == 403){
@@ -121,7 +123,7 @@
 
 		<div class="input-group mt-1" style="">
 			<div class="container p-1" style="">
-				<button class="btn btn-outline-success px-5" onclick="login_user()" id="reg_btn">Login</button>
+				<button class="btn btn-outline-success px-5" onclick="login_user(this.nextSibling)" id="reg_btn">Login</button><span class="loader ml-2" id="loginloader"></span>
 			</div>
 		</div>
 
@@ -130,7 +132,7 @@
 		<hr>
 
 		<div class="container mt-2">
-			<span><a href="{% url 'usersignup' %}">Create new account</a></span>
+			<span><a href="{% url 'usersignup' %}?next={{ next }}">Create new account</a></span>
 		</div>
 	</div>
 </div>

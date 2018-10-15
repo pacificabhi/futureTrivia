@@ -1,8 +1,6 @@
 
 {% block content %}
-<h1>DashBoard</h1>
+<h1>Dashboard</h1>
 
-<a href="{% url 'userlogout' %}">Logout</a>
-<br>
 {{ request.user.username }}
 {% endblock %}

@@ -1,0 +1,323 @@
+{% extends 'trivia/basetrivia.html' %}
+{% load static %}
+{% load tz %}
+
+
+{% block title %}
+	
+	Leaderboard
+
+{% endblock %}
+
+
+{% block content %}
+
+	<style type="text/css">
+		.leaderboard-wrapper{
+			width: 80%;
+		}
+
+		#ranks table{
+			width: 100%;
+		}
+
+		#ranks th{
+			padding-left: 5px;
+			padding-right: 5px;
+		}
+
+		#ranks td{
+			padding-left: 5px;
+			padding-right: 5px;
+		}
+
+		#ranks tbody tr{
+			border-bottom: solid 1px rgba(220, 220, 220, 1);
+		}
+
+		.ranker-handle{
+			font-weight: bold;
+			font-size: 14px;
+		}
+
+		.ranker-name{
+			font-size: 11px;
+		}
+
+		.ranker-number{
+			font-weight: bold;
+			font-size: 14px;
+		}
+
+		.ranker-score{
+			font-weight: bold;
+			font-size: 14px;
+		}
+
+		.ranker-timing{
+			font-size: 11px;
+		}
+
+		.user-record{
+			background-color: rgba(62, 249, 81, 0.3);
+		}
+
+		#rank-list tr:hover{
+			cursor: pointer;
+			background-color: rgba(42, 146, 237, 0.3);
+		}
+
+		@media screen and (max-width: 800px){
+			.leaderboard-wrapper{
+				width: 100%;
+			}
+		}
+
+
+	</style>
+
+	<script type="text/javascript">
+
+		window.onload=function(){
+			ranker_loader = document.getElementById("ranker-loader");
+			rank_list = document.getElementById("rank-list");
+			user_record = document.getElementById("user-record");
+			user_rank = document.getElementById("user-rank");
+			user_score = document.getElementById("user-score");
+			ranker_pagination = document.getElementById("rankers-pagination");
+			curr_rankers_page=1;
+			get_rankers(curr_rankers_page);
+		};
+		
+		function get_rankers(page){
+
+			if(page == undefined || page<=0){
+				page=1;
+			}
+
+			var xhttp = new XMLHttpRequest();
+			ranker_loader.style.opacity="1";
+			xhttp.onreadystatechange = function(){
+				if(this.readyState == 4 && this.status == 200){
+					var resp = JSON.parse(this.responseText);
+					if(resp.success){
+						curr_rankers_page = page;
+						spread_rankers(resp.rankers, resp.start_rank, resp.total_pages, resp.user_record);
+
+					} else {
+						show_popup(resp.error);
+					}
+					
+					ranker_loader.style.opacity="0";
+				
+				} else if(this.readyState == 4) {
+					show_popup("Internal Server Error");
+					ranker_loader.style.opacity="0";
+				}
+
+			};
+			var q="page="+page;
+			xhttp.open("GET", "{% url 'getrankers' code=trivia.code %}?"+q, true);
+			xhttp.send();
+
+		}
+
+		function format_ranker_timing(secs){
+
+			var hrs = Math.floor(secs/3600);
+			var rem = (secs%3600);
+			var mins = Math.floor(rem/60);
+			var sec = rem%60;
+
+			var s=hrs+":"+mins+":"+sec
+
+			return s;
+		}
+
+
+		function spread_rankers(rankers, start, total_pages, user_rec){
+
+			if(user_rec){
+				user_record.style.display="block";
+				user_score.innerHTML=user_rec.score+"("+format_ranker_timing(user_rec.timing)+")";
+				user_rank.innerHTML=user_rec.rank;
+			} else{
+				user_record.style.display="none";
+				user_score.innerHTML="";
+				user_rank.innerHTML="";
+			}
+
+			rank_list.innerHTML="";
+
+			for(var i=0;i<rankers.length;i++){
+				var tr = document.createElement("tr");
+				if(user_rec && user_rec.username==rankers[i][0]){
+					tr.setAttribute("class", "user-record mt-1")
+				} else {
+					tr.setAttribute("class", "mt-1");
+				}
+
+
+				var td = document.createElement("td");
+				td.setAttribute("style", "width:30px;");
+				td.setAttribute("class", "ranker-number");
+				td.innerHTML=(start+i)+".";
+				tr.appendChild(td);
+
+				td = document.createElement("td");
+				td.setAttribute("style", "width:60%;");
+				var p = document.createElement("p");
+				p.setAttribute("class", "ranker-handle py-0 m-0");
+				var a = document.createElement("a");
+				a.setAttribute("href", "/users/"+rankers[i][0]+"/");
+				a.innerHTML=rankers[i][0];
+				p.appendChild(a);
+				td.appendChild(p)
+
+				p = document.createElement("p");
+				p.setAttribute("class", "ranker-name text-secondary py-0 m-0");
+				p.innerHTML=rankers[i][1]
+				td.appendChild(p);
+
+				tr.appendChild(td);
+
+				td = document.createElement("td");
+				p = document.createElement("p");
+				p.setAttribute("class", "ranker-score py-0 m-0");
+				p.innerHTML=rankers[i][2];
+				td.appendChild(p)
+
+				p = document.createElement("p");
+				p.setAttribute("class", "ranker-timing py-0 m-0");
+				p.innerHTML=format_ranker_timing(rankers[i][3]);
+				td.appendChild(p)
+				tr.appendChild(td);
+
+				rank_list.appendChild(tr);
+			}
+
+			ranker_pagination.innerHTML="";
+
+			var li = document.createElement("li");
+			if(curr_rankers_page==1){
+				li.setAttribute("class", "page-item disabled");	
+			} else {
+				li.setAttribute("class", "page-item");
+			}
+			var a_tag = document.createElement("a");
+			a_tag.setAttribute("class", "page-link");
+			a_tag.setAttribute("href", "#");
+			a_tag.setAttribute("onclick", "get_rankers("+1+")");
+			a_tag.innerHTML="&laquo;";
+			li.appendChild(a_tag);
+			ranker_pagination.appendChild(li);
+
+			li = document.createElement("li");
+			if(curr_rankers_page==1){
+				li.setAttribute("class", "page-item disabled");	
+			} else {
+				li.setAttribute("class", "page-item");
+			}
+			a_tag = document.createElement("a");
+			a_tag.setAttribute("class", "page-link");
+			a_tag.setAttribute("href", "#");
+			a_tag.setAttribute("onclick", "get_rankers("+(curr_rankers_page-1)+")");
+			a_tag.innerHTML="&#8249;";
+			li.appendChild(a_tag);
+			ranker_pagination.appendChild(li);
+
+			for(var i=curr_rankers_page-2;i<=curr_rankers_page+2;i++){
+				if(i<=0 || i>total_pages){
+					continue;
+				}
+
+				li = document.createElement("li");
+				if(curr_rankers_page==i){
+					li.setAttribute("class", "page-item disabled active");	
+				} else {
+					li.setAttribute("class", "page-item");
+				}
+				a_tag = document.createElement("a");
+				a_tag.setAttribute("class", "page-link");
+				a_tag.setAttribute("href", "#");
+				a_tag.setAttribute("onclick", "get_rankers("+i+")");
+				a_tag.innerHTML=i;
+				li.appendChild(a_tag);
+				ranker_pagination.appendChild(li);
+
+
+			}
+
+			li = document.createElement("li");
+			if(curr_rankers_page==total_pages){
+				li.setAttribute("class", "page-item disabled");	
+			} else {
+				li.setAttribute("class", "page-item");
+			}
+			a_tag = document.createElement("a");
+			a_tag.setAttribute("class", "page-link");
+			a_tag.setAttribute("href", "#");
+			a_tag.setAttribute("onclick", "get_rankers("+(curr_rankers_page+1)+")");
+			a_tag.innerHTML="&#8250;";
+			li.appendChild(a_tag);
+			ranker_pagination.appendChild(li);
+
+			li = document.createElement("li");
+			if(curr_rankers_page==total_pages){
+				li.setAttribute("class", "page-item disabled");	
+			} else {
+				li.setAttribute("class", "page-item");
+			}
+			a_tag = document.createElement("a");
+			a_tag.setAttribute("class", "page-link");
+			a_tag.setAttribute("href", "#");
+			a_tag.setAttribute("onclick", "get_rankers("+total_pages+")");
+			a_tag.innerHTML="&raquo;";
+			li.appendChild(a_tag);
+			ranker_pagination.appendChild(li);
+
+
+		}
+
+		//<li class="page-item"><a class="page-link" href="#">1</a></li>
+
+	</script>
+
+	<div class="leaderboard-wrapper m-0 pt-4 px-2">
+		<p class="font-weight-bold text-dark text-left" style="font-size: 24px;"><span class="icon-bargraph text-info font-weight-bold"></span><span> Leaderboard </span><a href="{% url 'triviadetails' code=trivia.code %}">{{ trivia.code }}</a></p>
+
+		<p class="text-center" style="font-size: 14px; display: none;" id="user-record"><span class="font-weight-bold text-dark">Your Rank: </span><span class="text-secondary" id="user-rank">2</span><span class="text-dark font-weight-bold"> &nbsp;&nbsp;&nbsp;Your Score: </span><span class="text-secondary" id="user-score">32(00:12:22)</span></p>
+		
+		<div class="mt-2 p-1" id="ranks">
+			<table class="border border-secondary">
+				<thead class="bg-dark text-light">
+					<tr>
+						<th style="width: 30px;">#</th>
+						<th style="width: 60%;">User Handle</th>
+						<th width="">Score</th>
+					</tr>
+				</thead>
+
+
+
+				<tbody class="bg-light text-dark" id="rank-list">
+					
+				</tbody>
+				
+			</table>
+			<div class="linear-loader-container" id="ranker-loader">
+				<div class="linear-loader"></div>
+			</div>
+		</div>
+
+
+		<div class="mt-2 p-1" id="pagination-block">
+			 <ul class="pagination  justify-content-center" id="rankers-pagination">
+			 	
+			</ul> 
+		</div>
+
+
+	</div>
+
+{% endblock %}

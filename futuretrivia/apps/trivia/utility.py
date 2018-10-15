@@ -48,3 +48,7 @@ def get_answer_status(q_obj, answers):
 		answer["opt_id"]=0
 
 	return answer
+
+def submitted(result):
+
+	return result.time_taken

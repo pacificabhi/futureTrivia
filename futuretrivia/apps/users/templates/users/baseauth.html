@@ -12,6 +12,7 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'futuretrivia/futuretrivia.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'users/authusers.css' %}">
 
+	<script src="{% static 'futuretrivia/futuretrivia.js' %}"></script>
 	<!-- jQuery library -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
@@ -42,6 +43,30 @@
 
 	{% endblock %}
 </div>
+
+
+<div class="container fixed-top p-0" id="top_popup">
+	<div id="top_popup_text" class="alert alert-info">
+		
+	</div>
+</div>
+
+<style type="text/css">
+	
+	#top_popup_text{
+		display: block;
+		width: 100%;
+		max-width: 600px;
+		min-width: 150px;
+		z-index: +99999;
+
+	}
+
+	#top_popup{
+		top: -300px;
+		transition: 0.3s;
+	}
+</style>
 
 
 <center>

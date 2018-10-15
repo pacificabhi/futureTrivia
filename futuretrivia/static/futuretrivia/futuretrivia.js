@@ -14,7 +14,7 @@ function show_popup(text){
 	}, 2000);
 }
 
-function show_top_popup(text, close){
+function show_top_popup(text, close, closetime){
 	document.getElementById("top_popup_text").innerHTML=text;
 	var ele = document.getElementById("top_popup");
 	ele.style.top="0px";
@@ -22,7 +22,7 @@ function show_top_popup(text, close){
 	if(close){
 		setTimeout(function(){
 			ele.style.top="-300px";
-		}, 1000);
+		}, closetime);
 	}	
 
 }
@@ -31,7 +31,7 @@ function show_top_popup(text, close){
 
 function checkBrowserOnline(){
 	if(navigator.onLine){
-		show_top_popup("Connected", true);
+		show_top_popup("Connected", true, 1000);
 	} else {
 		show_top_popup("You are not connected to internet", false);
 	}

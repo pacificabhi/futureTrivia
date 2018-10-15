@@ -12,10 +12,16 @@ from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
+def dashboard(request):
+	if True:
+		return render(request,'trivia/not_found.html', {})
+		
+	return render(request, 'users/dashboard.html',{})
 
 def userLogin(request):
 
 	nxt = request.GET.get("next")
+
 
 	if request.method == "POST":
 		context = {"success": True, "loggedin": False}
@@ -54,8 +60,11 @@ def userLogin(request):
 			return HttpResponseRedirect(nxt)
 
 		return HttpResponseRedirect(reverse('userprofile', kwargs={'username':request.user.username}))
-	
-	return render(request, 'users/login.html', {})
+
+
+	if not nxt:
+		nxt=""
+	return render(request, 'users/login.html', {"next":nxt})
 
 
 
@@ -67,6 +76,7 @@ def userLogout(request):
 def userSignup(request):
 
 	#print(request.user.is_authenticated)
+
 
 	nxt = request.GET.get("next")
 
@@ -116,14 +126,12 @@ def userSignup(request):
 			return HttpResponseRedirect(nxt)
 
 		return HttpResponseRedirect(reverse('userprofile', kwargs={'username':request.user.username}))
+
+	if not nxt:
+		nxt=""
 	
-	return render(request, 'users/signup.html', {})
+	return render(request, 'users/signup.html', {"next": nxt})
 
-def dashboard(request):
-	if request.user.is_authenticated:
-		return HttpResponseRedirect(reverse('userprofile', kwargs={'username':request.user.username}))
-
-	return HttpResponseRedirect(reverse('userlogin'))
 
 def userProfile(request, username):
 	user = User.objects.filter(username=username).first()
@@ -134,7 +142,8 @@ def userProfile(request, username):
 			context["active"]=True
 			context["profile"]=user
 
-
+	else:
+		return render(request,'trivia/not_found.html', {})
 
 	return render(request, 'users/userProfile.html', context)
 

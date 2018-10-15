@@ -41,6 +41,10 @@ input{
 	outline: none;
 }
 
+div{
+    transition: 0.5s;
+}
+
 #alert_popup_container{
     position: fixed;
     display: none;

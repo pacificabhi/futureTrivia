@@ -7,6 +7,8 @@ import json, ast
 from .utility import *
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
+from time import sleep
+from math import ceil
 
 
 # Create your views here.
@@ -138,36 +140,40 @@ def triviaPlay(request, code):
 	trivia = Trivia.objects.filter(code=code).first()
 
 	#intialising
-	context = {"user_applicable":False, "ended": True, "started_by_user": False}
+	context = {"user_applicable":False, "ended": False, "started_by_user": False, "user_ended": False}
 
 	if trivia:
 		context["user_applicable"]=True
 
 		now = get_current_time()
 		endtime = get_endtime(trivia)
+		if now>=endtime:
+			context["ended"]=True
 
-		result = TriviaResult.objects.filter(username=request.user, trivia=trivia).first()
+		result = TriviaResult.objects.filter(user=request.user, trivia=trivia).first()
 		if result:
 			context["started_by_user"] = True
-			time_left = int((now-result.start_time).total_seconds())
-			if time_left>trivia.duration:
+			time_elapsed = int((now-result.start_time).total_seconds())
+			if time_elapsed>trivia.duration or submitted(result):
 				context["user_ended"] = True
 
 		if trivia in request.user.userdetails.trivias.all():
 			if now<endtime:
 				context["ended"] = False
 				
-				if trivia.start_time < now:  # if contest is active now
+				if trivia.start_time:  # if contest is active now
 					context["can_begin"]=True
-					context["total_number_of_questions"]=len(trivia.question_set.all())
+					context["total_number_of_questions"]=trivia.question_set.all().count()
 
 		context["trivia"]=trivia
+
+		#print("user_ended == ", context["user_ended"])
 
 
 	return render(request, 'trivia/triviaplay.html', context)
 	
 
-@login_required
+
 def triviaStart(request, code):
 	context = {"success": False}
 	if not request.user.is_authenticated:
@@ -182,14 +188,14 @@ def triviaStart(request, code):
 			context["success"]=False
 			return JsonResponse(context)
 
-		result = TriviaResult.objects.filter(username=request.user, trivia=trivia).first()
+		result = TriviaResult.objects.filter(user=request.user, trivia=trivia).first()
 		now = get_current_time()
 		if not result:
 			started_at = now
 			if not trivia.individual_timing:
 				started_at = trivia.start_time
 
-			tr = TriviaResult.objects.create(username=request.user, trivia=trivia, start_time=started_at, modified_at=now)
+			tr = TriviaResult.objects.create(user=request.user, trivia=trivia, start_time=started_at, modified_at=now)
 			context["success"]=True
 		else:
 			context["success"]=True
@@ -202,7 +208,7 @@ def triviaStart(request, code):
 	return JsonResponse(context)
 
 
-@login_required
+
 def allTriviaQuestions(request, code):
 	context={"success":False}
 	if not request.user.is_authenticated:
@@ -213,23 +219,25 @@ def allTriviaQuestions(request, code):
 	trivia = Trivia.objects.filter(code=code).first()
 
 	if trivia:
-		result = TriviaResult.objects.filter(username=request.user, trivia=trivia).first()
+		result = TriviaResult.objects.filter(user=request.user, trivia=trivia).first()
 		if not result:
 			context["error"]="You are not registered for this contest."
 			context["success"]=False
 			return JsonResponse(context)
 
-		time_left = None
+		time_elapsed = None
 
 		now = get_current_time()
 		if trivia.individual_timing:
-			time_left = int((now-result.start_time).total_seconds())
+			time_elapsed = int((now-result.start_time).total_seconds())
 		else:
-			time_left = int((now-trivia.start_time).total_seconds())
+			time_elapsed = int((now-trivia.start_time).total_seconds())
 
-		if time_left>trivia.duration:
+		context["time_left"]=trivia.duration-time_elapsed
+
+		if time_elapsed>trivia.duration or submitted(result):
 			context["ended"]=True
-			context["error"]="Contest Ended"
+			context["error"]="Contest Ended for you"
 			context["success"]=False
 			return JsonResponse(context)
 
@@ -237,13 +245,14 @@ def allTriviaQuestions(request, code):
 
 		questions_objects = trivia.question_set.all()
 		all_questions=[]
+
+		extra={"can_change_answer": trivia.can_change_answer, "temp_opt_id":0}
+
 		for q in questions_objects:
 			
 			que = get_question(q)
-			#print(result.answers)
-			#print(type(result.answers))
 			status = get_answer_status(q,result.answers)
-			q_obj = {"question":que, "status":status}
+			q_obj = {"question":que, "status":status, "extra": extra}
 			all_questions.append(q_obj)
 
 
@@ -258,5 +267,221 @@ def allTriviaQuestions(request, code):
 
 
 
+	return JsonResponse(context)
+
+
+def submitAnswer(request, code):
+	context={"success": False}
+
+	if not request.user.is_authenticated:
+		context["error"]="You are not logged in"
+		context["success"]=False
+		return JsonResponse(context)
+
+
+	if request.method == "POST":
+		trivia = Trivia.objects.filter(code=code).first()
+		if trivia:
+			result = TriviaResult.objects.filter(user=request.user, trivia=trivia).first()
+			if result:
+				time_elapsed_for_contest = None
+
+				now = get_current_time()
+				if trivia.individual_timing:
+					time_elapsed_for_contest = int((now-result.start_time).total_seconds())
+				else:
+					time_elapsed_for_contest = int((now-trivia.start_time).total_seconds())
+
+
+				if time_elapsed_for_contest<trivia.duration and not submitted(result):
+					q_id = int(request.POST.get("q_id"))
+					opt_id = int(request.POST.get("opt_id"))
+					q_ind = int(request.POST.get("q_ind"))
+					time_elapsed = int(request.POST.get("time_elapsed"))
+					answers = result.answers
+					answers = ast.literal_eval(answers)
+					
+					if q_id in answers.keys():
+						answer = answers[q_id]
+						if answer["opt_id"]==0 and answer["time_elapsed"]<=time_elapsed:
+							answer["opt_id"]=opt_id
+							answer["time_elapsed"]=time_elapsed
+							context["success"]=True
+							
+						elif trivia.can_change_answer and answer["time_elapsed"]<=time_elapsed:
+							answer["opt_id"]=opt_id
+							answer["time_elapsed"]=time_elapsed
+							context["success"]=True
+
+						else:
+							context["error"]="Can not change answer"
+							
+						answers[q_id] = answer
+
+
+					else:
+						answer = {"opt_id": opt_id, "time_elapsed": time_elapsed}
+						answers[q_id] = answer
+						context["success"]=True
+
+					context["opt_id"]=answers[q_id]["opt_id"]
+					context["q_ind"]=q_ind
+					answers = str(answers)
+					result.answers = answers
+					result.save()
+					
+
+				else:
+					context["contest_ended"]=True
+					context["error"]="Contest ended for you"
+					return JsonResponse(context)
+
+			else:
+				context["error"] = "You are not in contest"
+				return JsonResponse(context)
+		else:
+			context["error"] = "Contest does not exist"
+			return JsonResponse(context)
+		
+
+	return JsonResponse(context)
+
+
+def endTest(request, code):
+	context={"success": False}
+
+
+	if not request.user.is_authenticated:
+		context["error"]="You are not logged in"
+		context["success"]=False
+		return JsonResponse(context)
+
+
+	if request.method == "POST":
+		trivia = Trivia.objects.filter(code=code).first()
+		if trivia:
+			result = TriviaResult.objects.filter(user=request.user, trivia=trivia).first()
+			if result:
+				time_taken = None
+
+				now = get_current_time()
+				if trivia.individual_timing:
+					time_taken = int((now-result.start_time).total_seconds())
+				else:
+					time_taken = int((now-trivia.start_time).total_seconds())
+
+				if time_taken>trivia.duration:
+					time_taken=trivia.duration
+
+				result.calculate_score(questions_set=trivia.question_set.all())
+				result.time_taken = time_taken
+				result.save()
+
+				context["success"] = True
+
+
+			else:
+				context["error"] = "You are not in contest"
+				return JsonResponse(context)
+		else:
+			context["error"] = "Contest does not exist"
+			return JsonResponse(context)
+
+
+
+
+	return JsonResponse(context)
+
+
+
+def getFeedback(request, code):
+	
+	context = {"success": False}
+
+	if request.method == "POST":
+		pass
+
+	return JsonResponse(context)
+
+
+def triviaLeaderboard(request, code):
+	context={}
+	trivia = Trivia.objects.filter(code=code).first()
+
+	if trivia:
+		if trivia.private:
+			if trivia not in request.user.userdetails.trivia.all():
+				return render(request, 'trivia/not_found.html')
+
+		context["trivia"]=trivia
+
+	else:
+		return render(request, 'trivia/not_found.html', {})
+
+
+	return render(request, 'trivia/trivialeaderboard.html', context)
+
+
+def getRankers(request, code):
+	#sleep(10)
+	context={"success": False}
+	trivia = Trivia.objects.filter(code=code).first()
+
+	if trivia:
+		if trivia.private:
+			if trivia not in request.user.userdetails.trivia.all():
+				context["error"]="Contest not found"
+				return JsonResponse(context)
+		rankers_length=20
+		page = request.GET.get("page")
+		if not page:
+			page=1
+		else:
+			page=int(page)
+
+		if page <= 0:
+			page=1
+
+		total_ranks = None
+		user_rank = None
+		rankers_queryset = None
+		start_rank = rankers_length*(page-1)
+		result=None
+
+		if request.user.is_authenticated:
+			result = TriviaResult.objects.filter(user=request.user, trivia=trivia).first()
+		
+		if result:
+			ranks_set = trivia.triviaresult_set.extra(select={'total_score':'positive_score - negative_score'}, order_by=('-total_score', 'time_taken'))
+			total_ranks=len(ranks_set)
+			rankers_queryset = ranks_set[start_rank:start_rank+rankers_length]
+
+			for i in range(total_ranks):
+				if ranks_set[i] == result:
+					user_rank = i+1
+					break
+			user_record = {"rank": user_rank, "score": result.get_score(), "timing": result.time_taken, "username": result.user.get_username()}
+			context["user_record"] = user_record
+
+		else:
+			rankers_queryset = trivia.triviaresult_set.extra(select={'total_score':'positive_score - negative_score'}, order_by=('-total_score', 'time_taken'))[start_rank:start_rank+rankers_length]
+			total_ranks = trivia.triviaresult_set.all().count()
+
+
+
+		rankers=[]
+		for ranker in rankers_queryset:
+			rank=[ranker.user.get_username(), ranker.user.get_full_name(), ranker.total_score, ranker.time_taken]
+			rankers.append(rank)
+
+		context["start_rank"]=start_rank+1
+		context["rankers"]=rankers
+		context["total_pages"]=ceil(total_ranks/rankers_length)
+		context["success"]=True
+		
+
+	else:
+		context["error"]="No contest found"
+		return JsonResponse(context)
 
 	return JsonResponse(context)

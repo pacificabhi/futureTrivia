@@ -145,7 +145,7 @@
 				width: 0;
 			}
 
-			#playarea{
+			.playarea{
 				margin-right: 0;
 			}
 		}
@@ -156,10 +156,75 @@
 				width: 80% !important;
 			}
 
-			#playarea{
+			.playarea{
 				margin-right: 330px !important;
 
 			}
+		}
+
+
+
+	</style>
+
+
+	<style type="text/css">
+
+		#options_container input[type="radio"]{
+			position: absolute;
+			height: 0;
+			width: 0;
+			opacity: 0;
+			cursor: pointer;
+		}
+
+		.radio-btn{
+			display: inline-block;
+			position: relative;
+			color: rgba(0, 0, 0, 0);
+			width: 20px;
+			height: 20px;
+			border: solid 2px #18f97e;
+			border-radius: 50%;
+			opacity: 0.5;
+			transition: 0.1s;
+		}
+
+
+		.option{
+			position: relative;
+			cursor: pointer;
+			vertical-align: middle;
+			word-wrap: break-word;
+			transition: 0.3s;
+		}
+
+		.option:hover{
+			
+			background-color: rgba(24, 249, 126, 0.05);
+		}
+
+		.option:hover .radio-btn{
+			border: solid 2px #18f97e;
+			opacity: 1;	
+		}
+
+
+
+
+		#options_container input[type="radio"]:checked+.radio-btn{
+			border: solid 2px #18f97e;
+			background-image: radial-gradient(#18f97e 50%, white 50%); 
+			opacity: 1;
+		}
+
+
+		.option-text{
+			position: relative;
+			vertical-align: middle;
+			color: #4e4f56;
+			font-size: 14px;
+			word-wrap: break-word;
+			max-width: 100%;
 		}
 
 
@@ -184,55 +249,23 @@
 		    //document.getElementById("main").style.marginRight= "0";
 		    //document.getElementById("navbartop").style.marginRight = "0";
 		}
+
+		function select_option(elem){
+			elem.click();
+			var ques = question_objects_array[curr_ques];
+			//console.log(ques.extra.can_change_answer);
+			if(ques.status.opt_id==0){
+				qsubmitbtn.disabled=false;
+			} else if(ques.extra.can_change_answer){
+				qsubmitbtn.disabled=false;
+			}
+			ques.extra.temp_opt_id=elem.value;
+
+		}
 	</script>
 
 
-	<div id="main">
 
-		<div id="quesnav" class="sidenav text-left">
-			<span class="text-success close-arrow" style="" onclick="closeNav()">&#10230;</span>
-
-			<div class="container-fluid mt-2" id="ques_list">
-					<div class="card my-3 border-success p-0">
-						<div class="card-header p-2 no-select" onclick="show_next_ques()" style="cursor: pointer;">
-							<p class="p-1 m-0">
-								<span>1. What is your name?</span>
-								<span class="float-right text-success" style="font-size: 21px;">&check;</span>
-								<span class="float-right text-danger" style="font-size: 21px;">&excl;</span>
-							</p>
-							<div class="container-fluid text-light">
-								<span class="badge bg-success p-1">+10</span>
-
-								<span class="badge bg-danger p-1">-3</span>
-
-							</div>
-
-						</div>
-
-					</div>
-
-					<div class="card my-3 border-success p-0">
-						<div class="card-header p-2 no-select" onclick="show_next_ques()" style="cursor: pointer;">
-							2. What is your place?
-						</div>
-
-					</div>
-
-			</div>
-		</div>
-
-		<div class="container-fluid text-right p-0" id="question-extra-top">
-			<span class="text-success close-arrow" style="" onclick="openNav()">&#10229; <span style="font-size: 12px;">all questions</span></span>
-		</div>
-
-		<div class="" id="playarea" style="border: solid 1px red;">
-			
-		</div>
-		
-
-
-
-	</div>
 
 	<script type="text/javascript">
 
@@ -241,13 +274,21 @@
 			main = document.getElementById("main");
 			playarea = document.getElementById("playarea");
 			ques_list = document.getElementById("ques_list");
+			q_statement = document.getElementById("q_statement");
+			options_container = document.getElementById("options_container");
+			qsubmitbtn = document.getElementById("qsubmitbtn");
+			success_msg = document.getElementById("success_msg");
+			contest_time_block = document.getElementById("contest_time_left");
+			contest_time_left = 0;
+			qsubmitbtn.disabled=true;
 			question_objects_array="";
-			curr_ques=1;
+			curr_ques=0;
+			total_questions=0;
 			loadContest();
 
 		};
 
-		function load_questions(code){
+		function get_questions(code){
 			var xhttp = new XMLHttpRequest();
 
 			xhttp.onreadystatechange = function(){
@@ -255,38 +296,493 @@
 					var resp = JSON.parse(this.responseText);
 					if(resp.success){
 						question_objects_array=resp.questions;
-						show_next_ques();
+						contest_time_left=resp.time_left;
+						total_questions=question_objects_array.length;
+						create_navigation();
+						timer = setInterval(set_timer, 1000);
+						show_ques(curr_ques);
 					} else {
 						show_top_popup(resp.error, true, 4000);
 					}
 				} else if(this.readyState == 4) {
 					show_popup("Internal Server Error");
-					btn.disabled=false;
-					loader.style.display="none";
 				}
 
 			};
+			//xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			
 
 			xhttp.open("GET", "{% url 'alltriviaquestions' code=trivia.code %}", true);
 			xhttp.send();
 
 		}
 
-		function show_next_ques(){
+
+		function loadContest(){
+			get_questions();
+			//set_timer();
+
+		}
+
+		function set_timer(){
+			
+			var s="";
+			contest_time_left-=1;
+			if(contest_time_left<0){
+				show_popup("Contest Ended");
+				document.getElementById("confirm-overlay").style.display = "block";
+				clearInterval(timer);
+				end_test();
+			}else{
+
+				s=" ";
+				var days = Math.floor(contest_time_left/86400);
+				var rem = contest_time_left%86400;
+				var hours = Math.floor(rem/3600);
+				rem = rem%3600;
+				var mins = Math.floor(rem/60);
+				var sec = rem%60;
+
+				if(days>0){
+					s+=(days + "d : ");
+
+				}
+
+				if(hours>0){
+					s+=(hours + "h : ");
+
+				}
+
+				if(mins>0){
+					s+=(mins + "m : ");
+
+				}
+
+				s+=(sec+"s");
+				contest_time_block.innerHTML = s;
+			}
 
 
 		}
 
-		function loadContest(){
-			load_questions();
+		//<span class="float-right text-success" style="font-size: 21px;">&check;</span>
+
+
+		function create_navigation(){
+			ques_list.innerHTML="";
+
+			for(var i=0;i<total_questions;i++){
+
+				var card = document.createElement("div");
+				card.setAttribute("class", "card my-3 border-success p-0");
+				var card_header = document.createElement("div");
+				card_header.setAttribute("class", "card-header p-2 no-select");
+				card_header.setAttribute("onclick", "show_ques("+i+")");
+				card_header.setAttribute("style", "cursor: pointer;");
+				var p = document.createElement("p");
+				p.setAttribute("class", "p-1 m-0");
+				var q_span = document.createElement("span");
+				q_span.innerHTML = "<b>"+(i+1)+".</b> "+question_objects_array[i].question.statement.slice(0, 20)+"...";
+				p.appendChild(q_span);
+
+				var check = document.createElement("span");
+				check.setAttribute("id", "check_"+i);
+				check.setAttribute("class", "float-right text-success");
+				if(question_objects_array[i].status.opt_id==0){
+					check.setAttribute("style", "font-size: 21px; opacity: 0");
+				} else {
+					check.setAttribute("style", "font-size: 21px; opacity: 1");
+				}
+				check.innerHTML="&check;";
+				p.appendChild(check);
+
+
+				check = document.createElement("span");
+				check.setAttribute("id", "excl_"+i);
+				check.setAttribute("class", "float-right text-danger");
+				check.setAttribute("style", "font-size: 21px; opacity: 0");
+				check.innerHTML="&excl;";
+
+
+
+				card_header.appendChild(p);
+
+				var extra_div = document.createElement("div");
+				extra_div.setAttribute("class", "container-fluid text-light");
+				var span = document.createElement("span");
+				span.setAttribute("class", "badge bg-success p-1");
+				span.innerHTML="+"+question_objects_array[i].question.positive_score;
+				extra_div.appendChild(span);
+
+				span = document.createElement("span");
+				span.setAttribute("class", "badge bg-danger p-1");
+				span.innerHTML="-"+question_objects_array[i].question.negative_score;
+				extra_div.appendChild(span);
+				card_header.appendChild(extra_div);
+				card.appendChild(card_header);
+				ques_list.appendChild(card);
+
+			}
+
+
+		}
+
+		function show_next_ques(){
+			var nxt = (curr_ques+1)%total_questions;
+			show_ques(nxt);
+
+		}
+
+		function show_prev_ques(){
+			var nxt = (curr_ques-1);
+			if(nxt<0){
+				nxt+=total_questions;
+			}
+			show_ques(nxt);
+
+		}
+
+		function show_ques(ind){
+			var qq = question_objects_array[ind].question;
+			var q_stat = question_objects_array[ind].status;
+			var extra = question_objects_array[ind].extra;
+
+			
+			qsubmitbtn.disabled=true;
+
+			q_statement.innerHTML = (ind+1)+". "+qq.statement;
+
+			var options = qq.options;
+			options_container.innerHTML="";
+			for(var i=0;i<options.length;i++){
+				var p = document.createElement("p");
+				p.setAttribute("class", "no-select ml-1 pl-0 option");
+				p.setAttribute("onclick", "select_option(this.children[0].children[0])");
+
+				var label = document.createElement("label");
+				label.setAttribute("class", "p-0 mr-1");
+
+				var r_btn = document.createElement("input");
+				r_btn.setAttribute("type", "radio");
+				r_btn.setAttribute("name", "option");
+				r_btn.setAttribute("value", options[i].id);
+				r_btn.disabled=true;
+
+				if(q_stat.opt_id==options[i].id){
+					r_btn.checked=true;
+				}
+
+
+				if(extra.can_change_answer || q_stat.opt_id==0){
+					r_btn.disabled=false;
+					
+				}
+
+				label.appendChild(r_btn);
+
+				var span = document.createElement("span");
+				span.setAttribute("class", "radio-btn no-select");
+				span.innerHTML="a";
+				label.appendChild(span);
+				p.appendChild(label);
+
+				span = document.createElement("span");
+				span.setAttribute("class","option-text");
+				span.innerHTML = options[i].value;
+				p.appendChild(span);
+
+				options_container.appendChild(p);
+			}
+
+			curr_ques = ind;
+			try{
+				document.getElementById("close-arrow").click();
+
+			}catch(err){
+
+			}
+
+		}
+
+		function submit_answer(btn, loader){
+			var ques = question_objects_array[curr_ques];
+			var opt_id = ques.extra.temp_opt_id;
+
+			if(opt_id>=0){
+
+				var xhttp = new XMLHttpRequest();
+				btn.disabled=true;
+				loader.style.display="inline-block";
+				xhttp.onreadystatechange = function(){
+					if(this.readyState == 4 && this.status == 200){
+						var resp = JSON.parse(this.responseText);
+						if(resp.success){
+							question_objects_array[resp.q_ind].status.opt_id=resp.opt_id;
+							if(resp.opt_id>=0){
+								document.getElementById("check_"+resp.q_ind).style.opacity="1";
+							}
+
+							if(resp.q_ind == curr_ques){
+								if(question_objects_array[resp.q_ind].extra.can_change_answer){
+									btn.disabled=false;
+								} else {
+									$("input[type=radio").attr("disabled", true);
+								}
+							}
+							show_success_msg();
+						} else {
+							//alert("hello");
+							show_top_popup(resp.error, true, 4000);
+							btn.disabled=false;
+						}
+						loader.style.display="none";
+					} else if(this.readyState == 4) {
+						show_popup("Internal Server Error");
+						btn.disabled=false;
+						loader.style.display="none";
+					}
+
+				};
+
+				var token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+
+				
+				var q_id = ques.question.id;
+				
+				var time_elapsed = ques.status.time_elapsed;
+
+				q="csrfmiddlewaretoken="+token+"&q_id="+q_id+"&opt_id="+opt_id+"&time_elapsed="+time_elapsed+"&q_ind="+curr_ques;
+
+				xhttp.open("POST", "{% url 'submitanswer' code=trivia.code %}", true);
+				xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				xhttp.send(q);
+
+			}
+		}
+
+		function show_success_msg(){
+			success_msg.style.opacity="1";
+
+			setTimeout(function(){
+				success_msg.style.opacity="0";
+			},
+			700)
+		};
+
+
+		function end_test(){
+			var end_loader = document.getElementById("endtestloader");
+			var confirm_control = document.getElementById("confirm-control");
+			var confirm_message = document.getElementById("confirm-message");
+
+			end_loader.style.display = "inline-block";
+			confirm_control.style.display = "none";
+			confirm_message.innerHTML = "Submitting...";
+
+
+			if(true){
+
+				var xhttp = new XMLHttpRequest();
+				xhttp.onreadystatechange = function(){
+					if(this.readyState == 4 && this.status == 200){
+						var resp = JSON.parse(this.responseText);
+						if(resp.success){
+							end_loader.style.display = "none";
+							confirm_message.innerHTML = "<span class='text-success'>Submission Succesfull</span>";
+							setTimeout(function(){
+								window.location.reload();
+							}, 2000);
+						} else {
+							show_top_popup(resp.error, true, 4000);
+							end_loader.style.display = "none";
+						}
+
+					} else if(this.readyState == 4) {
+						show_popup("Internal Server Error");
+						end_loader.style.display = "none";
+						confirm_message.innerHTML = "Are you sure to end this test?";
+						confirm_control.style.display = "block";
+						
+					}
+
+				};
+
+				var token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+
+				q="csrfmiddlewaretoken="+token;
+
+				xhttp.open("POST", "{% url 'endtest' code=trivia.code %}", true);
+				xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				xhttp.send(q);
+
+			}
+
+
+		}
+
+
+		function update_(){
 
 		}
 
 
 	</script>
 
+
+	<div id="main" class="">
+		{% csrf_token %}
+
+		<div id="quesnav" class="sidenav text-left">
+			<span class="text-success close-arrow" style="" onclick="closeNav()" id="close-arrow">&#10230;</span>
+
+
+			<!-- Question List -->
+			<div class="container-fluid mt-2" id="ques_list">
+				<span class="loader ml-2" id="qsubmitloader" style="display: inline-block;"></span>
+			</div>
+
+		</div>
+
+		<div class="container-fluid text-right p-0" id="question-extra-top">
+			
+			<span class="text-success close-arrow no-select" style="" onclick="openNav()">&#10229; <span style="font-size: 12px;">all questions</span></span>
+		</div>
+
+
+
+		<div class="playarea p-1" id="time_left_container">
+			<div class="row">
+				<div class="col-md-8 text-left">
+					<span class="text-info no-select icon-clock font-weight-bold"><span id="contest_time_left" class="ml-2 font-weight-bold" style="font-size: 12px;"></span></span>
+				</div>
+				<div class="col-md-4 text-left">
+					<button class="btn btn-info btn-sm" onclick="show_prev_ques()">Previous</button>
+					<button class="btn btn-info btn-sm" onclick="show_next_ques()">Next</button>
+					<button class="btn btn-sm btn-danger" onclick="confirm_end_test('Are you sure to end this test?');">End Test</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="text-left playarea" id="playarea" style="">
+			<div class="container-fluid m-0 p-2">
+				<div class="card">
+					<div class="card-body p-1">
+						<p class="font-weight-bold" id="q_statement" style="font-size: 16px;"><span class="loader ml-2" id="qsubmitloader" style="display: inline-block;"></span></p>
+						
+					</div>
+				</div>
+			</div>
+
+			<div class="container-fluid px-2 py-1" id="options_container">
+				<span class="loader ml-2" id="qsubmitloader" style="display: inline-block;"></span>
+			</div>
+
+			<div class="container-fluid" id="q_control_panel">
+				<button class="btn btn-success btn-sm" onclick="submit_answer(this, this.nextSibling)" id="qsubmitbtn">Submit</button><span class="loader ml-2" id="qsubmitloader"></span><span id="success_msg" class="text-success ml-1 font-weight-bold"> saved</span>
+			</div>
+
+			<style type="text/css">
+				#success_msg{
+					opacity: 0;
+					transition: 0.3s;
+				}
+			</style>
+
+
+		</div>
+		
+	</div>
+
+	<div id="confirm-overlay" class="row h-100 justify-content-center align-items-center no-select" onclick="//this.style.display='none'">
+		<center>
+		<div id="confirm-box" class="card p-0">
+
+			<div class="card-body bg-light text-dark m-0 p-1">
+				<div class="px-2">
+					<span id="confirm-message" style="font-weight: bold; font-size: 13px;" class="p-2"></span>
+					<span class="loader ml-2" id="endtestloader"></span>
+				</div>
+				<div class="text-right px-3" id="confirm-control">
+					<button class="btn btn-sm text-danger font-weight-bold" onclick="document.getElementById('confirm-overlay').style.display='none';">Go Back</button>
+					<button class="btn btn-sm text-info font-weight-bold" onclick="end_test();">Confirm</button>
+				</div>
+			</div>
+
+		</div>
+		</center>
+	</div>
+
+	<script type="text/javascript">
+		
+
+		function confirm_end_test(message){
+			document.getElementById("confirm-message").innerHTML = message;
+			document.getElementById("confirm-overlay").style.display = "block";
+		}
+
+	</script>
+
+
+	<style type="text/css">
+
+		#confirm-overlay{
+			position: fixed;
+		    display: none;
+		    width: 100%;
+		    height: 100%;
+		    margin: 0 auto;
+		    
+		    top: 0;
+		    justify-content: center;
+		    background-color: rgba(255,255,255,0.2);
+		    z-index: 9999999;
+		    transition: 0.3s all;
+		    opacity: 1;
+		}
+
+		#confirm-box{
+			position: relative;
+			width: 100%;
+			max-width: 400px;
+		    transition: 0.3s;
+		    top: 200px;
+		    background: rgba(0,0,0,0);
+
+		}
+
+		#confirm-control button{
+			background-color: rgba(0,0,0,0);
+		}
+
+	</style>
+
+
+
 	{% else %}
-		Contest ended for user
+
+		<script type="text/javascript">
+			
+			function getFeedback(){
+
+			}
+
+		</script>
+
+		<div class="container-fluid mt-3 border border-info">
+			<div class="card" style="max-width: 500px;">
+
+				<div class="card-body p-1">
+					<h3>Feedback</h3>
+					<div class="container-fluid mt-3">
+						
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	
+
+
 	{% endif %}
 
 {% else %}
