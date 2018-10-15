@@ -8,7 +8,7 @@ from django.urls import reverse
 
 def index(request):
 
-	if request.user.is_authenticated:
+	if True:
 		return HttpResponseRedirect(reverse('triviahome'))
 
 	return HttpResponse("<h1>Future Index</h1>")
