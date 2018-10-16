@@ -4,7 +4,10 @@ from . import views
 
 
 urlpatterns = [
-	path('', views.triviaPlay, name='triviaplay'),
+	path('', views.triviaDetails, name='triviadetails'),
+	path('play/', views.triviaPlay, name='triviaplay'),
+	path('leaderboard/', views.triviaLeaderboard, name='trivialeaderboard'),
+	path('getrankers/', views.getRankers, name='getrankers'),
 	path('start/', views.triviaStart, name='triviastart'),
 	path('allquestions/', views.allTriviaQuestions, name='alltriviaquestions'),
 	path('submitanswer/', views.submitAnswer, name='submitanswer'),

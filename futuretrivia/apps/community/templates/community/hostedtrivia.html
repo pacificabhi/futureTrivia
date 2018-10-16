@@ -1,0 +1,47 @@
+{% extends 'trivia/basetrivia.html' %}
+{% load static %}
+{% load tz %}
+
+
+{% block title %}
+	
+	Host Trivia
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container px-1 py-2">
+	
+	<p class="text-success font-weight-bold text-left" style="font-size: 18px;">Your Trivias</p>
+
+	<div class="container-fluid">
+		{% for trivia in hostedtrivias %}
+		<div class="card my-3">
+			<div class="card-header py-1">
+				<div class="d-flex justify-content-between">
+					<div>
+						<p class="text-dark text-left font-weight-bold my-0" style="font-size: 16px;">{{ trivia.name }} ({{ trivia.code }})</p>
+						<span class="text-dark icon-clock"></span> &nbsp;<span class="text-secondary">{% timezone 'Asia/Kolkata' %}{{ trivia.start_time }} IST {% endtimezone %}</span>
+					</div>
+					<div>
+						<a class="btn btn-sm text-info font-weight-bold" href="{% url 'edittrivia' code=trivia.code %}" style="background-color: rgba(0,0,0,0)">Edit</a>
+						<a class="btn btn-sm text-info font-weight-bold" href="{% url 'triviadetails' code=trivia.code %}" style="background-color: rgba(0,0,0,0)">View</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{% empty %}
+			<p>
+				No Trivia
+			</p>
+
+		{% endfor %}
+
+	</div>
+
+</div>
+
+{% endblock %}

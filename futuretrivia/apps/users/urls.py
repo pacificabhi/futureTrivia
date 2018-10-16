@@ -10,5 +10,5 @@ urlpatterns = [
 	path('login/', views.userLogin, name='userlogin'),
 	path('logout/', views.userLogout, name='userlogout'),
     path('registercontest/', views.registerContest, name='registercontest'),
-    re_path('(?P<username>[a-z0-9_]{0,})/$', views.userProfile, name='userprofile'),
+    re_path('u/(?P<username>[a-z0-9_]{0,})/$', views.userProfile, name='userprofile'),
 ]

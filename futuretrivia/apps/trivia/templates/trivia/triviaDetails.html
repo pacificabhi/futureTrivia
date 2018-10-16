@@ -252,7 +252,7 @@
 				<div class="row p-2">
 					<div class="col-md">
 						{% if ended %}
-							<a class="btn btn-block btn-outline-success" href="#"> See Leaderboard</a>
+							<a class="btn btn-block btn-outline-success" href="{% url 'trivialeaderboard' code=trivia.code %}"> See Leaderboard</a>
 						{% else %}
 							
 

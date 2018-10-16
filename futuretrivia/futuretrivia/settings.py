@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     #'social_django',
     'apps.trivia',
     'apps.users',
+    'apps.community',
     #'channels',
 ]
 

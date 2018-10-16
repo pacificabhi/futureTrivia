@@ -410,7 +410,7 @@ def triviaLeaderboard(request, code):
 
 	if trivia:
 		if trivia.private:
-			if trivia not in request.user.userdetails.trivia.all():
+			if trivia not in request.user.userdetails.trivias.all():
 				return render(request, 'trivia/not_found.html')
 
 		context["trivia"]=trivia
@@ -429,7 +429,7 @@ def getRankers(request, code):
 
 	if trivia:
 		if trivia.private:
-			if trivia not in request.user.userdetails.trivia.all():
+			if trivia not in request.user.userdetails.trivias.all():
 				context["error"]="Contest not found"
 				return JsonResponse(context)
 		rankers_length=20
