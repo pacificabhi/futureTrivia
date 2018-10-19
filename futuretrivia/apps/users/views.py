@@ -319,7 +319,7 @@ def registerContest(request):
 	trivia = Trivia.objects.filter(code=code).first()
 	
 	if not trivia:
-		context["error"] = "Contest Not Found"
+		context["error"] = "Trivia not found"
 		return JsonResponse(context)
 
 	now=datetime.datetime.now().replace(tzinfo=pytz.utc)
@@ -327,10 +327,16 @@ def registerContest(request):
 
 	if now > portal_endtime:
 		context["error"] = "Registration ended"
-		return JsonResponse
+		return JsonResponse(context)
+
+	if not trivia.ready:
+		context["error"] = "Trivia not ready"
+		return JsonResponse(context)
 
 	request.user.userdetails.trivias.add(trivia)
 	context["success"] = True
 
 	return JsonResponse(context)
+
+
 	

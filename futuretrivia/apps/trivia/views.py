@@ -27,7 +27,7 @@ def triviaGames(request):
 	for triv in trivias:
 		
 		trivia = triv
-		endtime = get_endtime(triv) #finding end time
+		endtime = triv.get_endtime() #finding end time
 		portal_endtime = endtime #finding registration end time
 		
 		
@@ -63,13 +63,13 @@ def triviaDetails(request, code):
 			context["auth_error"] = "Wrong Password"
 
 
-	if trivia:
+	if trivia and trivia.ready:
 		context["private"]=trivia.private
 		now = get_current_time()
 
 		if (not trivia.private) or context["authentic"]:
 
-			endtime = get_endtime(trivia)
+			endtime = trivia.get_endtime()
 			#regendtime = endtime #getting registration end time
 				
 			#removing Trailing spaces
@@ -78,7 +78,7 @@ def triviaDetails(request, code):
 			trivia.name = trivia.name.strip()
 			trivia.announcements = trivia.announcements.strip()
 			trivia.about = trivia.about.strip()
-			trivia.prize = trivia.prize.strip()
+			trivia.prizes = trivia.prizes.strip()
 			trivia.quote = trivia.quote.strip()
 			
 			trivia.duration = trivia.duration//60;
@@ -102,9 +102,12 @@ def triviaDetails(request, code):
 
 		context["exist"] = True 
 
+	else:
+		return render(request, 'trivia/not_found.html', {})
+
 	return render(request, 'trivia/triviaDetails.html', context)
 
-
+"""
 def registerContest(request):
 	context={"success": False}
 
@@ -120,7 +123,7 @@ def registerContest(request):
 		return JsonResponse(context)
 
 	now=get_current_time()
-	portal_endtime = get_endtime()
+	portal_endtime = trivia.get_endtime()
 
 	if now > portal_endtime:
 		context["error"] = "Registration ended"
@@ -131,7 +134,7 @@ def registerContest(request):
 	context["success"] = True
 
 	return JsonResponse(context)
-
+"""
 
 
 
@@ -143,11 +146,11 @@ def triviaPlay(request, code):
 	#intialising
 	context = {"user_applicable":False, "ended": False, "started_by_user": False, "user_ended": False}
 
-	if trivia:
+	if trivia and trivia.ready:
 		context["user_applicable"]=True
 
 		now = get_current_time()
-		endtime = get_endtime(trivia)
+		endtime = trivia.get_endtime()
 		if now>=endtime:
 			context["ended"]=True
 
@@ -162,13 +165,16 @@ def triviaPlay(request, code):
 			if now<endtime:
 				context["ended"] = False
 				
-				if trivia.start_time:  # if contest is active now
+				if trivia.start_time<now:  # if contest is active now
 					context["can_begin"]=True
 					context["total_number_of_questions"]=trivia.question_set.all().count()
 
 		context["trivia"]=trivia
 
 		#print("user_ended == ", context["user_ended"])
+
+	else:
+		return render(request, 'trivia/not_found.html', {})
 
 
 	return render(request, 'trivia/triviaplay.html', context)
@@ -185,12 +191,18 @@ def triviaStart(request, code):
 	trivia = Trivia.objects.filter(code=code).first()
 	if trivia:
 		if trivia not in request.user.userdetails.trivias.all():
-			context["error"]="You are not registered for this contest."
+			context["error"]="You are not registered for this trivia."
 			context["success"]=False
 			return JsonResponse(context)
 
 		result = TriviaResult.objects.filter(user=request.user, trivia=trivia).first()
 		now = get_current_time()
+
+		if trivia.start_time>=now:
+			context["error"]="Trivia is not started yet"
+			context["success"]=False
+			return JsonResponse(context)
+
 		if not result:
 			started_at = now
 			if not trivia.individual_timing:
@@ -222,7 +234,7 @@ def allTriviaQuestions(request, code):
 	if trivia:
 		result = TriviaResult.objects.filter(user=request.user, trivia=trivia).first()
 		if not result:
-			context["error"]="You are not registered for this contest."
+			context["error"]="You are not registered for this contest or contest not started"
 			context["success"]=False
 			return JsonResponse(context)
 

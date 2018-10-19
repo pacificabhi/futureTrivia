@@ -112,14 +112,14 @@
 
 
 	function create_input_object(elem){
-
+		//console.log(elem.id);
 		if(!elem.checkValidity()){
 			form_valid = false;
 			elem.nextSibling.innerHTML = elem.validationMessage;
 			elem.nextSibling.style.opacity = "1";
 		}
 
-		return {val: elem.value, error: false, error_msq: elem.validationMessage};
+		return {val: elem.value, id_selector: elem.id};
 	}
 
 	function get_trivia_form(){
@@ -167,6 +167,10 @@
 
 		if(trivia_form){
 			$("#form_main_error").css("opacity", "0");
+			btn.disabled = true;
+			$("input").attr("disabled", true);
+			$("textarea").attr("disabled", true);
+			loader.style.display="inline-block";
 
 			var xhttp = new XMLHttpRequest();
 
@@ -174,13 +178,31 @@
 				if(this.readyState == 4 && this.status == 200){
 					var resp = JSON.parse(this.responseText);
 					if(resp.success){
-						console.log("success");
-					} else {
-						show_popup(resp.error);
+						show_popup("<font color='green'>Trivia Succesfully saved</font>")
+					} else if(resp.form_errors){
+						$("#form_main_error").css("opacity", "1");
+						scroll_to($("#form_main_error")[0].offsetTop);
+						errors = resp.errors;
+						for (id_selector in errors){
+							elem = $("#"+id_selector)[0];
+							elem.style.borderColor = "red";
+							elem.nextSibling.innerHTML = errors[id_selector];
+							elem.nextSibling.style.opacity = "1";
+						}
 
+					} else {
+						show_popup(resp.error)
 					}
+					btn.disabled = false;
+					$("input").attr("disabled", false);
+					$("textarea").attr("disabled", false);
+					loader.style.display="none";
 				} else if(this.readyState == 4){
 					show_popup("Internal Server Error");
+					btn.disabled = false;
+					$("input").attr("disabled", false);
+					$("textarea").attr("disabled", false);
+					loader.style.display="none";
 				}
 			};
 
@@ -308,8 +330,6 @@
 				</div>
 
 			</div>
-
-			<label><input type="radio" name="">Accept Agreement</label><br>
 
 
 		</form>

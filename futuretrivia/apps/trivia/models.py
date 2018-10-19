@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import ast
+import datetime
 
 # Create your models here.
 
@@ -14,7 +15,7 @@ class Trivia(models.Model):
 	poster = models.CharField(max_length=2000, blank=True, null=False)
 	quote = models.CharField(max_length=100, blank=True, null=False)
 
-	prize = models.TextField(max_length=5000, blank=False, null=False, default="Not Declared")
+	prizes = models.TextField(max_length=5000, blank=False, null=False, default="Not Declared")
 	about = models.TextField(blank=False, null=False, max_length=5000, default="No details.")
 	announcements = models.TextField(blank=False, null=False, max_length=5000, default="No Announcements")
 
@@ -37,6 +38,8 @@ class Trivia(models.Model):
 	def __str__(self):
 		return self.code
 
+	def get_endtime(self):
+		return self.start_time + datetime.timedelta(seconds=self.portal_duration)
 
 
 class Question(models.Model):
