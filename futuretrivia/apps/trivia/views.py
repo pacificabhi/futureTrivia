@@ -4,11 +4,12 @@ import pytz, datetime
 from django.http import *
 from django.utils.safestring import mark_safe
 import json, ast
-from .utility import *
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
 from time import sleep
 from math import ceil
+from .utility import *
+from futuretrivia.utility import *
 
 
 # Create your views here.
@@ -17,7 +18,7 @@ def triviaGames(request):
 
 	context={}
 	now=get_current_time()
-	trivias=Trivia.objects.filter(private=False).order_by('start_time')
+	trivias=Trivia.objects.filter(private=False, ready=True).order_by('start_time')
 	
 	present=[]
 	past=[]

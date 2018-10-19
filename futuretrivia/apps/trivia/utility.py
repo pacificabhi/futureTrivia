@@ -1,8 +1,5 @@
 import pytz, datetime, ast
 
-def get_current_time():
-
-	return datetime.datetime.now().replace(tzinfo=pytz.utc)
 
 def get_endtime(trivia):
 	# return endtime of contest

@@ -12,8 +12,318 @@
 
 {% block content %}
 
+{% if trivia %}
+
+<style type="text/css">
+	
+	#tidentification label, #tinformation label{
+		display: block;
+		font-weight: bold;
+		font-size: 12px;
+	}
+
+	#teditform input[type="text"], #teditform input[type="password"], #teditform input[type="number"], #teditform input[type="url"]{
+		display: block;
+		width: 100%;
+		height: 30px;
+		border-radius: 4px;
+		border: solid 1px rgba(210, 210, 210, 1);
+	}
+
+	#teditform input[type="date"], #teditform input[type="time"]{
+		display: block;
+		width: 100%;
+		height: 30px;
+		border-radius: 4px;
+		background-color: #fff;
+		border: solid 1px rgba(210, 210, 210, 1);
+	}
+
+	#teditform input[type="checkbox"]{
+		cursor: pointer;
+
+	}
+
+	#tconstraints label{
+		cursor: pointer;
+		font-weight: bold;
+	}
+
+	#teditform textarea{
+		display: block;
+		width: 100%;
+		min-width: 100%;
+		max-width: 100%;
+		height: 100px;
+		min-height: 100px;
+		max-height: 100px;
+		border-radius: 4px;
+		background-color: #fff;
+		border: solid 1px rgba(210, 210, 210, 1);
+
+	}
+
+
+	.tformerror{
+
+		font-size: 12px;
+		opacity: 0;
+		transition: 0.2s;
+	}
+
+</style>
+
+<script type="text/javascript">
+
+	window.onload=function(){
+		form_valid=true;
+	};
+	
+	function scroll_to(offset){
+		$('html, body').animate({
+	        scrollTop: offset
+	    }, 800, function(){
+
+	    });
+	}
+
+	function toggler_func(id){
+		var elem = document.getElementById(id);
+		elem.click();
+
+	}
+
+	function show_errors(form){
+
+	}
+
+	function clear_error(elem){
+		elem.style.borderColor="rgba(210, 210, 210, 1)";
+		elem.nextSibling.style.opacity="0";
+
+	}
+
+
+	function validate_trivia_form(form){
+
+		
+
+	}
+
+
+	function create_input_object(elem){
+
+		if(!elem.checkValidity()){
+			form_valid = false;
+			elem.nextSibling.innerHTML = elem.validationMessage;
+			elem.nextSibling.style.opacity = "1";
+		}
+
+		return {val: elem.value, error: false, error_msq: elem.validationMessage};
+	}
+
+	function get_trivia_form(){
+		form_valid=true;
+		var tname = $("#tname")[0];
+		var tcategory = $("#tcategory")[0];
+		var tposter = $("#tposter")[0];
+		var tquote = $("#tquote")[0];
+		var tstartdate = $("#tstartdate")[0];
+		var tstarttime = $("#tstarttime")[0];
+		var tportalduration = $("#tportalduration")[0];
+		var tabout = $("#tabout")[0];
+		var tannouncement = $("#tannouncement")[0];
+		var tprizes = $("#tprizes")[0];
+		var tpassword = $("#tpassword")[0];
+		var tduration = $("#tduration")[0];
+
+		var tprivate = $("#tprivate").prop("checked");
+		var tindividualtiming= $("#tindividualtiming").prop("checked");
+		var tcanchangeanswer = $("#tcanchangeanswer").prop("checked");
+		var tready = $("#tready").prop("checked");
+
+		var trivia_form = {tname: create_input_object(tname), tcategory: create_input_object(tcategory), tquote: create_input_object(tquote), tposter: create_input_object(tposter), tstartdate: create_input_object(tstartdate), tstarttime: create_input_object(tstarttime), tportalduration: create_input_object(tportalduration), tabout: create_input_object(tabout), tannouncement: create_input_object(tannouncement), tprizes: create_input_object(tprizes), tprivate: tprivate, tindividualtiming: tindividualtiming, tcanchangeanswer: tcanchangeanswer, tready: tready};
+
+		if(tprivate){
+			trivia_form.tpassword = create_input_object(tpassword);
+		}
+
+		if(tindividualtiming){
+			trivia_form.tduration = create_input_object(tduration);
+		}
+
+		if(form_valid){
+			return trivia_form;
+		}
+
+		return false;
+
+	}
+
+	function save_trivia(btn ,loader){
+
+		var trivia_form = get_trivia_form();
+		//console.log(trivia_form);
+
+		if(trivia_form){
+			$("#form_main_error").css("opacity", "0");
+
+			var xhttp = new XMLHttpRequest();
+
+			xhttp.onreadystatechange = function(){
+				if(this.readyState == 4 && this.status == 200){
+					var resp = JSON.parse(this.responseText);
+					if(resp.success){
+						console.log("success");
+					} else {
+						show_popup(resp.error);
+
+					}
+				} else if(this.readyState == 4){
+					show_popup("Internal Server Error");
+				}
+			};
+
+			var form = JSON.stringify(trivia_form);
+			var token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+			
+			var q = "csrfmiddlewaretoken="+token+"&trivia_form="+form;
+			xhttp.open("POST", "{% url 'edittrivia' code=trivia.code %}", true);
+			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+			xhttp.send(q);
+
+
+		} else {
+			$("#form_main_error").css("opacity", "1");
+			scroll_to($("#form_main_error")[0].offsetTop);
+
+		}
+
+	}
+
+
+</script>
+
+
 <div class="container px-1 py-2">
 	
+	<p class="text-success font-weight-bold" style="font-size: 18px;">edit <a href="{% url 'triviadetails' code=trivia.code %}">{{ trivia.code }}</a></p>
+
+	<div class="container-fluid" style="max-width: 800px;">
+		<div class="alert alert-danger" id="form_main_error" style="opacity: 0;">Form have errors. Please correct them.</div>
+		
+		<form onsubmit="return false;" class="text-left" id="teditform">
+			{% csrf_token %}
+			<p class="text-info font-weight-bold" style="font-size: 14px;">Identification</p>
+
+			<div id="tidentification">
+
+				<div class="form-group">
+					<label for="tname" class="my-1">Trivia Name</label>
+					<input type="text" pattern=".{6,}" class="p-2" id="tname" placeholder="Trivia Name" value="{{ trivia.name }}" onfocus="clear_error(this)" required><span class="text-danger tformerror"></span>
+				</div>
+
+				<div class="form-group">
+					<label for="tcategory" class="my-1">Category</label>
+					<input type="text" class="p-2" id="tcategory" placeholder="Category" value="{{ trivia.category }}" onfocus="clear_error(this)" disabled required><span class="text-danger tformerror"></span>
+				</div>
+
+				<div class="form-group">
+					<label for="tposter" class="my-1">Poster Link</label>
+					<input type="url" class="p-2" id="tposter" placeholder="Poster link" value="{{ trivia.poster }}" maxlength="2000" onfocus="clear_error(this)"><span class="text-danger tformerror"></span>
+				</div>
+
+				<div class="form-group">
+					<label for="tquote" class="my-1">Quote</label>
+					<input type="text" class="p-2" id="tquote" placeholder="Quote" value="{{ trivia.quote }}" maxlength="100" onfocus="clear_error(this)"><span class="text-danger tformerror"></span>
+				</div>
+
+			</div>
+
+
+			<p class="text-info font-weight-bold no-select dropdown-toggle" data-toggle="collapse" data-target="#tinformation" style="font-size: 14px; cursor: pointer;" onclick="scroll_to(this.offsetTop)">Information</p>
+
+			<div class="m-0 p-0 collapse" id="tinformation" data-parent="#teditform">
+				<div class="form-group">
+					<label for="tstartdate" class="my-1">Start Date</label>
+					<input type="date" class="p-2" id="tstartdate" placeholder="Start Date" value="{% timezone 'Asia/Kolkata' %}{{ trivia.start_time|date:'Y-m-d' }}{% endtimezone %}" onfocus="clear_error(this)" min="{% timezone 'Asia/Kolkata' %}{{ serverdatetime|date:'Y-m-d' }}{% endtimezone %}" required><span class="text-danger tformerror"></span>
+				</div>
+
+				<div class="form-group">
+					<label for="tstarttime" class="my-1">Start Time</label>
+					<input type="time" class="p-2" id="tstarttime" placeholder="Start Time" value="{% timezone 'Asia/Kolkata' %}{{ trivia.start_time|date:'H:i' }}{% endtimezone %}" onfocus="clear_error(this)" required=""><span class="text-danger tformerror"></span>
+				</div>
+
+				<div class="form-group">
+					<label for="tportalduration" class="my-1">Portal open for __ seconds</label>
+					<input type="number" class="p-2" id="tportalduration" placeholder="Portal Duration" value="{{ trivia.portal_duration }}" onfocus="clear_error(this)" min=1 required=""><span class="text-danger tformerror"></span>
+				</div>
+
+				<div class="form-group">
+					<label for="tabout" class="my-1">About Trivia</label>
+					<textarea placeholder="About Trivia" id="tabout" maxlength="1000" onfocus="clear_error(this)">{{ trivia.about }}</textarea><span class="text-danger tformerror"></span>
+				</div>
+
+				<div class="form-group">
+					<label for="tprizes" class="my-1">Prizes</label>
+					<textarea placeholder="About Trivia" id="tprizes" maxlength="1000" onfocus="clear_error(this)">{{ trivia.about }}</textarea><span class="text-danger tformerror"></span>
+				</div>
+
+				<div class="form-group">
+
+					<label for="tannouncement" class="my-1">Announcements <span>1/55</span></label>
+					<textarea placeholder="About Trivia" id="tannouncement" maxlength="1000" onfocus="clear_error(this)">{{ trivia.about }}</textarea><span class="text-danger tformerror"></span>
+				</div>
+			</div>
+
+			<p class="text-info font-weight-bold no-select dropdown-toggle" data-toggle="collapse" data-target="#tconstraints" style="font-size: 14px; cursor: pointer;" onclick="scroll_to(this.offsetTop);">Constraints</p>
+			<div class="m-0 p-0 collapse" id="tconstraints" data-parent="#teditform">
+				<div class="form-group">
+					<label for="tprivate" class="my-1 no-select"><input type="checkbox" class="p-2" id="tprivate" onclick="toggler_func('tppwdtoggler');" {% if trivia.private %}checked{% endif %}> Private</label>
+				</div>
+
+				<input type="hidden" data-toggle="collapse" data-target="#tppwdwrap" id="tppwdtoggler">
+				<div class="form-group collapse{% if trivia.private %} show{% endif %}" id="tppwdwrap">
+					<!--<label for="tquote" class="my-1">Quote</label>-->
+					<input type="password" class="p-2" id="tpassword" placeholder="Password" value="" onfocus="clear_error(this)"><span class="text-danger tformerror"></span>
+				</div>				
+
+				<div class="form-group">
+					<label for="tindividualtiming" class="my-1 no-select"><input type="checkbox" class="p-2" id="tindividualtiming" onclick="toggler_func('tdurationtoggler')" {% if trivia.individual_timing %}checked{% endif %}> Individual Timing</label>
+				</div>
+
+				<input type="hidden" data-toggle="collapse" data-target="#tdurationwrap" id="tdurationtoggler">
+				<div class="form-group collapse{% if trivia.individual_timing %} show{% endif %}" id="tdurationwrap">
+					<!--<label for="tquote" class="my-1">Quote</label>-->
+					<input type="number" class="p-2" id="tduration" placeholder="Duration (in seconds)" value="{{ trivia.duration }}" onfocus="clear_error(this)" min=1 required><span class="text-danger tformerror"></span>
+				</div>
+
+				<div class="form-group">
+					<label for="tcanchangeanswer" class="my-1 no-select"><input type="checkbox" class="p-2" id="tcanchangeanswer" {% if trivia.can_change_answer %}checked{% endif %}> Can change answer</label>
+				</div>
+
+				<div class="form-group">
+					<label for="tready" class="my-1 no-select"><input type="checkbox" class="p-2" id="tready" {% if trivia.ready %}checked{% endif %}> Ready</label>
+				</div>
+
+			</div>
+
+			<label><input type="radio" name="">Accept Agreement</label><br>
+
+
+		</form>
+		<button class="btn btn-sm btn-outline-success px-5" onclick="save_trivia(this ,this.nextSibling)" id="reg_btn">Save Trivia</button><span class="loader ml-2" id="loginloader"></span>
+
+	</div>
+
 </div>
+
+
+{% else %}
+	<div class="alert alert-danger">
+		{{ error }}
+	</div>
+{% endif %}
 
 {% endblock %}

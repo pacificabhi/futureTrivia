@@ -11,14 +11,14 @@ class Trivia(models.Model):
 	code = models.CharField(max_length=20, blank=False, null=False, unique=True)
 	password = models.CharField(max_length=40, blank=True, null=False, default="")
 	category = models.CharField(max_length=100, blank=False, null=False, default="General")
-
 	poster = models.CharField(max_length=2000, blank=True, null=False)
 	quote = models.CharField(max_length=100, blank=True, null=False)
-	prize = models.TextField(max_length=500, blank=False, null=False, default="Not Declared")
-	about = models.TextField(blank=False, null=False, max_length=1000, default="No details.")
-	announcements = models.TextField(blank=False, null=False, max_length=500, default="No Announcements")
 
-	start_time = models.DateTimeField(blank=False, null=False)
+	prize = models.TextField(max_length=5000, blank=False, null=False, default="Not Declared")
+	about = models.TextField(blank=False, null=False, max_length=5000, default="No details.")
+	announcements = models.TextField(blank=False, null=False, max_length=5000, default="No Announcements")
+
+	start_time = models.DateTimeField(blank=True, null=True)
 	duration = models.IntegerField(blank=False, null=False, default=0)
 	#per_questions_duration = models.IntegerField(blank=False, null=False, default=0)
 	portal_duration = models.IntegerField(blank=False, null=False, default=0)
@@ -31,8 +31,8 @@ class Trivia(models.Model):
 	live = models.BooleanField(blank=False, null=False, default=False)
 	rated = models.BooleanField(blank=False, null=False, default=False)
 	private = models.BooleanField(blank=False, null=False, default=False)
+	ready = models.BooleanField(blank=False, null=False, default=False)
 	
-
 
 	def __str__(self):
 		return self.code

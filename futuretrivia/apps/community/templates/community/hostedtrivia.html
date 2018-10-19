@@ -21,8 +21,8 @@
 		<div class="card my-3">
 			<div class="card-header py-1">
 				<div class="d-flex justify-content-between">
-					<div>
-						<p class="text-dark text-left font-weight-bold my-0" style="font-size: 16px;">{{ trivia.name }} ({{ trivia.code }})</p>
+					<div class="text-left">
+						<p class="text-dark text-left font-weight-bold my-0" style="font-size: 16px;">{{ trivia.name }} ({{ trivia.code }}) {%if trivia.ready %}<span class="text-success" style="font-size: 21px;">&check;</span>{% else %}<span class="text-danger" style="font-size: 21px;">&excl;</span>{% endif %}</p>
 						<span class="text-dark icon-clock"></span> &nbsp;<span class="text-secondary">{% timezone 'Asia/Kolkata' %}{{ trivia.start_time }} IST {% endtimezone %}</span>
 					</div>
 					<div>

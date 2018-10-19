@@ -26,6 +26,7 @@
 			var reg_btn = document.getElementById("reg_btn");
 			reg_btn.disabled=true;
 			reg_btn.innerHTML="Creating Account...";
+			$("input").attr("disabled", true);
 			loader.style.display="inline-block";
 			var xhttp = new XMLHttpRequest();
 			xhttp.onreadystatechange = function(){
@@ -46,13 +47,14 @@
 						document.getElementById("form_error_container").style.display="block";
 						reg_btn.disabled=false;
 						reg_btn.innerHTML="Sign up";
+						$("input").attr("disabled", false);
 						loader.style.display="none";
 
 					}
 				} else if(this.readyState == 4 && this.status == 403){
 					window.location.reload();
 				}
-			}
+			};
 			var token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
 			username=encodeURIComponent(username);
 			email=encodeURIComponent(email);
@@ -93,7 +95,6 @@
 		<form onsubmit="return false">
 			<div class="container-fluid m-0 p-0 form_error_container" style="text-align: left;" id="form_error_container">
 				<div class="alert alert-danger form_error"  id="form_error">
-					hello
 				</div>
 			</div>
 		{% csrf_token %}
