@@ -140,7 +140,7 @@ def is_valid_trivia(form):
 	trivia["private"] = private
 	if private:
 		tmp = form["tpassword"]["val"]
-		if tmp<=0:
+		if len(tmp)<=0:
 			valid=False
 			errors[form["tpassword"]["id_selector"]]="Password can not be blank"
 		else:

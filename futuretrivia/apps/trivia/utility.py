@@ -15,6 +15,7 @@ def get_question(q_obj):
 	question["id"] = q_obj.id
 	question["statement"] = q_obj.question
 	question["mcq"]=q_obj.mcq
+	question["title"]=q_obj.get_title()
 	if q_obj.duration:
 		question["restrict_timing"]=True
 		question["duration"]=q_obj.duration

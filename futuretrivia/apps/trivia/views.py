@@ -223,6 +223,8 @@ def triviaStart(request, code):
 
 
 def allTriviaQuestions(request, code):
+
+	
 	context={"success":False}
 	if not request.user.is_authenticated:
 		context["error"]="You are not logged in"
@@ -445,6 +447,12 @@ def getRankers(request, code):
 			if trivia not in request.user.userdetails.trivias.all():
 				context["error"]="Contest not found"
 				return JsonResponse(context)
+
+		if not trivia.is_started():
+			context["error"]="Contest not started yet"
+			return JsonResponse(context)
+
+
 		rankers_length=20
 		page = request.GET.get("page")
 		if not page:

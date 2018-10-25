@@ -95,7 +95,10 @@
 
 {% elif started_by_user %}
 
+
 	{% if not user_ended %}
+
+	
 	
 	<style type="text/css">
 		
@@ -145,6 +148,10 @@
 				width: 0;
 			}
 
+			#playarea img{
+				max-width: 100%;
+			}
+
 			.playarea{
 				margin-right: 0;
 			}
@@ -176,6 +183,8 @@
 			opacity: 0;
 			cursor: pointer;
 		}
+
+
 
 		.radio-btn{
 			display: inline-block;
@@ -372,7 +381,7 @@
 
 		//<span class="float-right text-success" style="font-size: 21px;">&check;</span>
 
-
+		//funtion to create navigation to all questions
 		function create_navigation(){
 			ques_list.innerHTML="";
 
@@ -387,7 +396,7 @@
 				var p = document.createElement("p");
 				p.setAttribute("class", "p-1 m-0");
 				var q_span = document.createElement("span");
-				q_span.innerHTML = "<b>"+(i+1)+".</b> "+question_objects_array[i].question.statement.slice(0, 20)+"...";
+				q_span.innerHTML = "<b>"+(i+1)+".</b> "+question_objects_array[i].question.title;
 				p.appendChild(q_span);
 
 				var check = document.createElement("span");
@@ -672,7 +681,7 @@
 			<div class="container-fluid m-0 p-2">
 				<div class="card">
 					<div class="card-body p-1">
-						<p class="font-weight-bold" id="q_statement" style="font-size: 16px;"><span class="loader ml-2" id="qsubmitloader" style="display: inline-block;"></span></p>
+						<p class="" id="q_statement" style="font-size: 16px;"><span class="loader ml-2" id="qsubmitloader" style="display: inline-block;"></span></p>
 						
 					</div>
 				</div>

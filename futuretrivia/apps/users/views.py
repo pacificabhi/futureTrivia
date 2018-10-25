@@ -333,6 +333,10 @@ def registerContest(request):
 		context["error"] = "Trivia not ready"
 		return JsonResponse(context)
 
+	if trivia.admin == request.user:
+		context["error"] = "You can not participate in this trivia"
+		return JsonResponse(context)
+
 	request.user.userdetails.trivias.add(trivia)
 	context["success"] = True
 

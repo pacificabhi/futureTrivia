@@ -12,6 +12,24 @@
 
 {% block content %}
 
+
+<div class="container pt-3">
+	<div class="d-flex justify-content-between">
+		<div class="text-left">
+			<a class="text-success" href="{% url 'hostedtrivia' %}">&#10229; all hosted trivia</a>
+		
+		</div>
+
+		{% if trivia %}
+		<div>
+			<a class="text-success" href="{% url 'hostedtriviaquestions' code=trivia.code %}">all questions &#10230;</a>
+			
+		</div>
+		{% endif %}
+	</div>
+
+</div>
+
 {% if trivia %}
 
 <style type="text/css">
@@ -178,7 +196,7 @@
 				if(this.readyState == 4 && this.status == 200){
 					var resp = JSON.parse(this.responseText);
 					if(resp.success){
-						show_popup("<font color='green'>Trivia Succesfully saved</font>")
+						show_popup("<font color='green'>&check; Trivia Succesfully saved</font>")
 					} else if(resp.form_errors){
 						$("#form_main_error").css("opacity", "1");
 						scroll_to($("#form_main_error")[0].offsetTop);
@@ -230,14 +248,14 @@
 
 <div class="container px-1 py-2">
 	
-	<p class="text-success font-weight-bold" style="font-size: 18px;">edit <a href="{% url 'triviadetails' code=trivia.code %}">{{ trivia.code }}</a></p>
+	<p class="text-dark font-weight-bold no-select" style="font-size: 16px;">update <a href="{% url 'triviadetails' code=trivia.code %}" class="text-dark">{{ trivia.code }}</a></p>
 
 	<div class="container-fluid" style="max-width: 800px;">
 		<div class="alert alert-danger" id="form_main_error" style="opacity: 0;">Form have errors. Please correct them.</div>
 		
 		<form onsubmit="return false;" class="text-left" id="teditform">
 			{% csrf_token %}
-			<p class="text-info font-weight-bold" style="font-size: 14px;">Identification</p>
+			<p class="text-secondary font-weight-bold" style="font-size: 14px;">Identification</p>
 
 			<div id="tidentification">
 
@@ -258,13 +276,13 @@
 
 				<div class="form-group">
 					<label for="tquote" class="my-1">Quote</label>
-					<input type="text" class="p-2" id="tquote" placeholder="Quote" value="{{ trivia.quote }}" maxlength="100" onfocus="clear_error(this)"><span class="text-danger tformerror"></span>
+					<input type="text" class="p-2" id="tquote" placeholder="Quote" value="{{ trivia.quote }}" maxlength="100" onfocus="clear_error(this)" autocomplete="off"><span class="text-danger tformerror"></span>
 				</div>
 
 			</div>
 
 
-			<p class="text-info font-weight-bold no-select dropdown-toggle" data-toggle="collapse" data-target="#tinformation" style="font-size: 14px; cursor: pointer;" onclick="scroll_to(this.offsetTop)">Information</p>
+			<p class="text-secondary font-weight-bold no-select dropdown-toggle" data-toggle="collapse" data-target="#tinformation" style="font-size: 14px; cursor: pointer;" onclick="scroll_to(this.offsetTop)">Information</p>
 
 			<div class="m-0 p-0 collapse" id="tinformation" data-parent="#teditform">
 				<div class="form-group">
@@ -299,8 +317,8 @@
 				</div>
 			</div>
 
-			<p class="text-info font-weight-bold no-select dropdown-toggle" data-toggle="collapse" data-target="#tconstraints" style="font-size: 14px; cursor: pointer;" onclick="scroll_to(this.offsetTop);">Constraints</p>
-			<div class="m-0 p-0 collapse" id="tconstraints" data-parent="#teditform">
+			<p class="text-secondary font-weight-bold no-select" style="font-size: 14px;">Constraints</p>
+			<div class="m-0 p-0" id="tconstraints">
 				<div class="form-group">
 					<label for="tprivate" class="my-1 no-select"><input type="checkbox" class="p-2" id="tprivate" onclick="toggler_func('tppwdtoggler');" {% if trivia.private %}checked{% endif %}> Private</label>
 				</div>

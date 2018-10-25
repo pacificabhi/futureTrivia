@@ -17,15 +17,15 @@
 
 		<div class="col-md-8 text-left mt-3">
 
-			<div class="container-fluid text-secondary m-0 py-3">
+			<!--<div class="container-fluid text-secondary m-0 py-3">
 				<h4>Contests</h4><hr>
-			</div>
+			</div>-->
 
 			<!-- Contest Block-->
 
 			<div class="container-fluid pt-3">
 				<div class="container-fluid">
-					<div class="text-success font-weight-bold" style="font-size: 18px;">Active Contests<hr></div>
+					<div class="text-dark font-weight-bold" style="font-size: 18px;">Active Contests<hr></div>
 					
 
 					{% for trivia in trivias.present %}
@@ -58,7 +58,7 @@
 
 			<div class="container-fluid pt-3">
 				<div class="container-fluid">
-					<div class="text-success font-weight-bold" style="font-size: 18px;">Upcoming Contests<hr></div>
+					<div class="text-dark font-weight-bold" style="font-size: 18px;">Upcoming Contests<hr></div>
 					
 
 					{% for trivia in trivias.future %}
@@ -91,7 +91,7 @@
 
 			<div class="container-fluid pt-3">
 				<div class="container-fluid">
-					<div class="text-success font-weight-bold" style="font-size: 18px;">Past Contests<hr></div>
+					<div class="text-dark font-weight-bold" style="font-size: 18px;">Past Contests<hr></div>
 					
 
 					{% for trivia in trivias.past %}

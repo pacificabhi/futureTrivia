@@ -1,0 +1,862 @@
+{% extends 'trivia/basetrivia.html' %}
+{% load static %}
+{% load tz %}
+
+
+{% block title %}
+	
+	Questions
+
+{% endblock %}
+
+{% block headscripts %}
+
+	<!--<script src="//tinymce.cachefly.net/4.0/tinymce.min.js"></script>-->
+
+	<script src="https://cloud.tinymce.com/dev/tinymce.min.js?apiKey=8q2qsbjlwgbbahx5w0spto4vg0str65wpc4i29z8psdog68t"></script>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container pt-3">
+	<div class="d-flex justify-content-between">
+		<div class="text-left">
+			<div>
+				<a class="text-success" href="{% url 'hostedtrivia' %}">&#10229; all hosted trivia</a>
+			</div>
+			{% if trivia %}
+			<div>
+				<a class="text-success" href="{% url 'edittrivia' code=trivia.code %}">&#10229; {{ trivia.code }}</a>
+			</div>
+			{% endif %}
+		</div>
+
+		<div>
+			{% if trivia %}
+				{% if not trivia.is_ended and not trivia.is_started %}
+					<button class="btn btn-sm btn-success font-weight-bold" onclick="add_new_question()">&#10133; add new</button>
+				{% endif %}
+			{% endif %}
+		</div>
+	</div>
+
+</div>
+
+
+{% if trivia %}
+
+
+<!-- if not started (deleteion  block)-->
+
+{% if not trivia.is_ended and not trivia.is_started %}
+
+<script type="text/javascript">
+
+	
+
+	function delete_question(btn, q_id){
+
+		var chk = confirm("Are you sure to delete this question?");
+
+		if(!chk){
+			return;
+		}
+
+
+		btn.disabled = true;
+		btn.innerHTML = loader_text;
+
+		var xhttp = new XMLHttpRequest();
+
+		xhttp.onreadystatechange=function(){
+			if(this.readyState == 4 && this.status == 200){
+
+				resp = JSON.parse(this.responseText);
+
+				if(resp.success){
+					btn.parentElement.parentElement.parentElement.parentElement.remove();
+
+				} else {
+					show_popup(resp.error);
+				}
+
+				btn.disabled = false;
+				btn.innerHTML = "delete";
+			
+			} else if(this.readyState == 4){
+
+				show_popup("Internal server error");
+				btn.disabled = false;
+				btn.innerHTML = "delete";
+			}
+		};
+
+		var q = "q_id="+q_id;
+
+		xhttp.open("GET", "{% url 'deletequestion' code=trivia.code %}?"+q, true);
+		xhttp.send();
+	}
+
+
+</script>
+
+{% endif %}
+
+<!-- DELETION BLOCK ENDS-->
+
+<!-- ALL BLOCK SCRIPT-->
+
+
+<script type="text/javascript">
+
+
+	$(document).ready(function(){
+		loader_text = "<span class='loader m-0 p-0' style='display: inline-block;'></span>";
+		questions = {};
+		{% if not trivia.is_ended and not trivia.is_started %}
+		max_opt_id = undefined;
+		temp_q_obj = undefined;
+		inittext("qstatement", "");
+		inittext("qexplanation", "");
+		{% endif %}
+	});
+
+	function get_question(q_id, action){
+
+
+		var xhttp = new XMLHttpRequest();
+		$("#full-page-loader").css("display", "block");
+		xhttp.onreadystatechange=function(){
+			if(this.readyState == 4 && this.status == 200){
+				$("#full-page-loader").css("display", "none");
+				resp = JSON.parse(this.responseText);
+
+				if(resp.success){
+					//console.log(resp);
+					questions["q_obj_"+q_id] = resp.q_obj;
+					//console.log(questions["q_obj_"+q_id]);
+					if(action == 'view'){
+						view_question(resp.q_obj);
+					} else if(action == 'edit'){
+						edit_question(resp.q_obj, 'edit');
+
+					}
+				} else {
+					show_popup(resp.error);
+				}
+				
+			} else if(this.readyState == 4){
+				$("#full-page-loader").css("display", "none");
+				show_popup("Internal server error");
+				
+			}
+		};
+
+		var q = "q_id="+q_id;
+
+		xhttp.open("GET", "{% url 'editquestion' code=trivia.code %}?"+q, true);
+		xhttp.send();
+
+
+	}
+
+	function check_question_existance(q_id, action, post_action){
+		var id_text = "q_obj_"+q_id;
+
+		if(questions.hasOwnProperty(id_text)){
+			//console.log("already");
+			if(action == 'view'){
+				view_question(questions[id_text]);
+			} else if(action == 'edit'){
+				//alert(post_action);
+				edit_question(questions[id_text], post_action);
+
+			}
+		} else {
+			get_question(q_id, action);
+		}
+
+	}
+
+	//<li class="list-group-item list-group-item-success"><p class="p-0 m-0"><span class="text-success">&#10004;</span><span>First item</span></p></li>
+
+	function spread_options_view(options, option, correct_answer){
+		var li = document.createElement("li");
+		if(option.id == correct_answer){
+			li.setAttribute("class", "list-group-item list-group-item-success");
+		} else {
+			li.setAttribute("class", "list-group-item list-group-item-light");
+
+		}
+
+		var p = document.createElement("p");
+		p.setAttribute("class", "p-0 m-0");
+
+		if(option.id == correct_answer){
+			var span = document.createElement("span");
+			span.setAttribute("class", "text-success");
+			span.innerHTML = "&#10004; ";
+			p.appendChild(span);
+
+		}
+
+		var span = document.createElement("span");
+		span.innerHTML=option.value;
+		p.appendChild(span);
+
+		li.appendChild(p);
+		options.appendChild(li);
+
+	}
+
+
+	function view_question(q_obj){
+		$("#full-page-loader").css("display", "block");
+		$("#view_window").css("display", "block");
+		$("#q_statement_view").html(q_obj.statement);
+		$("#q_positive_score_view").html(q_obj.positive_score);
+		$("#q_negative_score_view").html(q_obj.negative_score);
+		var options = document.getElementById("q_options_view");
+		options.innerHTML="";
+
+		for(var i=0;i<q_obj.options.length;i++){
+
+			spread_options_view(options, q_obj.options[i], q_obj.correct_answer);
+		}
+
+		$("#q_explaination_view").html(q_obj.explaination);
+
+		$("#full-page-loader").css("display", "none");
+
+	}
+
+
+</script>
+
+<!--ALL BLOCK SCRIPTS ENDS-->
+
+<!-- VIEW WINDOW-->
+
+<style type="text/css">
+	
+	#view_window{
+		position: fixed;
+		display: none;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		max-height: 100%;
+		min-height: 100%;
+		margin: 0;
+		padding: 0;
+		overflow: auto;
+		z-index: 9999;
+		background-color: rgba(230, 230, 230, 1);
+	}
+
+	#view_window img{
+		max-width: 100%;
+	}
+
+</style>
+
+<div id="view_window">
+
+<div class="d-flex justify-content-between">
+	<div>
+		
+	</div>
+	<div>
+		<button class="btn btn-sm p-2" title="close" onclick="document.getElementById('view_window').style.display='none';" style="background-color: rgba(0,0,0,0); font-weight: bold; font-size: 20px;">&#10006;</button>
+	</div>
+</div>
+
+
+<div class="container py-2 px-0">
+
+	<div class="container-fluid px-0">
+		<div class="card">
+			<div class="card-header mx-0">
+				<p class="text-left font-weight-bold">Question</p>
+				<p id="q_statement_view" class="text-left">What is my name?</p>
+			</div>
+		</div>
+
+		<div class="d-flex justify-content-between px-1">
+			<div>
+				<span class="text-success font-weight-bold">Positive Score <span id="q_positive_score_view" class="text-light bg-success p-1 rounded-circle">21</span> &#10004;</span>
+			</div>
+			<div>
+				<span class="text-danger font-weight-bold">Negative Score <span id="q_negative_score_view" class="text-light bg-danger p-1 rounded-circle">21</span> &#10008;</span>
+			</div>
+		</div>
+
+		<div class="card" style="background-color: rgba(0,0,0,0); border: 0;">
+			<div class="card-body">
+				<p class="text-left font-weight-bold">Options</p>
+					<ul id="q_options_view" class="list-group text-left">
+						<li class="list-group-item list-group-item-success"><p class="p-0 m-0"><span class="text-success">&#10004;</span> First item</p></li>
+						<li class="list-group-item list-group-item-light"><p class="p-0 m-0"> Second item</p></li>
+						<li class="list-group-item">Third item</li>
+					</ul> 
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="card-header mx-0">
+				<p class="text-left font-weight-bold">Explaination</p>
+				<p id="q_explaination_view" class="text-left">What is my name?</p>
+			</div>
+		</div>
+	</div>
+
+
+</div>
+	
+</div>
+
+<!-- VIEW WINDOW ENDS-->
+
+
+
+
+<!-- CAN EDIT CODE BELOW-->
+
+{% if not trivia.is_ended and not trivia.is_started %}
+
+
+
+<style type="text/css">
+
+	#edit_window{
+
+		position: fixed;
+		display: none;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		max-height: 100%;
+		min-height: 100%;
+		margin: 0;
+		z-index: 10000;
+		overflow: auto;
+		background-color: rgba(230, 230, 230, 1);
+	}
+	
+	#qeditform label{
+		display: inline-block;
+		font-weight: bold;
+		font-size: 12px;
+		text-align: left;
+	}
+
+	#qeditform input[type="text"], #qeditform input[type="password"], #qeditform input[type="number"], #qeditform input[type="url"]{
+		display: block;
+		width: 100%;
+		height: 30px;
+		min-width: 30px;
+		border-radius: 4px;
+		border: solid 1px rgba(210, 210, 210, 1);
+	}
+
+
+	#qeditform input[type="checkbox"]{
+		cursor: pointer;
+
+	}
+
+	#qeditform textarea{
+		display: block;
+		width: 100%;
+		min-width: 100%;
+		max-width: 100%;
+		height: 100px;
+		min-height: 100px;
+		max-height: 100px;
+		border-radius: 4px;
+		background-color: #fff;
+		border: solid 1px rgba(210, 210, 210, 1);
+
+	}
+
+
+	.qformerror{
+
+		font-size: 12px;
+		opacity: 1;
+		transition: 0.2s;
+	}
+
+
+	
+
+
+
+
+</style>
+
+<script type="text/javascript">
+	
+	function inittext(elem_selector, pre_data){
+		var id_selector = "#"+elem_selector;
+
+		tinymce.init({
+			selector: id_selector,
+			theme: "modern",
+			plugins: [
+			  "advlist advcode autolink lists link image charmap preview anchor",
+			  "searchreplace visualblocks code codesample",
+			  "media contextmenu paste"
+			],
+			toolbar: "undo redo | preview | codesample link image | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent",
+			menubar: "edit view insert format",
+			max_height: 200,
+			statusbar: false,
+			force_br_newlines : true,
+  			force_p_newlines : false,
+  			forced_root_block : '',
+			//mobile: { theme: 'mobile' },
+
+
+		});
+
+		tinymce.get(elem_selector).setContent(pre_data);
+
+	}
+
+	function add_new_question(){
+		var new_q_obj = {statement:"", correct_answer: 0, explaination:"No Explaination", mcq:true, positive_score:0, negative_score:0, options:[], restrict_timing: false, duration: 0, id: 0, title: ""};
+
+		edit_question(new_q_obj, 'new');
+	}
+
+	function find_max_opt_id(options){
+		var max_opt_id = 0;
+
+		for(var i=0;i<options.length;i++){
+			if(options[i].id > max_opt_id){
+				max_opt_id = options[i].id;
+			}
+		}
+
+		return max_opt_id;
+
+	}
+
+
+
+	function delete_option(id){
+
+		tinymce.remove('#qoption_'+id);
+		var elem_to_delete = document.getElementById("o_group_"+id);
+		elem_to_delete.remove();
+
+
+		for(var i=id+1;i<=max_opt_id;i++){
+			var elem = $("#o_group_"+i)[0];
+			var new_i = i-1;
+			elem.setAttribute("id", "o_group_"+new_i);
+			elem.children[0].children[0].children[0].setAttribute("for", "qoption_"+new_i);
+			elem.children[0].children[0].children[0].innerHTML = "Option "+new_i;
+
+			elem.children[0].children[1].children[0].setAttribute("onclick", "delete_option("+new_i+")");
+			elem.children[0].children[1].children[1].children[0].value=new_i;
+
+			var old_data = tinymce.get("qoption_"+i).getContent();
+			var new_id = "qoption_"+new_i;
+			tinymce.remove('#qoption_'+i);
+
+			elem = $("#qoption_"+i)[0];
+			elem.setAttribute("id", new_id);
+			elem.setAttribute("data-opt", new_i);
+
+
+			inittext(new_id, old_data);
+
+		}
+
+		max_opt_id--;
+	}
+
+
+
+	function add_option(pre_text, correct_answer){
+
+		max_opt_id++;
+
+		var new_id = "qoption_"+max_opt_id;
+		var opt_id = max_opt_id;
+
+		var div = document.createElement("div");
+		div.setAttribute("class", "form-group");
+		div.setAttribute("id", "o_group_"+max_opt_id);
+
+		var flex = document.createElement("flex");
+		flex.setAttribute("class", "d-flex justify-content-between");
+
+		var tempdiv = document.createElement("div");
+
+		var label = document.createElement("label");
+		label.setAttribute("for", new_id);
+		label.setAttribute("class", "my-1");
+		label.innerHTML="Option "+max_opt_id;
+		tempdiv.appendChild(label);
+
+		flex.appendChild(tempdiv);
+
+		tempdiv = document.createElement("div");
+
+		var button = document.createElement("button");
+		button.setAttribute("class", "btn btn-sm text-danger font-weight-bold");
+		button.setAttribute("onclick", "delete_option("+max_opt_id+")");
+		button.setAttribute("style", "background-color: rgba(0,0,0,0);");
+		button.innerHTML="delete";
+
+		tempdiv.appendChild(button);
+
+		var label = document.createElement("label");
+		var input = document.createElement("input");
+		input.setAttribute("type", "radio");
+		if(correct_answer){
+			//alert("correct_answer");
+			input.checked=true;
+		}
+		input.name = "correct_answer";
+		input.setAttribute("value", max_opt_id);
+		label.appendChild(input);
+
+		var span = document.createElement("span");
+		span.innerHTML="correct option";
+		label.appendChild(span);
+		tempdiv.appendChild(label);
+
+		flex.appendChild(tempdiv);
+
+		div.appendChild(flex);
+
+		var textarea = document.createElement("textarea");
+		textarea.setAttribute("id", new_id);
+		textarea.setAttribute("data-opt", opt_id);
+		textarea.setAttribute("name", "option");
+		textarea.setAttribute("maxlength", "1000");
+		//textarea.setAttribute("onfocus", "clear_error(this)");
+		textarea.setAttribute("required", "");
+		div.appendChild(textarea);
+
+		span = document.createElement("span");
+		span.setAttribute("class", "text-danger qformerror");
+		div.appendChild(span);
+
+		qoptions.appendChild(div);
+
+		inittext(new_id, pre_text);
+		$('#edit_window').animate({
+	        scrollTop: div.offsetTop
+	    }, 800, function(){
+
+	    });
+	}
+
+
+
+	function edit_question(q_obj, post_action){
+		
+		//alert("edit");
+
+		$("#full-page-loader").css("display", "block");
+		$("#edit_or_new").html(post_action+" Question");
+
+		$("#qpos_score").val(q_obj.positive_score);
+		$("#qneg_score").val(q_obj.negative_score);
+		$("#qtitle").val(q_obj.title);
+		tinymce.get("qstatement").setContent(q_obj.statement);
+		tinymce.get("qexplanation").setContent(q_obj.explaination);
+
+		//max_opt_id = find_max_opt_id(q_obj.options);
+		max_opt_id=0;
+		$("#qoptions").html("");
+		for(var i=0;i<q_obj.options.length;i++){
+			/*if(max_opt_id < q_obj.options[i].id){
+				max_opt_id = q_obj.options[i].id;
+			}*/
+			//console.log(q_obj.options[i].id+ "==" +q_obj.correct_answer);
+			//console.log(q_obj.options[i].id == q_obj.correct_answer);
+			add_option(q_obj.options[i].value, q_obj.options[i].id == q_obj.correct_answer);
+			q_obj.options[i].id = i+1;
+
+		}
+
+		temp_q_obj = q_obj;
+
+		//console.log(q_obj);
+		$('#edit_window').animate({
+	        scrollTop: 0
+	    }, 800, function(){
+
+	    });
+
+	    $("#edit_window").css("display", "block");
+	    $("#edit_window")[0].click();
+
+		$("#full-page-loader").css("display", "none");		
+
+	}
+
+	function create_ques_temp_object(){
+
+		var qstatement = tinymce.get("qstatement").getContent();
+		var qexplanation = tinymce.get("qexplanation").getContent();
+		var positive_score = document.getElementById("qpos_score").value;
+		var negative_score = document.getElementById("qneg_score").value;
+		var title = document.getElementById("qtitle").value.trim();
+		var options = {};
+
+		var options_dom = document.getElementsByName("option");
+		for(var i=0;i<options_dom.length;i++){
+			var opt_id = parseInt(options_dom[i].getAttribute("data-opt"));
+			var opt_value = tinymce.get(options_dom[i].id).getContent();
+			options[opt_id]=opt_value;
+		}
+
+		var correct_answer = 0;
+
+		var radios = document.getElementsByName("correct_answer");
+
+		for(var i=0;i<radios.length;i++){
+			if(radios[i].checked){
+				correct_answer = parseInt(radios[i].value);
+				break;
+			}
+
+		}
+		//console.log("correct_answer "+ correct_answer)
+		
+		temp_q_obj.title = title;
+		temp_q_obj.statement = qstatement;
+		//console.log(qstatement);
+		temp_q_obj.explanation = qexplanation;
+		temp_q_obj.positive_score = positive_score;
+		temp_q_obj.negative_score = negative_score;
+		temp_q_obj.options = options;
+		temp_q_obj.correct_answer = correct_answer;
+
+	}
+
+
+	function save_question(btn){
+
+		create_ques_temp_object();
+		var valid = true;
+
+		if(valid){
+			btn.disabled = true;
+			var loader = document.getElementById("full-page-loader");
+			loader.style.display="block";
+
+			var xhttp = new XMLHttpRequest();
+
+			xhttp.onreadystatechange = function(){
+				if(this.readyState == 4 && this.status == 200){
+					var resp = JSON.parse(this.responseText);
+					//console.log(resp);
+					if(resp.success){
+						show_popup("<font color='green'>&check; Question saved</font>");
+						window.location.reload();
+					} else if(resp.form_errors){
+						$("#form_main_error").css("opacity", "1");
+						
+						var s = "";
+						for(var i=0;i<resp.form_errors.length;i++){
+							s+=resp.form_errors[i];
+							s+="<br>";
+						}
+						$("#form_main_error").html(s);
+						$('#edit_window').animate({
+					        scrollTop: 0
+					    }, 800, function(){
+
+					    });
+
+					} else {
+						//close_edit_window();
+						show_popup(resp.error)
+					}
+					btn.disabled = false;
+					loader.style.display="none";
+				} else if(this.readyState == 4){
+					show_popup("Internal Server Error");
+					btn.disabled = false;
+					loader.style.display="none";
+				}
+
+			};
+
+			var form = JSON.stringify(temp_q_obj);
+			//console.log(form);
+			var token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+
+			var q = "csrfmiddlewaretoken="+token+"&ques_form="+form;
+			xhttp.open("POST", "{% url 'editquestion' code=trivia.code %}", true);
+			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+			xhttp.send(q);
+
+		} else {
+
+
+		}
+
+	}
+
+	function close_edit_window(){
+
+		for(var i=1;i<=max_opt_id;i++){
+			tinymce.remove('#qoption_'+i);
+		}
+
+		$("#edit_window").css("display", "none");
+		temp_q_obj = undefined;
+
+	}
+
+</script>
+
+<div id="edit_window" class="px-1">
+
+<div class="d-flex justify-content-between p-1 sticky-top bg-light">
+
+	<div>
+		<button class="btn btn-sm btn-danger" onclick="close_edit_window();">Cancel</button>
+	</div>
+	<div>
+		<button class="btn btn-sm btn-info" onclick="save_question(this);">Save</button>
+	</div>
+</div>
+
+<div class="container py-2 px-0">
+
+	<p class="text-dark font-weight-bold no-select" style="font-size: 16px;" id="edit_or_new">Add New Question</p>
+
+	<div class="alert alert-danger" id="form_main_error" style="opacity: 0;">Form have errors. Please correct them.</div>
+
+	<form onsubmit="return false" id="qeditform">
+		{% csrf_token %}
+
+			<div class="form-group" id="score_group">
+				<div class="d-flex justify-content-between">
+					<div>
+						<label for="qpos_score" class="my-1">Positive Score</label>
+						<input type="number" id="qpos_score" min="0"><span class="text-danger qformerror"></span>
+					</div>
+					<div>
+						<label for="qneg_score" class="my-1">Negative Score</label>
+						<input type="number" id="qneg_score" min="0"><span class="text-danger qformerror"></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group text-left">
+				<label for="qtitle" class="my-1">Title</label>
+				<input type="text" id="qtitle" maxlength="40" placeholder="Question Title" style="" onfocus="" required=""><span class="text-danger qformerror"></span>
+			</div>
+
+			<div class="form-group text-left">
+				<label for="qstatement" class="my-1">Question</label>
+				<textarea id="qstatement" maxlength="5000" style="height: 150px; max-height: 200px;" onfocus="" required=""></textarea><span class="text-danger qformerror"></span>
+			</div>
+
+			<p class="text-secondary font-weight-bold text-left" style="font-size: 14px;">Options</p>
+			<div id="qoptions" class="my-1">
+				<!--<div class="form-group" id="o_group_1">
+					<div class="d-flex justify-content-between">
+						<div>
+							<label for="qoption_1" class="my-1">Option 1</label>
+						</div>
+						<div>
+							<button class="btn text-danger btn-sm" onclick="delete_option(1);" style="background-color: rgba(0,0,0,0);">delete</button>
+							<label><input type="radio" name="correct_answer" value="1"><span>correct answer</span></label>
+						</div>
+					</div>
+					<span class="text-danger qformerror"></span><textarea id="qoption_1" data-opt="1" maxlength="1000" style="" onfocus="clear_error(this)" name="option">{{ trivia.about }}</textarea>
+				</div>-->
+			</div>
+			<div class="d-flex justify-content-between" id="options-control">
+				<div>
+					
+				</div>
+				<div>
+					<button class="btn btn-info btn-sm" onclick="add_option('');">&#10133; Add Option</button>
+				</div>
+			</div>
+
+
+			<div class="form-group text-left">
+				<label for="qexplanation" class="my-1">Explaination</label>
+				<textarea id="qexplanation" maxlength="5000" style="height: 150px; max-height: 200px;" onfocus=""></textarea><span class="text-danger qformerror"></span>
+			</div>
+
+		</form>
+
+
+</div>
+	
+</div>
+
+
+{% endif %}
+
+
+<!-- CAN EDIT BLOCK ENDS-->
+
+<div class="container px-1 py-2">
+	
+	<p class="text-success font-weight-bold" style="font-size: 18px;">All Questions of {{ trivia.code }}</p>
+
+	<div class="container-fluid" style="transition: 0.2s !important;">
+		{% for ques in trivia.question_set.all %}
+		<div class="card my-3">
+			<div class="card-header py-1">
+				<div class="d-flex justify-content-between">
+					<div class="text-left">
+						<p class="text-dark text-left font-weight-bold my-0" style="font-size: 14px;">{{ ques.get_title }}</p>
+						<span class="text-success">&#10004; +{{ ques.positive_score }}</span>&nbsp;,&nbsp;<span class="text-danger">&#10008; -{{ ques.negative_score }}</span>
+					</div>
+
+					<div>
+						<button class="btn btn-sm text-success font-weight-bold" onclick="check_question_existance('{{ ques.id }}', 'view')" style="background-color: rgba(0,0,0,0)">view</button>
+						
+
+
+						{% if not trivia.is_started %}
+						<button class="btn btn-sm text-info font-weight-bold" onclick="check_question_existance('{{ ques.id }}', 'edit', 'edit')" style="background-color: rgba(0,0,0,0)">edit</button>
+						<button class="btn btn-sm text-danger font-weight-bold" onclick="delete_question(this ,'{{ ques.id }}')" style="background-color: rgba(0,0,0,0)">delete</button>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{% empty %}
+			<p>
+				No Questions
+			</p>
+
+		{% endfor %}
+
+	</div>
+
+</div>
+
+{% else %}
+
+	<div class="alert alert-danger">
+		No Trivia Found
+	</div>
+
+{% endif %}
+
+{% endblock %}

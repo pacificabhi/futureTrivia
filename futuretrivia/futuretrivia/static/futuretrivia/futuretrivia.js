@@ -27,6 +27,13 @@ function show_top_popup(text, close, closetime){
 
 }
 
+function scroll_to(offset){
+	$('html, body').animate({
+        scrollTop: offset
+    }, 800, function(){
+
+    });
+}
 
 
 function checkBrowserOnline(){

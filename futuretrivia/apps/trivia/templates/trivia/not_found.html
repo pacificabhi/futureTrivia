@@ -6,11 +6,25 @@
 
 
 {% block content %}
+	<script type="text/javascript">
+	$(document).ready(function(){
+
+		var url = document.referrer;
+		if(url.length==0){
+			url = "/";
+			document.getElementById("refer_to").innerHTML = "Homepage";
+		}
+		$("#refer_to").attr("href", url);
+
+	});
+
+	</script>
+
 	<div class="container-fluid mt-5">
 		
 		<div class="container-fluid" id="error-wrap">
 			<p class="font-weight-bold text-dark" style="font-size: 40px;"><span class="icon-sad text-danger font-weight-bold"></span> That's an error!</p>
-			<p class="font-weight-bold text-secondary">The page you requested is not found! Go to <a href="{% url 'triviahome' %}">Homepage</a>?</p>
+			<p class="font-weight-bold text-secondary">The page you requested is not found! Return to <a href="#" id="refer_to">previous page</a>?</p>
 		</div>
 
 	</div>
