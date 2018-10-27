@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'apps.trivia',
     'apps.users',
     'apps.community',
-    #'channels',
+    'apps.practice',
 ]
 
 MIDDLEWARE = [

@@ -142,6 +142,45 @@ def editTrivia(request, code):
 
 
 
+
+
+def lockTrivia(request):
+
+	
+	context={"success": False}
+
+	if not request.user.is_authenticated:
+		context["error"] = "You are not logged in"
+		return JsonResponse(context)
+
+	code = request.GET.get("code")
+	if not code:
+		context["error"] = "Invalid Request"
+		return JsonResponse(context)		
+
+	trivia = Trivia.objects.filter(code=code).first()
+
+	if trivia:
+		if trivia.admin == request.user:
+			if trivia.locked:
+				context["error"]="Trivia already locked"
+				return JsonResponse(context)
+
+			res = trivia.lock()
+			if res:
+				context["success"]=True
+			else:
+				context["error"]="Trivia can not be locked"
+				return JsonResponse(context)
+
+	else:
+		context["error"] = "Trivia does not exist"
+		return JsonResponse(context)		
+
+
+	return JsonResponse(context)
+
+
 def hostedTriviaQuestions(request, code):
 
 	if not request.user.is_authenticated:
@@ -157,7 +196,7 @@ def hostedTriviaQuestions(request, code):
 	else:
 		return render(request, 'trivia/not_found.html', {})
 
-	print("title== ", trivia.question_set.all().first().get_title())
+	#print("title== ", trivia.question_set.all().first().get_title())
 
 	return render(request, 'community/hostedtriviaquestions.html', context)
 

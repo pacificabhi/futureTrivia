@@ -124,22 +124,28 @@
 		<!-- Contest main Detail -->
 
 		<div class="col-md-6" style="text-align: left;">
-			<p class="text-dark" style="font-size: 22px;">{{ trivia.name }} {% if ended %}<span class="text-danger" style="font-size: 13px;">(Ended)</span>{% elif can_start %}<span class="text-success" style="font-size: 13px;">(War is On)</span>{% endif %}</p>
+			<p class="text-dark" style="font-size: 22px;">{{ trivia.name }}</p>
+			<p class=" p-0 px-3"><span class="text-secondary" style="font-size: 12px;"><span class="{{ trivia.get_rating.color }} font-weight-bold">{{ trivia.get_rating.rating }}{% if trivia.get_rating.yes %} &#9733;{% endif %}</span> - {{ trivia.get_rating.total }} reviews</span></p>
 			<div class="container-fluid my-1" style="font-size: 11px;">
 				 <ul class="nav">
+				 	{% if private %}
 					<li class="nav-item pr-3">
-						{% if private %}
-							<span class="text-dark icon-lock"></span> &nbsp;<span class="text-secondary">Private</span>
-						{% else %}
-							<span class="text-dark icon-globe"></span> &nbsp;<span class="text-secondary">Public</span>
-						{% endif %}
+						
+						<span class="text-dark icon-lock"></span> &nbsp;<span class="text-secondary">Private</span>
+					
 					</li>
-					<li class="nav-item pr-3">
-						<span class="text-dark icon-browser"></span> &nbsp;<span class="text-secondary" title="">{% if trivia.live %} Real Time {% else %}Portal {% endif %}</span>
-					</li>
+					{% endif %}
+					
 					<li class="nav-item pr-3">
 						<span class="text-dark icon-book-open"></span> &nbsp;<span class="text-secondary" title="">{{ trivia.category }}</span>
 					</li>
+
+					{% if trivia.individual_timing %}
+					<li class="nav-item pr-3">
+						<span class="text-dark icon-hourglass"></span> &nbsp;<span class="text-secondary" title="">Individual Timing</span>
+					</li>
+					{% endif %}
+
 				</ul>
 				{% if trivia in request.user.userdetails.trivias.all %}
 					{% if ended %}
@@ -201,7 +207,16 @@
 
 					</script>
 
-					<b>Before Start: </b> <span id="before_start" data-timeleft="{{ before_start }}"></span>
+					<span class="text-primary"><b>Before Start: </b> <span id="before_start" data-timeleft="{{ before_start }}"></span></span>
+
+				{% elif not ended %}
+
+					<span class="text-success font-weight-bold">War is on</span>
+
+				{% else %}
+
+					<span class="text-danger font-weight-bold">ended</span>
+
 				{% endif %}
 			</div>
 
@@ -216,7 +231,8 @@
 		<div class="col-md-4">
 			<div class="card rounded-0 text-left" id="timingDetails" style="">
 				
-		
+			{% if not trivia.is_ended %}
+
 				<div class="row p-2">
 					<div class="col-md-5">
 						<span class="text-secondary" style="font-size: 15px;">Portal opening: </span>
@@ -233,46 +249,68 @@
 					</div>
 
 					<div class="col-md-7">
-						<b><span class="text-dark" style="font-size: 11px;">{% timezone 'Asia/Kolkata' %}{{ endtime }} IST {% endtimezone %}</span></b>
+						<b><span class="text-dark" style="font-size: 11px;">{% timezone 'Asia/Kolkata' %}{{ trivia.get_endtime }} IST {% endtimezone %}</span></b>
 					</div>
 				</div>
 
-				{% if not trivia.question_timing %}
+
 				<div class="row p-2">
 					<div class="col-md-5">
 						<span class="text-secondary" style="font-size: 15px;">Duration</span>
 					</div>
 
 					<div class="col-md-7">
-						<b><span class="text-dark" style="font-size: 11px;">{{ trivia.duration }} minutes</span></b>
+						<b><span class="text-dark" style="font-size: 11px;">{{ trivia.get_duration_string }}</span></b>
 					</div>
 				</div>
-				{% endif %}
+
+			{% endif %}
+
+			<div class="row p-2">
+				<div class="col-md">
+					
+					<a class="btn btn-sm text-info font-weight-bold" href="{% url 'trivialeaderboard' code=trivia.code %}" style="background-color: rgba(0,0,0,0);">&#9839; Leaderbord</a><br>
+				</div>
+			</div>
+
+				
+
+			{% if trivia.is_fully_ended %}
 
 				<div class="row p-2">
 					<div class="col-md">
+						<button class="btn btn-sm text-secondary font-weight-bold" style="background-color: rgba(0,0,0,0);"><span class="icon-clock"></span> {{ trivia.get_duration_string }}</button><br>
+						<button class="btn btn-sm text-info font-weight-bold" onclick="show_popup('Practice trivia will be available soon')" style="background-color: rgba(0,0,0,0);">&#10160; Practice</button><br>
+						<a class="btn btn-sm text-success font-weight-bold" style="background-color: rgba(0,0,0,0);" href="{% url 'afteranswer' code=trivia.code %}">&#10004;See Solutions</a>
+					</div>
+				</div>
+
+
+			{% endif %}
+				<div class="row p-2">
+					<div class="col-md">
 						{% if ended %}
-							<a class="btn btn-block btn-outline-success" href="{% url 'trivialeaderboard' code=trivia.code %}"> See Leaderboard</a>
+							
 						{% elif request.user == trivia.admin %}
 
-							<span>You are admin of {{ trivia.code }}</span>
+							<span class="text-secondary">You are admin of {{ trivia.code }}</span>
 
 						{% else %}
 							
 
 							{% if trivia in request.user.userdetails.trivias.all %}
 								{% if can_start %}
-								<a class="btn btn-block btn-outline-success" {% if not can_start %}disabled{% endif %} href="{% url 'triviaplay' code=trivia.code %}">Enter</a>
+								<a class="btn btn-sm text-success font-weight-bold" style="background-color: rgba(0,0,0,0);" {% if not can_start %}disabled{% endif %} href="{% url 'triviaplay' code=trivia.code %}">&#10150; Click to Enter</a>
 								{% else %}
-									<button class="btn btn-outline-success" disabled>Registered</button>
+									<button class="btn btn-sm text-success" style="background-color: rgba(0,0,0,0);" disabled>&check; Registered</button>
 								{% endif %}
 
 							{% else %}
 								{% if request.user.is_authenticated %}
 									{% if can_register %}
-										<button class="btn btn-outline-success" onclick="register_contest_and_enter(this,'{{ trivia.code }}', '{{ can_start }}')">Register</button>
+										<button class="btn btn-sm text-success font-weight-bold" style="background-color: rgba(0,0,0,0);" onclick="register_contest_and_enter(this,'{{ trivia.code }}', '{{ can_start }}')">Click to Register</button>
 									{% else %}
-										<button class="btn btn-outline-success" disabled>Registration Ended</button>	
+										<button class="btn btn-sm text-success font-weight-bold" style="background-color: rgba(0,0,0,0);" disabled>Registration Ended</button>	
 
 									{% endif %}
 								

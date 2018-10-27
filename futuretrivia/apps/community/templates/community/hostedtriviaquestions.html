@@ -214,7 +214,7 @@
 
 	function view_question(q_obj){
 		$("#full-page-loader").css("display", "block");
-		$("#view_window").css("display", "block");
+		$("#view_window").css("left", "0%");
 		$("#q_statement_view").html(q_obj.statement);
 		$("#q_positive_score_view").html(q_obj.positive_score);
 		$("#q_negative_score_view").html(q_obj.negative_score);
@@ -243,9 +243,9 @@
 	
 	#view_window{
 		position: fixed;
-		display: none;
+		display: block;
 		top: 0;
-		left: 0;
+		left: 100%;
 		width: 100%;
 		height: 100%;
 		max-height: 100%;
@@ -254,6 +254,7 @@
 		padding: 0;
 		overflow: auto;
 		z-index: 9999;
+		transition: 0.6s;
 		background-color: rgba(230, 230, 230, 1);
 	}
 
@@ -270,7 +271,7 @@
 		
 	</div>
 	<div>
-		<button class="btn btn-sm p-2" title="close" onclick="document.getElementById('view_window').style.display='none';" style="background-color: rgba(0,0,0,0); font-weight: bold; font-size: 20px;">&#10006;</button>
+		<button class="btn btn-sm p-2" title="close" onclick="document.getElementById('view_window').style.left='100%';" style="background-color: rgba(0,0,0,0); font-weight: bold; font-size: 20px;">&#10006;</button>
 	</div>
 </div>
 

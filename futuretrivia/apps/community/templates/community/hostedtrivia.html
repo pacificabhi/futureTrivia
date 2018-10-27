@@ -12,6 +12,44 @@
 
 {% block content %}
 
+
+<script type="text/javascript">
+
+	$(document).ready(function(){
+		loader_text = "<span class='loader m-0 p-0' style='display: inline-block;'></span>";
+		
+	});
+	
+	function lock_trivia(btn, code){
+		btn.disabled=true;
+		btn.innerHTML=loader_text;
+
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange=function(){
+			if(this.readyState==4 && this.status==200){
+				var resp = JSON.parse(this.responseText);
+				if(resp.success){
+					btn.innerHTML="Locked";
+				} else {
+					show_popup(resp.error);
+					btn.disabled=false;
+					btn.innerHTML="Lock it";
+				}
+
+			} else if(this.readyState==4){
+				show_popup("Internal Server Error");
+				btn.disabled=false;
+				btn.innerHTML="Lock it";
+			}
+		};
+
+		xhttp.open("GET", "{% url 'locktrivia' %}?code="+code, true);
+		xhttp.send();
+	}
+
+
+</script>
+
 <div class="container px-1 py-2">
 	
 	<p class="text-success font-weight-bold text-left" style="font-size: 18px;">My Trivias</p>
@@ -22,10 +60,17 @@
 			<div class="card-header py-1">
 				<div class="d-flex justify-content-between">
 					<div class="text-left">
-						<p class="text-dark text-left font-weight-bold my-0" style="font-size: 16px;">{{ trivia.name }} ({{ trivia.code }}) {%if trivia.ready %}<span class="text-success" style="font-size: 21px;">&check;</span>{% else %}<span class="text-danger" style="font-size: 21px;">&excl;</span>{% endif %}</p>
+						<p class="text-dark text-left font-weight-bold my-0" style="font-size: 16px;">{%if trivia.ready %}<span class="text-success" style="font-size: 21px;">&check;</span>{% else %}<span class="text-danger" style="font-size: 21px;">&#9888;</span>{% endif %} {{ trivia.name }} ({{ trivia.code }})</p>
 						<span class="text-dark icon-clock"></span> &nbsp;<span class="text-secondary">{% timezone 'Asia/Kolkata' %}{{ trivia.start_time }} IST {% endtimezone %}</span>
 					</div>
 					<div>
+						{% if trivia.is_fully_ended and not trivia.locked %}
+							<button class="btn btn-sm text-secondary font-weight-bold" onclick="lock_trivia(this ,'{{ trivia.code }}')" style="background-color: rgba(0,0,0,0)">Lock it</button>
+
+						{% elif trivia.fully_ended and trivia.locked %}
+							<button class="btn btn-sm text-secondary font-weight-bold" onclick="" style="background-color: rgba(0,0,0,0)" disabled>Locked</button>							
+						{% endif %}
+
 						<a class="btn btn-sm text-info font-weight-bold" href="{% url 'edittrivia' code=trivia.code %}" style="background-color: rgba(0,0,0,0)">Edit</a>
 						<a class="btn btn-sm text-info font-weight-bold" href="{% url 'triviadetails' code=trivia.code %}" style="background-color: rgba(0,0,0,0)">View</a>
 					</div>

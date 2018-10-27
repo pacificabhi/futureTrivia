@@ -1,4 +1,17 @@
 {% extends 'trivia/gamebase.html' %}
+
+{% block navbar %}
+
+	{% if trivia.is_fully_ended or user_ended%}
+		{% include 'trivia/full_navbar.html' %}
+		{% include 'trivia/full_page_loader.html' %}
+	{% else %}
+		{% include 'trivia/play_navbar.html' %}
+	{% endif %}
+
+{% endblock %}
+
+
 {% load static %}
 
 {% block title %}{{ trivia.name }}{% endblock %}
@@ -58,7 +71,7 @@
 
 </div>
 <div>
-<button class="btn btn-outline-success" onclick="startWar(this, this.nextSibling)" id="startwarbtn" data-triviacode="{{ trivia.code }}">Start War</button><span class="loader ml-2" id="startwarloader"></span>
+<button class="btn btn-sm text-success font-weight-bold" onclick="startWar(this, this.nextSibling)" id="startwarbtn" data-triviacode="{{ trivia.code }}" style="background-color: rgba(0,0,0,0);">&#9876; Start War</button><span class="loader ml-2" id="startwarloader"></span>
 </div>
 <script type="text/javascript">
 	
@@ -774,26 +787,136 @@
 
 	{% else %}
 
-		<script type="text/javascript">
-			
-			function getFeedback(){
+		{% if not feedback %}
 
+		<script type="text/javascript">
+
+			$(document).ready(function(){
+				stars = 3;
+				submitted_rating=false;
+				star_color = ["#ef2828", "#c6690c", "#c6b00c", "#166de0", "#23c60d"];
+
+			});
+			
+			function give_stars(btn){
+
+				btn.disabled=true;
+				submitted_rating=true;
+				btn.innerHTML="<span class='loader ml-2' style='display:inline-block'>";
+
+				var xhttp = new XMLHttpRequest;
+				xhttp.onreadystatechange=function(){
+					if(this.readyState==4 && this.status==200){
+						var resp = JSON.parse(this.responseText);
+						
+						if(resp.success){
+							$("#stars_container").html("<span class='text-success'>Thanks for feedback</span><br><a href='{% url 'afteranswer' code=trivia.code %}'>Solutions' Link</a>");
+
+						}else{
+							btn.disabled=false;
+							btn.innerHTML="Submit";
+							submitted_rating=false;
+							show_popup(resp.error);
+						}
+
+					} else if(this.readyState==4){
+						show_popup("Internal Server error");
+						btn.disabled=false;
+						btn.innerHTML="Submit";
+						submitted_rating=false;
+
+					}
+				};
+
+				var q = "stars="+stars;
+
+				xhttp.open("GET", "{% url 'triviastars' code=trivia.code %}?"+q, true);
+				xhttp.send();
+
+			}
+
+			function set_star(star){
+				if(!submitted_rating){
+					stars = star;
+				}
+			}
+
+			function show_star(star){
+				
+				for(var i=1; i<=star; i++){
+					$("#star"+i).addClass("rated");
+				}
+
+				for(var i=star+1; i<=5; i++){
+					$("#star"+i).removeClass("rated");
+				}
+
+				$(".star").css("color", star_color[star-1]);
+
+			}
+
+			function reset(){
+				for(var i=1; i<=stars; i++){
+					$("#star"+i).addClass("rated");
+				}
+
+				for(var i=stars+1; i<=5; i++){
+					$("#star"+i).removeClass("rated");
+				}
+
+				$(".star").css("color", star_color[stars-1]);
 			}
 
 		</script>
 
-		<div class="container-fluid mt-3 border border-info">
-			<div class="card" style="max-width: 500px;">
+		<style type="text/css">
 
-				<div class="card-body p-1">
-					<h3>Feedback</h3>
-					<div class="container-fluid mt-3">
-						
-					</div>
-				</div>
+			.star{
+				font-size: 30px;
+				color: #c6b00c;
+				cursor: pointer;
+			}
+			
+			.star:after{
+				content: '\2606';
 				
-			</div>
+			}
+
+			.rated:after{
+				content: '\2605';
+			}
+
+		</style>
+
+		<div class="container mt-5 p-5 bg-light" style="max-width: 400px;">
+
+			<p class="text-dark" style="font-size: 16px;">How do you feel about '{{ trivia.name }}'?</p>
+
+			<span id="stars_container">
+				<span class="star rated" onclick="set_star(1)" onmouseover="show_star(1)" onmouseleave="reset()" title="1 star" id="star1"></span>
+				<span class="star rated" onclick="set_star(2)" onmouseover="show_star(2)" onmouseleave="reset()" title="2 stars" id="star2"></span>
+				<span class="star rated" onclick="set_star(3)" onmouseover="show_star(3)" onmouseleave="reset()" title="3 stars" id="star3"></span>
+				<span class="star" onclick="set_star(4)" onmouseover="show_star(4)" onmouseleave="reset()" title="4 stars" id="star4"></span>
+				<span class="star" onclick="set_star(5)" onmouseover="show_star(5)" onmouseleave="reset()" title="5 stars" id="star5"></span>
+				
+				<p class="text-secondary">Your feedback will help us improving.</p>
+				<div class="text-right">
+					<button class="btn btn-sm btn-success mr-5" onclick="give_stars(this);">Submit</button>
+				</div>
+			</span>
+			<br><br>
+
 		</div>
+
+
+		{% else %}
+
+			<div class="container py-4 text-secondary">
+				<p>Trivia is ended for you</p>
+				Go to <a href="{% url 'afteranswer' code=trivia.code %}">answers</a> page.
+			</div>
+
+		{% endif %}
 	
 
 
@@ -803,7 +926,14 @@
 	<div class=" alert alert-info">
 
 	{% if ended %}
-		Contest ended
+
+
+		Contest ended. 
+
+		<div class="container py-4 text-secondary">
+			Go to <a href="{% url 'afteranswer' code=trivia.code %}">answers</a> page.
+		</div>
+		
 	{% elif trivia not in request.user.userdetails.trivias.all %}
 		You are not registered for this event
 	<br>

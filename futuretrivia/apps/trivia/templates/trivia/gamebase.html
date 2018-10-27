@@ -117,26 +117,9 @@
 
 {% if request.user.is_authenticated %}
 
-<nav class="navbar navbar-expand-lg navbar-light bg-dark p-1 text-right" style="" id="navbartop">
-	<!--<a class="navbar-brand brand-name" href="{% url 'index' %}">Future Trivia</a>-->
-	<style type="text/css">
-		
-	</style>
+{% block navbar %}
 
-	<script type="text/javascript">
-	
-	</script>
-
-	<li class="nav-item dropdown" style="list-style: none; right: 0px;">
-		<a class="nav-link dropdown-toggle text-light no-select" style="font-size: 13px; cursor: pointer;" id="navbarMenuDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ request.user.username }}</a>
-		<div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarMenuDropdown" style="font-size: 13px !important">
-			
-			<a class="dropdown-item text-danger" href="{% url 'userlogout' %}">Logout</a>
-		</div>
-	</li>
-
-
-</nav>
+{% endblock %}
 
 {% endif %}
 

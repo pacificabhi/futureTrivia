@@ -69,7 +69,7 @@ def triviaDetails(request, code):
 
 		if (not trivia.private) or context["authentic"]:
 
-			endtime = trivia.get_endtime()
+			#endtime = trivia.get_endtime()
 			#regendtime = endtime #getting registration end time
 				
 			#removing Trailing spaces
@@ -81,10 +81,11 @@ def triviaDetails(request, code):
 			trivia.prizes = trivia.prizes.strip()
 			trivia.quote = trivia.quote.strip()
 			
-			trivia.duration = trivia.duration//60;
 
-			if endtime < now:  #if contest ended
+
+			if trivia.is_fully_ended():  #if contest ended
 				context["ended"]=True
+
 			else:
 				# if registration ended
 				context["can_register"] = True
@@ -93,12 +94,12 @@ def triviaDetails(request, code):
 				before_start -= 120
 				context["before_start"]=before_start
 
-				if before_start <= 0 and endtime > now:  # if contest is active now
+				if before_start <= 0 and not trivia.is_ended():  # if contest is active now
 					context["can_start"]=True
 				#print(context["can_start"])
 
 			context["trivia"] = trivia
-			context["endtime"] = endtime
+			#context["endtime"] = endtime
 
 		context["exist"] = True 
 
@@ -106,6 +107,8 @@ def triviaDetails(request, code):
 		return render(request, 'trivia/not_found.html', {})
 
 	return render(request, 'trivia/triviaDetails.html', context)
+
+
 
 """
 def registerContest(request):
@@ -160,6 +163,9 @@ def triviaPlay(request, code):
 			time_elapsed = int((now-result.start_time).total_seconds())
 			if time_elapsed>trivia.duration or submitted(result):
 				context["user_ended"] = True
+
+				if result.stars>0:
+					context["feedback"]=True
 
 		if trivia in request.user.userdetails.trivias.all():
 			if now<endtime:
@@ -296,7 +302,7 @@ def submitAnswer(request, code):
 
 	if request.method == "POST":
 		trivia = Trivia.objects.filter(code=code).first()
-		if trivia:
+		if trivia and not trivia.locked:
 			result = TriviaResult.objects.filter(user=request.user, trivia=trivia).first()
 			if result:
 				time_elapsed_for_contest = None
@@ -374,7 +380,7 @@ def endTest(request, code):
 
 	if request.method == "POST":
 		trivia = Trivia.objects.filter(code=code).first()
-		if trivia:
+		if trivia and not trivia.locked:
 			result = TriviaResult.objects.filter(user=request.user, trivia=trivia).first()
 			if result:
 				time_taken = None
@@ -409,12 +415,48 @@ def endTest(request, code):
 
 
 
-def getFeedback(request, code):
+def triviaStars(request, code):
 	
 	context = {"success": False}
 
-	if request.method == "POST":
-		pass
+	if not request.user.is_authenticated:
+		context["error"] = "You are not logged in"
+		return JsonResponse(context)
+
+
+	trivia = Trivia.objects.filter(code=code).first()
+	if not trivia:
+		context["error"] = "Trivia does not exist"
+		return JsonResponse(context)
+
+	result = TriviaResult.objects.filter(user=request.user, trivia=trivia).first()
+	if not result:
+		context["error"] = "You did not participate in %s (%s)"%(trivia.name, trivia.code)
+		return JsonResponse(context)
+
+	if result.stars>0:
+		context["error"] = "You already rated %s (%s)"%(trivia.name, trivia.code)
+		return JsonResponse(context)
+
+	stars = request.GET.get("stars")
+
+	if stars:
+		stars=int(stars)
+		if stars>0 and stars<=5:
+			result.stars=stars
+			stars_list  = list(map(int, trivia.stars.strip().split(',')))
+			stars_list[stars-1]+=1
+			trivia.stars = ",".join(list(map(str, stars_list)))
+			trivia.save()
+			result.save()
+			context["success"] = True
+
+		else:
+			context["error"] = "You can only give stars from 1 to 5"
+
+	else:
+		context = "Invalid Stars"
+
 
 	return JsonResponse(context)
 
@@ -506,3 +548,93 @@ def getRankers(request, code):
 		return JsonResponse(context)
 
 	return JsonResponse(context)
+
+
+def afterAnswer(request, code):
+
+
+	trivia = Trivia.objects.filter(code=code).first()
+
+	if not trivia:
+		return render(request, 'trivia/not_found.html', {})
+
+	context={"trivia":trivia}
+
+	action = request.GET.get("action")
+
+	if not action or action=="page":
+
+		result = TriviaResult.objects.filter(trivia=trivia, user=request.user).first()
+
+		if result:
+			context["yes_user"]=True
+
+		return render(request, 'trivia/answers.html', {"trivia": trivia})
+
+	context = {"success": False}
+
+	if not trivia.is_fully_ended():
+		context["error"] = "Solutions will be available once trivia ends"
+		return JsonResponse(context)
+
+	if action == "answer":
+		q_id = request.GET.get("q_id")
+		if q_id:
+			q_id = int(q_id)
+			q_obj = Question.objects.filter(id=q_id).first()
+
+			if q_obj:
+				ques=get_question(q_obj)
+				ques["explaination"] = q_obj.explaination
+				ques["correct_answer"] = q_obj.correct_answer
+				ques["duration"] = q_obj.duration
+				#ques["title"] = q_obj.get_title()
+				context["q_obj"] = ques
+				context["success"] = True
+
+
+			else:
+				context["error"] = "No Question found"
+				return JsonResponse(context)
+
+		else:
+			context["error"] = "No Question found"
+			return JsonResponse(context)
+
+	else:
+		context["error"] = "Invalid Action"
+
+
+	return JsonResponse(context)
+
+
+
+
+def userAnswer(request, code):
+
+	context = {"success": False}
+
+	if not request.user.is_authenticated:
+		context["error"] = "You are not logged in"
+		return JsonResponse(context)
+
+	trivia = Trivia.objects.filter(code=code).first()
+
+	print("You did not participated in %s"%(trivia.name))
+	
+	if not trivia:
+		context["error"] = "Invalid Request"
+		return JsonResponse(context)
+
+	result = TriviaResult.objects.filter(trivia=trivia, user=request.user).first()
+
+	if not result:
+		context["error"] = "You did not participated in '%s'"%(trivia.name)
+		return JsonResponse(context)
+
+
+	context["answers"]=ast.literal_eval(result.answers)
+	context["success"] = True
+
+	return JsonResponse(context)
+

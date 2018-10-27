@@ -1,0 +1,325 @@
+{% extends 'trivia/basetrivia.html' %}
+{% load static %}
+
+{% block title %} Solutions {% endblock %}
+
+{% block content %}
+
+{% if trivia.is_fully_ended %}
+
+
+<script type="text/javascript">
+
+
+	$(document).ready(function(){
+		loader_text = "<span class='loader m-0 p-0' style='display: inline-block;'></span>";
+		questions = {};
+	});
+
+
+	function get_question(q_id){
+
+
+		var xhttp = new XMLHttpRequest();
+		$("#full-page-loader").css("display", "block");
+		xhttp.onreadystatechange=function(){
+			if(this.readyState == 4 && this.status == 200){
+				$("#full-page-loader").css("display", "none");
+				resp = JSON.parse(this.responseText);
+
+				if(resp.success){
+					//console.log(resp);
+					questions["q_obj_"+q_id] = resp.q_obj;
+					view_question(resp.q_obj);
+				} else {
+					show_popup(resp.error);
+				}
+				
+			} else if(this.readyState == 4){
+				$("#full-page-loader").css("display", "none");
+				show_popup("Internal server error");
+				
+			}
+		};
+
+		var q = "action=answer&q_id="+q_id;
+
+		xhttp.open("GET", "{% url 'afteranswer' code=trivia.code %}?"+q, true);
+		xhttp.send();
+
+
+	}
+
+	function check_question_existance(q_id, is_user_result){
+		var id_text = "q_obj_"+q_id;
+
+		if(questions.hasOwnProperty(id_text)){
+			//console.log("already");
+				view_question(questions[id_text], is_user_result);
+		} else {
+			get_question(q_id);
+		}
+
+	}
+
+	//<li class="list-group-item list-group-item-success"><p class="p-0 m-0"><span class="text-success">&#10004;</span><span>First item</span></p></li>
+
+	function spread_options_view(options, option, correct_answer, user_answer){
+		var li = document.createElement("li");
+		if(option.id == correct_answer){
+			li.setAttribute("class", "list-group-item list-group-item-success");
+		} else {
+			li.setAttribute("class", "list-group-item list-group-item-light");
+
+		}
+
+		
+		if(user_answer && user_answer == option.id){
+			var tmp = document.createElement("p");
+			tmp.setAttribute("class", "p-0 m-0");
+
+			var arrow = document.createElement("span");
+			arrow.setAttribute("class", "p-0 m-0 text-info font-weight-bold");
+			arrow.innerHTML = "Your answer ";
+			tmp.appendChild(arrow);
+
+
+			arrow = document.createElement("span");
+			arrow.setAttribute("class", "p-0 m-0 text-info font-weight-bold");
+			arrow.setAttribute("style", "display: inline-block; transform: rotate(90deg); font-size: 16px;");
+			arrow.innerHTML="&#10170;";
+
+			tmp.appendChild(arrow);
+			li.appendChild(tmp);
+		}
+
+		var p = document.createElement("p");
+		p.setAttribute("class", "p-0 m-0");
+
+		if(option.id == correct_answer){
+			var span = document.createElement("span");
+			span.setAttribute("class", "text-success");
+			span.innerHTML = "&#10004; ";
+			p.appendChild(span);
+
+		}
+
+		var span = document.createElement("span");
+		span.innerHTML=option.value;
+		p.appendChild(span);
+
+		li.appendChild(p);
+		options.appendChild(li);
+
+	}
+
+
+	function view_question(q_obj, is_user_result){
+		$("#full-page-loader").css("display", "block");
+		$("#view_window").css("left", "0%");
+		$("#q_statement_view").html(q_obj.statement);
+		$("#q_positive_score_view").html(q_obj.positive_score);
+		$("#q_negative_score_view").html(q_obj.negative_score);
+		var options = document.getElementById("q_options_view");
+		options.innerHTML="";
+		//console.log(q_obj.options);
+		var user_answer = undefined;
+
+		if(is_user_result && user_answers.hasOwnProperty(q_obj.id)){
+			user_answer=user_answers[q_obj.id].opt_id;
+		}
+
+		for(var i=0;i<q_obj.options.length;i++){
+
+			spread_options_view(options, q_obj.options[i], q_obj.correct_answer, user_answer);
+		}
+
+		$("#q_explaination_view").html(q_obj.explaination);
+
+		$("#full-page-loader").css("display", "none");
+
+	}
+
+
+</script>
+
+{% if request.user.is_authenticated and yes_user %}
+<script type="text/javascript">
+ 	
+ 	$(document).ready(function(){
+ 		get_user_answers();
+ 		user_answers=undefined;
+ 	});
+
+ 	function get_user_answers(){
+
+
+ 		var xhttp = new XMLHttpRequest();
+		$("#full-page-loader").css("display", "block");
+		xhttp.onreadystatechange=function(){
+			if(this.readyState == 4 && this.status == 200){
+				$("#full-page-loader").css("display", "none");
+				resp = JSON.parse(this.responseText);
+
+				if(resp.success){
+					user_answers = resp.answers;
+					show_attempted();
+					
+				} else {
+					show_popup(resp.error);
+				}
+				
+			} else if(this.readyState == 4){
+				$("#full-page-loader").css("display", "none");
+				show_popup("Internal server error");
+				
+			}
+		};
+
+		var q = "";
+
+		xhttp.open("GET", "{% url 'useranswer' code=trivia.code %}?"+q, true);
+		xhttp.send();
+
+ 	}
+
+ 	function show_attempted(){
+ 		
+ 		for(q_id in user_answers){
+
+ 			document.getElementById('attempt_'+q_id).style.opacity="1";
+ 		}
+
+ 	}
+
+</script>
+
+{% endif %}
+
+<!--ALL BLOCK SCRIPTS ENDS-->
+
+<!-- VIEW WINDOW-->
+
+<style type="text/css">
+	
+	#view_window{
+		position: fixed;
+		display: block;
+		top: 0;
+		left: 100%;
+		width: 100%;
+		height: 100%;
+		max-height: 100%;
+		min-height: 100%;
+		margin: 0;
+		padding: 0;
+		overflow: auto;
+		z-index: 999999;
+		transition: 0.6s;
+		background-color: rgba(230, 230, 230, 1);
+	}
+
+	#view_window img{
+		max-width: 100%;
+	}
+
+</style>
+
+<div id="view_window">
+
+<div class="d-flex justify-content-between">
+	<div>
+		
+	</div>
+	<div>
+		<button class="btn btn-sm p-2" title="close" onclick="document.getElementById('view_window').style.left='100%';" style="background-color: rgba(0,0,0,0); font-weight: bold; font-size: 20px;">&#10006;</button>
+	</div>
+</div>
+
+
+<div class="container py-2 px-0">
+
+	<div class="container-fluid px-0">
+		<div class="card">
+			<div class="card-header mx-0">
+				<p class="text-left font-weight-bold">Question</p>
+				<p id="q_statement_view" class="text-left">What is my name?</p>
+			</div>
+		</div>
+
+		<div class="d-flex justify-content-between px-1">
+			<div>
+				<span class="text-success font-weight-bold">Positive Score <span id="q_positive_score_view" class="text-light bg-success p-1 rounded-circle">21</span> &#10004;</span>
+			</div>
+			<div>
+				<span class="text-danger font-weight-bold">Negative Score <span id="q_negative_score_view" class="text-light bg-danger p-1 rounded-circle">21</span> &#10008;</span>
+			</div>
+		</div>
+
+		<div class="card" style="background-color: rgba(0,0,0,0); border: 0;">
+			<div class="card-body">
+				<p class="text-left font-weight-bold">Options</p>
+					<ul id="q_options_view" class="list-group text-left">
+						<li class="list-group-item list-group-item-success"><p class="p-0 m-0"><span class="text-success">&#10004;</span> First item</p></li>
+						<li class="list-group-item list-group-item-light"><p class="p-0 m-0"> Second item</p></li>
+						<li class="list-group-item">Third item</li>
+					</ul> 
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="card-header mx-0">
+				<p class="text-left font-weight-bold">Explaination</p>
+				<p id="q_explaination_view" class="text-left">What is my name?</p>
+			</div>
+		</div>
+	</div>
+
+
+</div>
+	
+</div>
+
+
+<div class="container px-1 py-2">
+	
+	<p class="text-success font-weight-bold" style="font-size: 18px;">Solution - {{ trivia.code }}</p>
+
+	<div class="container-fluid" style="transition: 0.2s !important;">
+		{% for ques in trivia.question_set.all %}
+		<div class="card my-3">
+			<div class="card-header py-1">
+				<div class="d-flex justify-content-between">
+					<div class="text-left">
+						<p class="text-dark text-left font-weight-bold my-0" style="font-size: 14px;">{{ ques.get_title }}<span class="text-success" id="attempt_{{ ques.id }}" style="font-size: 15px; opacity: 0; cursor: help;" name="attempted" title="attempted"> &#9673;</span></p>
+						<span class="text-success">&#10004; +{{ ques.positive_score }}</span>&nbsp;,&nbsp;<span class="text-danger">&#10008; -{{ ques.negative_score }}</span>
+					</div>
+
+					<div>
+						<button class="btn btn-sm text-success font-weight-bold" onclick="check_question_existance('{{ ques.id }}', {% if yes_user %}true{% else %}false{%endif%})" style="background-color: rgba(0,0,0,0)">show solution</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{% empty %}
+			<p>
+				No Questions
+			</p>
+
+		{% endfor %}
+
+	</div>
+
+</div>
+
+{% else %}
+
+	<div class="alert alert-info">
+		Solutions will be available once trivia ends.
+	</div>
+
+{% endif %}
+
+
+{% endblock %}

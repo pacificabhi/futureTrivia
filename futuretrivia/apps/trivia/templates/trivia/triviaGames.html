@@ -18,14 +18,14 @@
 		<div class="col-md-8 text-left mt-3">
 
 			<!--<div class="container-fluid text-secondary m-0 py-3">
-				<h4>Contests</h4><hr>
+				<h4>Trivias</h4><hr>
 			</div>-->
 
 			<!-- Contest Block-->
 
 			<div class="container-fluid pt-3">
 				<div class="container-fluid">
-					<div class="text-dark font-weight-bold" style="font-size: 18px;">Active Contests<hr></div>
+					<div class="text-dark font-weight-bold" style="font-size: 18px;">Active Trivias<hr></div>
 					
 
 					{% for trivia in trivias.present %}
@@ -48,7 +48,7 @@
 					</div>
 
 					{% empty %}
-						<p>No Active Contests</p>
+						<p>No Active Trivias</p>
 
 					{% endfor %}
 
@@ -58,7 +58,7 @@
 
 			<div class="container-fluid pt-3">
 				<div class="container-fluid">
-					<div class="text-dark font-weight-bold" style="font-size: 18px;">Upcoming Contests<hr></div>
+					<div class="text-dark font-weight-bold" style="font-size: 18px;">Upcoming Trivias<hr></div>
 					
 
 					{% for trivia in trivias.future %}
@@ -81,7 +81,7 @@
 					</div>
 
 					{% empty %}
-						<p>No Upcoming Contests</p>
+						<p>No Upcoming Trivias</p>
 
 					{% endfor %}
 
@@ -91,7 +91,7 @@
 
 			<div class="container-fluid pt-3">
 				<div class="container-fluid">
-					<div class="text-dark font-weight-bold" style="font-size: 18px;">Past Contests<hr></div>
+					<div class="text-dark font-weight-bold" style="font-size: 18px;">Past Trivias<hr></div>
 					
 
 					{% for trivia in trivias.past %}
@@ -128,7 +128,7 @@
 		<div class="col-md-4 text-left">
 			{% if request.user.is_authenticated %}
 			<div class="container text-dark font-weight-bold my-3">
-				Participated Contests
+				Participated Trivias
 			</div>
 
 			<div class="container">

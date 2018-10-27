@@ -15,6 +15,7 @@ class Trivia(models.Model):
 	category = models.CharField(max_length=100, blank=False, null=False, default="General")
 	poster = models.CharField(max_length=2000, blank=True, null=False)
 	quote = models.CharField(max_length=100, blank=True, null=False)
+	stars = models.TextField(blank=False, null=False, default="0,0,0,0,0")
 
 	prizes = models.TextField(max_length=5000, blank=False, null=False, default="Not Declared")
 	about = models.TextField(blank=False, null=False, max_length=5000, default="No details.")
@@ -48,9 +49,120 @@ class Trivia(models.Model):
 
 		return self.get_endtime()<=get_current_time()
 
+	def is_fully_ended(self):
+		
+		now = get_current_time()
+
+		if self.individual_timing:
+			return (self.start_time + datetime.timedelta(seconds=(self.portal_duration+self.duration)))<=now
+		
+		return self.get_endtime()<=now
+
+
 	def is_started(self):
 
 		return self.start_time<=get_current_time()
+
+
+	def get_rating(self):
+
+		
+		rating_list = list(map(int, self.stars.strip().split(',')))
+		sm=0
+		tot=0
+		for i in range(5):
+			sm+=((i+1)*rating_list[i])
+			tot+=rating_list[i]
+
+		if tot==0:
+			return {"color":"text-secondary", "rating": "Review not available"}
+
+		rate = sm/tot
+
+		color = "text-secondary"
+
+		if rate<=1:
+			color = "text-danger"
+		elif rate<3:
+			color = "text-warning"
+		elif rate<4:
+			color = "text-info"
+		else:
+			color = "text-success"
+
+		return {"yes": True,"color": color, "rating": '%.2f'%rate, "total": tot}
+
+
+	def lock(self):
+		
+		"""end_time_for_lock = None
+
+		if self.individual_timing:
+			end_time_for_lock = self.start_time + datetime.timedelta(seconds=(self.portal_duration+self.duration))
+		else:
+			end_time_for_lock = self.get_endtime()
+
+		now = get_current_time()"""
+
+		if not self.is_fully_ended():
+			return False
+
+		results_left = TriviaResult.objects.filter(time_taken=0, trivia=self)
+		questions = self.question_set.all()
+
+		for result in results_left:
+			timi = None
+			if self.individual_timing:
+				timi = self.duration
+			else:
+				timi = self.portal_duration
+
+			result.calculate_score(questions)
+			result.time_taken = timi
+			result.save()
+
+		self.locked=True
+		self.save()
+		return True
+
+	def get_duration_string(self):
+
+		dur = self.duration
+		durs = ''
+		days = dur//86400
+		if days>0:
+			if days==1:
+				durs+="%d day "%(days)
+			else:
+				durs+="%d days "%(days)
+
+		dur=dur%86400
+		hrs=dur//3600
+
+		if hrs>0:
+			if hrs==1:
+				durs+="%d hour "%(hrs)
+			else:
+				durs+="%d hours "%(hrs)
+
+		dur=dur%3600
+		mins = dur//60
+
+		if mins>0:
+			if mins==1:
+				durs+="%d minute "%(mins)
+			else:
+				durs+="%d minutes "%(mins)
+
+		dur=dur%60
+
+		if dur>0:
+			if dur==1:
+				durs+="%d second "%(dur)
+			else:
+				durs+="%d seconds "%(dur)
+
+		return durs
 
 
 class Question(models.Model):
@@ -85,8 +197,6 @@ class TriviaResult(models.Model):
 
 	trivia = models.ForeignKey(Trivia,on_delete=models.CASCADE)
 	user = models.ForeignKey(User,on_delete=models.CASCADE)
-	
-
 
 	start_time = models.DateTimeField(blank=True, null=True)
 	modified_at = models.DateTimeField(blank=True, null=True)
@@ -96,7 +206,7 @@ class TriviaResult(models.Model):
 
 	positive_score = models.IntegerField(blank=False, null=False, default=0)
 	negative_score = models.IntegerField(blank=False, null=False, default=0)
-	#total_score = models.IntegerField(blank=False, null=False, default=0)
+	stars = models.IntegerField(blank=False, null=False, default=0)
 
 
 	def __str__(self):
@@ -123,3 +233,4 @@ class TriviaResult(models.Model):
 	def get_score(self):
 
 		return self.positive_score - self.negative_score
+
