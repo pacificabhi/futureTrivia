@@ -267,6 +267,18 @@ class TriviaResult(models.Model):
 
 		#self.total_score = self.positive_score - self.negative_score
 
+	def get_timetaken_string(self):
+
+		tt = self.time_taken
+
+		hrs = tt//3600
+		tt=tt%3600
+
+		mins = tt//60
+		tt=tt%60
+
+		return "%d:%d:%d"%(hrs,mins,tt)
+
 
 
 	def get_score(self):

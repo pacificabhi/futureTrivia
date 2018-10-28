@@ -17,7 +17,7 @@
 	});
 
 
-	function get_question(q_id){
+	function get_question(q_id, is_user_result){
 
 
 		var xhttp = new XMLHttpRequest();
@@ -30,7 +30,7 @@
 				if(resp.success){
 					//console.log(resp);
 					questions["q_obj_"+q_id] = resp.q_obj;
-					view_question(resp.q_obj);
+					view_question(resp.q_obj, is_user_result);
 				} else {
 					show_popup(resp.error);
 				}
@@ -57,7 +57,7 @@
 			//console.log("already");
 				view_question(questions[id_text], is_user_result);
 		} else {
-			get_question(q_id);
+			get_question(q_id, is_user_result);
 		}
 
 	}
@@ -73,8 +73,12 @@
 
 		}
 
+		//console.log("user_answer == "+ user_answer + ", option id == "+ option.id)
+
 		
 		if(user_answer && user_answer == option.id){
+
+			//console.log("Huha");
 			var tmp = document.createElement("p");
 			tmp.setAttribute("class", "p-0 m-0");
 

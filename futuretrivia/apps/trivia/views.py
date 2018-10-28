@@ -566,12 +566,14 @@ def afterAnswer(request, code):
 
 	if not action or action=="page":
 
-		result = TriviaResult.objects.filter(trivia=trivia, user=request.user).first()
+		if request.user.is_authenticated:
 
-		if result:
-			context["yes_user"]=True
+			result = TriviaResult.objects.filter(trivia=trivia, user=request.user).count()
 
-		return render(request, 'trivia/answers.html', {"trivia": trivia})
+			if result>0:
+				context["yes_user"]=True
+
+		return render(request, 'trivia/answers.html', context)
 
 	context = {"success": False}
 

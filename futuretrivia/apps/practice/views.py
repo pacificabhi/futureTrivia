@@ -205,7 +205,7 @@ def submitPracticeAnswer(request):
 					
 
 				else:
-					context["trivia_ended"]=True
+					context["ended"]=True
 					context["error"]="Practice ended for you"
 					return JsonResponse(context)
 
@@ -256,6 +256,7 @@ def endPracticeTest(request):
 				result.calculate_score()
 				result.time_taken = time_taken
 				result.save()
+				context["result"] = {"score": result.get_score(), "time_taken": result.get_timetaken_string()}
 
 				context["success"] = True
 

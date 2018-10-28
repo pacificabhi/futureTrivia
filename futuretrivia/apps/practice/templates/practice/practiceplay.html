@@ -206,7 +206,16 @@
 			contest_loader_interval=setInterval(loadContest, 100000);
 			total_questions=undefined;
 			loadContest();
+
+			String.prototype.format = function () {
+			        var args = [].slice.call(arguments);
+			        return this.replace(/(\{\d+\})/g, function (a){
+			            return args[+(a.substr(1,a.length-2))||0];
+			        });
+			};
 		});
+
+
 
 		function get_questions(){
 			var xhttp = new XMLHttpRequest();
@@ -224,6 +233,10 @@
 						timer = setInterval(set_timer, 1000);
 						show_ques(curr_ques);
 					} else {
+
+						if(resp.ended){
+							end_test();
+						}
 						show_top_popup(resp.error, true, 4000);
 					}
 				} else if(this.readyState == 4) {
@@ -453,7 +466,9 @@
 							}
 							show_success_msg();
 						} else {
-							//alert("hello");
+							if(resp.ended){
+								end_test();
+							}
 							show_top_popup(resp.error, true, 4000);
 							btn.disabled=false;
 						}
@@ -509,11 +524,10 @@
 					if(this.readyState == 4 && this.status == 200){
 						var resp = JSON.parse(this.responseText);
 						if(resp.success){
+							clearInterval(timer);
 							end_loader.style.display = "none";
-							confirm_message.innerHTML = "<span class='text-success'>Submission Succesful, Taking you to result</span>";
-							setTimeout(function(){
-								window.location.assign("{% url '' %}");
-							}, 2000);
+							confirm_message.innerHTML = "<span class='text-success'>Submission Succesful</span><br><span class='text-secondary'>Score - <span class='text-info'>{0}</span></span><br><span class='text-secondary'>Time taken - <span class='text-info'>{1}</span></span>".format(resp.result.score, resp.result.time_taken);
+							
 						} else {
 							show_top_popup(resp.error, true, 4000);
 							end_loader.style.display = "none";
