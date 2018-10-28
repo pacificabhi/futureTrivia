@@ -1,0 +1,90 @@
+{% extends 'trivia/basetrivia.html' %}
+{% load tz %}
+
+{% block title %}
+	
+	Practice
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<style type="text/css">
+
+	.ptrivia{
+		display: inline-block;
+		max-width: 47%;
+		width: 47%;
+		cursor: pointer;
+		padding: 10px 15px 10px 15px;
+		border-radius: 5px;
+		border-width: 1px;
+		transition: 0.4s;
+	}
+
+	.ptrivia:hover{
+		border-width: 4px !important;
+		border-color: #1aff66 !important;
+		padding: 7px 12px 7px 12px;
+	}
+		
+	@media screen and (max-width: 986px){
+		.ptrivia{
+			
+			max-width: 100%;
+			width: 100%;
+
+		}
+	}
+
+
+</style>
+	
+<div class="container">
+	<div class="row">
+
+		<!-- Contest List-->
+
+		<div class="col-md-8 mt-3">
+
+			<!-- Contest Block-->
+
+			<div class="container-fluid pt-3 text-left">
+				<p class="text-dark font-weight-bold" style="font-size: 18px;">Practice Trivias<hr></p>
+
+					
+
+					{% for trivia in trivias %}
+
+					<div class="ptrivia my-3 border border-success" onclick="window.location.assign('{% url 'triviadetails' code=trivia.code %}')" style="">
+
+						<a class="text-secondary font-weight-bold" style="text-decoration: none; font-size: 15px" href="{% url 'triviadetails' code=trivia.code %}">{{ trivia.name }}</a>
+						<br>
+						<span class="text-secondary" style="font-size: 10px;"><span class="{{ trivia.get_rating.color }} font-weight-bold">{{ trivia.get_rating.rating }}{% if trivia.get_rating.yes %} &#9733;{% endif %}</span> - {{ trivia.get_rating.total }} reviews</span>
+
+
+					</div>
+
+					{% empty %}
+						<p>No Trivias</p>
+
+					{% endfor %}
+
+
+			</div>
+
+		</div>
+
+
+		<div class="col-md-4">
+			
+		</div>
+
+	</div>
+
+</div>
+
+
+{% endblock %}

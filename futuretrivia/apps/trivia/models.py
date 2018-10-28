@@ -41,6 +41,9 @@ class Trivia(models.Model):
 	def __str__(self):
 		return self.code
 
+	def total_questions(self):
+		return self.question_set.all().count()
+
 	def get_endtime(self):
 		return self.start_time + datetime.timedelta(seconds=self.portal_duration)
 
@@ -117,7 +120,7 @@ class Trivia(models.Model):
 			else:
 				timi = self.portal_duration
 
-			result.calculate_score(questions)
+			result.calculate_score(questions_set=questions)
 			result.time_taken = timi
 			result.save()
 
@@ -165,6 +168,8 @@ class Trivia(models.Model):
 		return durs
 
 
+
+
 class Question(models.Model):
 	
 	trivia = models.ForeignKey(Trivia,on_delete=models.CASCADE)
@@ -184,6 +189,34 @@ class Question(models.Model):
 
 	def get_title(self):
 		return self.title
+
+
+
+
+	def get_question(self):
+		question={"restrict_timing": False}
+
+		question["id"] = self.id
+		question["statement"] = self.question
+		question["mcq"]=self.mcq
+		question["title"]=self.get_title()
+		if self.duration:
+			question["restrict_timing"]=True
+			question["duration"]=self.duration
+
+		question["positive_score"] = self.positive_score
+		question["negative_score"] = self.negative_score
+		options = []
+
+		opt_dict = ast.literal_eval(self.options)
+
+		for o_id in opt_dict.keys():
+			option = {"id": o_id, "value": opt_dict[o_id]}
+			options.append(option)
+
+		question["options"] = options
+
+		return question
 
 	
 
@@ -214,7 +247,13 @@ class TriviaResult(models.Model):
 
 
 
-	def calculate_score(self, questions_set):
+	def calculate_score(self, questions_set=None):
+
+		if self.submitted():
+			return None
+
+		if not questions_set:
+			questions_set = self.trivia.question_set.all()
 		
 		answers = ast.literal_eval(self.answers)
 
@@ -233,4 +272,8 @@ class TriviaResult(models.Model):
 	def get_score(self):
 
 		return self.positive_score - self.negative_score
+
+	def submitted(self):
+
+		return self.time_taken
 

@@ -1,0 +1,102 @@
+{% extends 'trivia/basetrivia.html' %}
+
+{% block title %}
+	
+	{{ trivia.name }} - Instructions
+
+{% endblock %}
+
+
+{% block content %}
+
+{% if trivia %}
+
+<div class="container" id="instructions">
+	<div class="row py-2">
+
+		<div class="col">
+			<div class="card">
+				<div class="card-header text-left">
+
+					<span class="font-weight-bold" style="font-size: 18px;">Instructions</span>
+				</div>
+
+				<div class="card-body text-left px-1">
+					<ol>
+						<li>
+							There will be <b>{{ trivia.total_questions }}</b> Questions.
+						</li>
+						<li>For multiple choice questions, choose option accordingly.</li>
+						<li>
+							Each Question should be solved in restricted timing.
+						</li>
+
+						<li>
+						{% if not trivia.can_change_answer %}
+							You <b>cannot change answer</b> once submitted.
+
+						{% else %}
+
+							You can update your answer.
+						{% endif %}
+						</li>
+						<li>Every question weightage can be different.</li>
+					</ol>
+				</div>
+			</div>
+
+
+		</div>
+		
+	</div>
+
+</div>
+
+</div>
+<div>
+<button class="btn btn-sm text-success font-weight-bold" onclick="startPractice(this, this.nextSibling)" id="startpracticebtn" data-triviacode="{{ trivia.code }}" style="background-color: rgba(0,0,0,0);">&#8721; Start Practice</button><span class="loader ml-2" id="startwarloader"></span>
+</div>
+<script type="text/javascript">
+	
+	function startPractice(btn, loader){
+		//var code = $("#startPracticebtn").data("triviacode");
+		var xhttp = new XMLHttpRequest();
+		btn.disabled=true;
+		loader.style.display="inline-block";
+		xhttp.onreadystatechange = function(){
+			if(this.readyState == 4 && this.status == 200){
+				var resp = JSON.parse(this.responseText);
+				if(resp.success){
+					if(resp.already){
+						show_popup("<b><span style='color: green'>You are already in practice, Taking you to practice area</span></b>");
+						setTimeout(function(){
+							window.location.assign("{% url 'practiceplay' %}?code={{ trivia.code }}");
+						}, 1000);
+					}else{
+						window.location.assign("{% url 'practiceplay' %}?code={{ trivia.code }}");
+					}
+				
+				} else {
+					show_popup(resp.error);
+					btn.disabled=false;
+					loader.style.display="none";
+				}
+			} else if(this.readyState == 4) {
+				show_popup("Internal Server Error");
+				btn.disabled=false;
+				loader.style.display="none";
+			}
+
+		};
+
+		xhttp.open("GET", "{% url 'practicestart' %}?code={{ trivia.code }}", true);
+		xhttp.send();
+
+	}
+
+</script>
+
+
+{% endif %}
+
+{% endblock %}

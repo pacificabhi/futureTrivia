@@ -22,6 +22,7 @@ urlpatterns = [
     #path('oauth/', include('social_django.urls', namespace='social')),
     path('users/', include('apps.users.urls')),
     path('trivia/', include('apps.trivia.urls')),
+    path('practice/', include('apps.practice.urls')),
     path('community/', include('apps.community.urls')),
     path('admin/', admin.site.urls),
     re_path('(?P<url>.+)/$',views.notFound, name="notfound"),

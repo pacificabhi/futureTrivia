@@ -33,7 +33,7 @@
 				if(this.readyState == 4 && this.status == 200){
 					var resp = JSON.parse(this.responseText);
 					if(resp.success == true || resp.loggedin == true){
-						show_top_popup("Your account has bess successfully created. Taking to you homepage", false, 2000);
+						show_top_popup("Your account has been successfully created. Taking to you homepage", false, 2000);
 						setTimeout(function(){
 							window.location.reload();
 						}, 1000);

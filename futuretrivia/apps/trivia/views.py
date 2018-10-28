@@ -31,15 +31,17 @@ def triviaGames(request):
 		portal_endtime = endtime #finding registration end time
 		
 		
-		if triv.start_time > now: #if contest started and active now
+		if triv.start_time > now: #if trivia started and active now
 			future.append(triv)
 		elif endtime < now:
 			past.append(triv)
 		else:
 			present.append(triv)
 
+	past=list(reversed(past))
 
-		context["trivias"]={"present":present, "past": past, "future": future}
+
+	context["trivias"]={"present":present, "past": past, "future": future}
 
 
 
@@ -52,7 +54,7 @@ def triviaDetails(request, code):
 	#intialising
 	context = {"exist":False, "ended": False, "can_register": False, "can_start": False, "private": True, "authentic": False, "auth_error": False}
 
-	#if request is port for private contest authentication
+	#if request is port for private trivia authentication
 	if request.method == "POST":
 		password = request.POST.get("password")
 
@@ -83,7 +85,7 @@ def triviaDetails(request, code):
 			
 
 
-			if trivia.is_fully_ended():  #if contest ended
+			if trivia.is_ended():  #if trivia ended
 				context["ended"]=True
 
 			else:
@@ -94,7 +96,7 @@ def triviaDetails(request, code):
 				before_start -= 120
 				context["before_start"]=before_start
 
-				if before_start <= 0 and not trivia.is_ended():  # if contest is active now
+				if before_start <= 0 and not trivia.is_ended():  # if trivia is active now
 					context["can_start"]=True
 				#print(context["can_start"])
 
@@ -171,7 +173,7 @@ def triviaPlay(request, code):
 			if now<endtime:
 				context["ended"] = False
 				
-				if trivia.start_time<now:  # if contest is active now
+				if trivia.start_time<now:  # if trivia is active now
 					context["can_begin"]=True
 					context["total_number_of_questions"]=trivia.question_set.all().count()
 
@@ -221,7 +223,7 @@ def triviaStart(request, code):
 			context["already_started"]=True
 
 	else:
-		context["error"]="Contest does not exist"
+		context["error"]="Trivia does not exist"
 		return JsonResponse(context)
 
 	return JsonResponse(context)
@@ -242,7 +244,7 @@ def allTriviaQuestions(request, code):
 	if trivia:
 		result = TriviaResult.objects.filter(user=request.user, trivia=trivia).first()
 		if not result:
-			context["error"]="You are not registered for this contest or contest not started"
+			context["error"]="You are not registered for this trivia or trivia not started"
 			context["success"]=False
 			return JsonResponse(context)
 
@@ -256,9 +258,9 @@ def allTriviaQuestions(request, code):
 
 		context["time_left"]=trivia.duration-time_elapsed
 
-		if time_elapsed>trivia.duration or submitted(result):
+		if time_elapsed>trivia.duration or result.submitted():
 			context["ended"]=True
-			context["error"]="Contest Ended for you"
+			context["error"]="Trivia Ended for you"
 			context["success"]=False
 			return JsonResponse(context)
 
@@ -282,7 +284,7 @@ def allTriviaQuestions(request, code):
 
 
 	else:
-		context["error"]="Contest does not exist"
+		context["error"]="Trivia does not exist"
 		context["success"]=False
 		return JsonResponse(context)
 
@@ -354,14 +356,14 @@ def submitAnswer(request, code):
 
 				else:
 					context["contest_ended"]=True
-					context["error"]="Contest ended for you"
+					context["error"]="Trivia ended for you"
 					return JsonResponse(context)
 
 			else:
 				context["error"] = "You are not in contest"
 				return JsonResponse(context)
 		else:
-			context["error"] = "Contest does not exist"
+			context["error"] = "Trivia does not exist"
 			return JsonResponse(context)
 		
 
@@ -394,7 +396,7 @@ def endTest(request, code):
 				if time_taken>trivia.duration:
 					time_taken=trivia.duration
 
-				result.calculate_score(questions_set=trivia.question_set.all())
+				result.calculate_score()
 				result.time_taken = time_taken
 				result.save()
 
@@ -405,7 +407,7 @@ def endTest(request, code):
 				context["error"] = "You are not in contest"
 				return JsonResponse(context)
 		else:
-			context["error"] = "Contest does not exist"
+			context["error"] = "Trivia does not exist"
 			return JsonResponse(context)
 
 
@@ -487,11 +489,11 @@ def getRankers(request, code):
 	if trivia:
 		if trivia.private:
 			if trivia not in request.user.userdetails.trivias.all():
-				context["error"]="Contest not found"
+				context["error"]="Trivia not found"
 				return JsonResponse(context)
 
 		if not trivia.is_started():
-			context["error"]="Contest not started yet"
+			context["error"]="Trivia not started yet"
 			return JsonResponse(context)
 
 
@@ -544,7 +546,7 @@ def getRankers(request, code):
 		
 
 	else:
-		context["error"]="No contest found"
+		context["error"]="No trivia found"
 		return JsonResponse(context)
 
 	return JsonResponse(context)

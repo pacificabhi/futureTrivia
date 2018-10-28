@@ -280,7 +280,7 @@
 				<div class="row p-2">
 					<div class="col-md">
 						<button class="btn btn-sm text-secondary font-weight-bold" style="background-color: rgba(0,0,0,0);"><span class="icon-clock"></span> {{ trivia.get_duration_string }}</button><br>
-						<button class="btn btn-sm text-info font-weight-bold" onclick="show_popup('Practice trivia will be available soon')" style="background-color: rgba(0,0,0,0);">&#10160; Practice</button><br>
+						<a class="btn btn-sm text-info font-weight-bold" href="{%  url 'practiceplay' %}?code={{ trivia.code }}" style="background-color: rgba(0,0,0,0);">&#10160; Practice</a><br>
 						<a class="btn btn-sm text-success font-weight-bold" style="background-color: rgba(0,0,0,0);" href="{% url 'afteranswer' code=trivia.code %}">&#10004;See Solutions</a>
 					</div>
 				</div>
