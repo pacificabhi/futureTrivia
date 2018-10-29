@@ -135,17 +135,22 @@ def userSignup(request):
 
 def userProfile(request, username):
 	user = User.objects.filter(username=username).first()
-	context = {"exist":False, "active": False}
-	if user:
-		context["exist"]=True
-		if user.is_active:
-			context["active"]=True
-			context["profile"]=user
+	context ={}
+	if user and user.is_active:
+		context["profile"] = user
+		recenttrivias = user.triviaresult_set.all()
+		recentpractice = user.practiceresult_set.all()
+
+		context["recenttrivias"]=recenttrivias
+		context["recentpractice"]=recentpractice
 
 	else:
 		return render(request,'trivia/not_found.html', {})
 
 	return render(request, 'users/userProfile.html', context)
+
+
+
 
 @login_required
 def userSettings(request):

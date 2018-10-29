@@ -124,6 +124,14 @@ class Trivia(models.Model):
 			result.time_taken = timi
 			result.save()
 
+
+		results = self.triviaresult_set.extra(select={'total_score':'positive_score - negative_score'}, order_by=('-total_score', 'time_taken'))
+		
+		for i in range(len(results)):
+
+			results[i].rank=i+1
+			results[i].save()
+
 		self.locked=True
 		self.save()
 		return True
@@ -234,6 +242,7 @@ class TriviaResult(models.Model):
 	start_time = models.DateTimeField(blank=True, null=True)
 	modified_at = models.DateTimeField(blank=True, null=True)
 	time_taken = models.IntegerField(blank=False, null=False, default=0)
+	rank = models.IntegerField(blank=False, null=False, default=0)
 
 	answers = models.TextField(blank=False, null=False, default="{}")
 

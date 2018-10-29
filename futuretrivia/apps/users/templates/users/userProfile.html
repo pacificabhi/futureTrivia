@@ -4,15 +4,13 @@
 
 {% block title %}
 
-	{% if request.user.first_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}
+	{% if profile.first_name %}{{ profile.get_full_name }}{% else %}{{ profile.username }}{% endif %}
 
 {% endblock %}
 
 
 {% block content %}
-		
 
-{% if exist and active %}
 
 <script type="text/javascript">
 
@@ -29,7 +27,7 @@
 		//var eleTop = $(ele).offset().top;
 		var bodyTop = $(window).scrollTop();
 
-		console.log("ele = "+navHeight+" , bodyTop = "+ bodyTop);
+		//console.log("ele = "+navHeight+" , bodyTop = "+ bodyTop);
 
 		if(bodyTop >= nameHead.offsetHeight+nameHead.offsetTop-10){
 			//fixnameHead.style.position = "fixed";
@@ -63,23 +61,124 @@
 				<div class="container text-secondary">@{{ profile.username }}</div>
 				
 			</div>
+
+			<div class="container-fluid mt-3" id="recent-activities" style="border: solid 1px rgba(220, 220, 220, 1);">
+				<p class="text-dark font-weight-bold">Recent Activities</p>
+
+				<style type="text/css">
+					#recent-activities th, #recent-activities td{
+						padding: 2px 5px 2px 5px;
+					}
+
+					#recent-activities tbody tr{
+						border: solid 1px rgba(220, 220, 220, 1);
+						border-top: solid 0px rgba(220, 220, 220, 1);
+					}
+
+					.trivia-link{
+						font-weight: bold;
+						font-size: 14px;
+					}
+
+					.tscore{
+						font-weight: bold;
+						font-size: 14px;
+					}
+
+					.ttiming{
+						font-size: 11px;
+					}
+
+				</style>
+
+				<p class="text-secondary font-weight-bold text-left">Trivias</p>
+
+				{% if recenttrivias %}
+
+				<table style="width: 100%;" class="my-2">
+					
+					<thead class="bg-dark text-light">
+						<tr>
+							<th style="width: 50%;">Trivia</th>
+							<th style="width: 33%;">Score</th>
+							<th style="width: 15%;">Rank</th>
+						</tr>
+					</thead>
+
+					<tbody class="bg-light text-dark">
+
+						{% for result in recenttrivias %}
+						<tr class="mt-1">
+							<td style="width: 50%;" class="trivia-link"><a href="{% url 'triviadetails' code=result.trivia.code %}">{{ result.trivia.code }}</a></td>
+							<td style="width: 33%;">
+								<p class="tscore py-0 m-0">{{ result.get_score }}</p>
+								<p class="ttiming py-0 m-0">{{ result.get_timetaken_string }}</p>
+							</td>
+							<td style="width: 15%;" class="font-weight-bold">{{ result.rank }}</td>
+							
+						</tr>
+
+						{% endfor %}
+
+
+					</tbody>
+
+				</table>
+
+				{% else %}
+					<span class="">No Recent Trivia</span>
+				{% endif %}
+
+				<hr>
+
+				<p class="text-secondary font-weight-bold text-left">Practice</p>
+
+				{% if recentpractice %}
+
+				<table style="width: 100%;" class="">
+					
+					<thead class="bg-dark text-light">
+						<tr>
+							<th style="width: 60%;">Trivia</th>
+							<th style="width: 35%;">Score</th>
+						</tr>
+					</thead>
+
+					<tbody class="bg-light text-dark">
+
+						{% for result in recentpractice %}
+						<tr class="mt-1">
+							<td style="width: 60%;" class="trivia-link"><a href="{% url 'triviadetails' code=result.trivia.code %}">{{ result.trivia.code }}</a></td>
+							<td style="width: 15%;">
+								<p class="tscore py-0 m-0">{{ result.get_score }}</p>
+								<p class="ttiming py-0 m-0">{{ result.get_timetaken_string }}</p>
+							</td>
+							
+						</tr>
+
+						{% endfor %}
+
+
+					</tbody>
+
+				</table>
+
+				{% else %}
+					<span>No Practice</span>
+				{% endif %}
+
+			</div>
 		</div>
 
-		<div class="col-md-7 py-3">
-			<div class="container rounded pt-0 text-left text-dark bg-light">
+		<div class="col-md-7 py-3 mt-4">
+			<div class="container rounded pt-0 text-left text-dark bg-info">
+				
 			</div>
 		</div>
 	</div>
 	
 </div>
 
-<div style="height: 1000px;"></div>
-
-{% else %}
-	
-	not Found
-
-{% endif %}
 
 
 {% endblock %}

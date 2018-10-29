@@ -67,7 +67,7 @@
 						{% if trivia.is_fully_ended and not trivia.locked %}
 							<button class="btn btn-sm text-secondary font-weight-bold" onclick="lock_trivia(this ,'{{ trivia.code }}')" style="background-color: rgba(0,0,0,0)">Lock it</button>
 
-						{% elif trivia.fully_ended and trivia.locked %}
+						{% elif trivia.is_fully_ended and trivia.locked %}
 							<button class="btn btn-sm text-secondary font-weight-bold" onclick="" style="background-color: rgba(0,0,0,0)" disabled>Locked</button>							
 						{% endif %}
 
