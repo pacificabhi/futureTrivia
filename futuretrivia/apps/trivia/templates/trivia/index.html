@@ -417,7 +417,7 @@
 	{% if time_left %}
 	<div class="container">
 		<span class="text-success" style="font-size: 22px; font-weight: bold;">{% if next %}Next{% else %}Ongoing{% endif %} &#10149; <a href="{% url 'triviadetails' code=next_code %}" class="text-success" style="font-size: 16px; text-decoration: none;">{{ next_name }} </a></span><br>
-		<span class="text-secondary" style="font-size: 12px;">starts in</span><br>
+		<span class="text-secondary" style="font-size: 12px;">{% if next %}starts in{% else %}ends in{% endif %}</span><br>
 
 		<span style="display: inline-block; padding: 8px 8px 8px 8px;" id="time_left_container" data-timeleft="{{ time_left }}">
 			<div class="count"><span id="days_left">?</span><br><span style="font-size:10px;" id="days_title">Days</span></div>
