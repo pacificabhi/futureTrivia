@@ -50,7 +50,11 @@ class Trivia(models.Model):
 		return self.question_set.all().count()
 
 	def get_endtime(self):
-		return self.end_time
+
+		if self.end_time:
+			return self.end_time
+		
+		return self.start_time + datetime.timedelta(seconds=self.portal_duration)
 
 
 	def is_ended(self):
