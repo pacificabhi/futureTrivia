@@ -61,30 +61,34 @@
 		}
 
 		.count{
+			position: relative;
 			display: inline-block;
 			padding: 6px 14px 4px 14px;
-			background-color: rgba(255, 133, 51, 1);
-			transition: 0.9s;
-			color: ;
+			background-color: rgba(12, 178, 67, 0.9)/*rgba(255, 133, 51, 1)*/;
+			transition: all 0.7s;
+			color: #fff;
 			font-weight: bold;
-			box-shadow: 0px 0px 5px rgba(255, 133, 51, 1);
+			box-shadow: 1px 1px 1px rgba(12, 178, 67, 1);
 
 		}
 
 		.blinker-colon{
+			position: relative;
 			display: inline-block;
 			font-weight: bold;
+			color: rgba(12, 178, 67, 1);
 			padding: 3px 5px 3px 5px;
 			font-size: 25px;
+			transform: translateY(-10px);
 			animation:blinkingText 1s infinite;
 		}
 
 		@keyframes blinkingText{
-		    0%{     color: #000;    }
-		    49%{ color: #000; }
+		    0%{     color: rgba(12, 178, 67, 1);    }
+		    49%{ color: rgba(12, 178, 67, 1); }
 		    50%{    color: transparent; }
 		    99%{    color:transparent;  }
-		    100%{   color: #000;    }
+		    100%{   color: rgba(12, 178, 67, 1);    }
 		}
 
 		.navi-btn{
@@ -288,6 +292,8 @@
 
 		function countdown(){
 			time_left-=1;
+			
+			
 			if(time_left<0){
 				window.location.reload();
 			}
@@ -420,13 +426,13 @@
 		<span class="text-secondary" style="font-size: 12px;">{% if next %}starts in{% else %}ends in{% endif %}</span><br>
 
 		<span style="display: inline-block; padding: 8px 8px 8px 8px;" id="time_left_container" data-timeleft="{{ time_left }}">
-			<div class="count"><span id="days_left">?</span><br><span style="font-size:10px;" id="days_title">Days</span></div>
+			<div class="count" id="days_left_container"><span id="days_left">?</span><br><span style="font-size:10px;" id="days_title">Days</span></div>
 			<div class="blinker-colon">:</div>
-			<div class="count"><span id="hrs_left">?</span><br><span style="font-size:10px;" id="hrs_title">Hrs</span></div>
+			<div class="count" id="hrs_left_container"><span id="hrs_left">?</span><br><span style="font-size:10px;" id="hrs_title">Hrs</span></div>
 			<div class="blinker-colon">:</div>
-			<div class="count"><span id="mins_left">?</span><br><span style="font-size:10px;" id="mins_title">Mins</span></div>
+			<div class="count" id="mins_left_container"><span id="mins_left">?</span><br><span style="font-size:10px;" id="mins_title">Mins</span></div>
 			<div class="blinker-colon">:</div>
-			<div class="count"><span id="secs_left">?</span><br><span style="font-size:10px;" id="secs_title">Secs</span></div>
+			<div class="count" id="secs_left_container"><span id="secs_left">?</span><br><span style="font-size:10px;" id="secs_title">Secs</span></div>
 		</span>
 		<br>
 	</div>
