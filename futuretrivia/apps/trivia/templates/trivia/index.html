@@ -29,6 +29,7 @@
 			border: solid 0px red;
 			letter-spacing: 0px;
 			color: rgb(62, 73, 66);
+			padding-left: 24px;
 			border-right:solid 10px rgb(12, 178, 67);
 		}
 
@@ -37,6 +38,7 @@
 			color: rgba(110, 110, 110, 1);
 			transition: 0.2s;
 			font-weight: bold;
+			margin-right: 10px;
 			padding: 5px 10px 5px 10px;
 			transform: rotateX(-28deg);
 		}
@@ -90,6 +92,7 @@
 			background-color: rgba(0, 0, 0, 0);
 			transition: 0.2s;
 			font-weight: bold;
+			margin-right: 10px;
 			padding: 5px 10px 5px 10px;
 			transform: rotateX(-28deg);
 		}
@@ -108,13 +111,136 @@
 			display: block;
 		}
 
+
+
+		.overlay-content {
+		    position: relative;
+		    padding-left: 5%; 
+		    width: 100%;
+		    text-align: left;
+		    margin-top: 80px;
+		}
+
+		#small_screen_nav{
+			display: none;
+			position: fixed;
+		    height: 100%;
+		    width: 100%;
+		    z-index: +100000000;
+		    top: 0;
+		    left: 100%;
+		    overflow-x: hidden;
+		    transition: .25s;
+		    overflow-y: auto;
+			background-color: rgba(254, 254, 254, 1);
+		}
+
+		.overlay .closebtn {
+		    position: absolute;
+		    text-decoration: none;
+		    top: 0px;
+		    right: 15px;
+		    font-size: 30px;
+		    color: rgb(12, 178, 67, 0.8);
+		    background-color: rgba(255,255,255,1) !important;
+		    border: 0px !important;
+		    outline: none !important;
+		}
+
+		.overlay .closebtn:hover, .overlay .closebtn:active{
+			color: rgba(12, 178, 67, 1);
+			border: 0px !important;
+		}
+
+		.brand-name{
+			font-size: 20px;
+			font-weight: bold;
+			font-family: "Aclonica";
+			letter-spacing: 0px;
+			border: solid 0px red;
+			color: var(--main-silver-white) !important;
+		}
+
+		.mytglbtn{
+			display: none;
+			background-color: rgba(255, 255, 255, 1) !important;
+			top: 0px;
+			border: 0px;
+			right: 5px;
+			position: relative; margin: 0;
+			transform: translateY(-10px);
+		}
+
+		.mytglbtn:hover, .mytglbtn:active{
+			color: rgba(12, 178, 67, 1);
+			border: 0px !important;
+		}
+
 		@media screen and (max-width: 768px){
+		    #small_screen_nav{
+
+		    	display: block !important;
+		    }
+
+		    .mytglbtn{
+		    	display: inline-block;
+		    }
+
+		    .auth-btn, .navi-btn{
+		    	margin-top: 10px;
+		    	font-size: 25px; 
+		    }
+
+		    .nav-toggle-btn{
+				display: inline-block !important;
+			}
+
+		    .brand-name{
+		    	display: inline-block;
+		    }
+
+		    .back-btn{
+				display: none;
+			}
+
 			#index-nav-contain{
 				
 				display: none;
 
 			}
+
+			.b-name{
+				padding-left: 5px;
+			}
+
 		}
+
+			.menu-icon{
+				cursor: pointer;
+			}
+
+			.menu-icon div {
+				width: 25px;
+				height: 3px;
+				background-color: rgb(12, 178, 67);
+				margin: 6px 0;
+				transition: 0.4s;
+			}
+
+			.change .bar1 {
+				-webkit-transform: rotate(-45deg) translate(-6.4px, 6.4px);
+				transform: rotate(-45deg) translate(-6.4px, 6.4px);
+			}
+
+			.change .bar2 {opacity: 0;}
+
+			.change .bar3 {
+				-webkit-transform: rotate(45deg) translate(-6.4px, -6.4px);
+				transform: rotate(45deg) translate(-6.4px, -6.4px);
+			}
+
+
+
 
 
 	</style>
@@ -124,6 +250,7 @@
 		
 		window.onload=function(){
 			nav_top = document.getElementById("index-nav");
+			document.getElementById("small_screen_nav").style.left="100%";
 			doc = document.documentElement;
 			time_left = parseInt(document.getElementById("time_left_container").getAttribute("data-timeleft"));
 			
@@ -197,6 +324,17 @@
 
 		}
 
+
+		function openNav() {
+
+			var elem = document.getElementById("small_screen_nav");
+			if(elem.style.left=="100%"){
+				elem.style.left="0%";
+			} else {
+				elem.style.left="100%";
+			}
+		}
+
 	</script>
 
 </head>
@@ -204,7 +342,7 @@
 
 <div id="index-nav" class="sticky-top mt-4" style="background-color: rgba(252, 252, 252, 1);">
 
-	<div class="d-flex justify-content-between px-5 pt-3 pb-4" style="">
+	<div class="d-flex justify-content-between pt-3 pb-4" >
 		<div class="">
 			<span class="no-select b-name pr-2"><!--<img src="{% static 'trivia/images/userIcon.png' %}">--> FutureTrivia</span>
 		</div>
@@ -220,12 +358,55 @@
 				</div>
 				{% endif %}
 			</div>
+
+			<button class="btn btn-light btn-sm mytglbtn" type="button" onclick="openNav()" style="">
+				<div class="menu-icon" id="menu-icon">
+					<div class="bar1"></div>
+					<div class="bar2"></div>
+					<div class="bar3"></div>
+				</div>
+			</button>
+
 		</div>
 	</div>
 
 </div>
 
 <center>
+
+<!-- Small Screen Navigation Overlay -->
+
+<div id="small_screen_nav" class="overlay p-0 m-0">
+	<button class="btn btn-light btn-sm closebtn" onclick="openNav();">&#10005;</button>
+	<div class="overlay-content">
+		<ul class="nav flex-column">
+			{% if request.user.is_authenticated %}
+			{% else %}
+				<li class="nav-item active">
+					<div class="btn-group">
+						<a class="btn btn-info btn-sm text-light" href="{% url 'userlogin' %}">Login</a>
+						<a class="btn btn-success btn-sm text-light" href="{% url 'usersignup' %}">Sign Up</a>
+					</div>
+				</li>
+			{% endif %}
+			<li class="nav-item">
+				<a class="btn btn-sm navi-btn" href="{% url 'triviahome' %}" style="">for Compete</a>
+			</li>
+
+			<li class="nav-item">
+				<a class="btn btn-sm navi-btn" href="{% url 'practicehome' %}" style="">for Practice</a>
+			</li>
+
+			<li class="nav-item">
+				<a class="btn btn-sm navi-btn" href="{% url 'communityhome' %}" style="">Community</a>
+			</li>
+		</ul>
+	</div>
+</div>
+
+
+
+
 <div class="pt-4" style="background-color: rgba(252, 252, 252, 1);">
 	<span class=" p-0" style="font-size: 24px; letter-spacing: 0px; color: rgb(52, 76, 76);">Practice Quizes, Prepare for online tests</span><br>
 	<span class="text-secondary p-0" style="font-size: 20px; letter-spacing: 0px;">Learn, Practice and Compete</span>
@@ -248,7 +429,7 @@
 	</div>
 	{% endif %}
 
-	<p class="mt-4"><a class="btn auth-btn" href="#" style="border: solid 1px rgba(110, 110, 110, 1);">Host Trivia</a></p>
+	<p class="mt-4"><a class="btn auth-btn" href="#" style="border: solid 1px rgba(110, 110, 110, 1); font-size: 14px;">{% if not request.user.is_authenticated %}Sign Up & {% endif %}Host Trivia</a></p>
 
 
 </div>
