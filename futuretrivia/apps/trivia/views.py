@@ -93,7 +93,7 @@ def triviaDetails(request, code):
 				context["can_register"] = True
 
 				before_start = (int)((trivia.start_time-now).total_seconds())
-				before_start -= 120
+				before_start -= 10
 				context["before_start"]=before_start
 
 				if before_start <= 0 and not trivia.is_ended():  # if trivia is active now
