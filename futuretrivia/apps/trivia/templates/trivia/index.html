@@ -104,6 +104,19 @@
 		}
 
 
+		#index-nav-contain{
+			display: block;
+		}
+
+		@media screen and (max-width: 768px){
+			#index-nav-contain{
+				
+				display: none;
+
+			}
+		}
+
+
 	</style>
 
 
@@ -197,15 +210,16 @@
 		</div>
 
 		<div>
-
-			<div style="display: inline-block;">
-				<a class="btn btn-sm navi-btn" href="{% url 'triviahome' %}" style="">for Compete</a>&nbsp;<a class="btn btn-sm navi-btn" href="{% url 'practicehome' %}" style="">for Practice</a>&nbsp;<a class="btn btn-sm navi-btn" href="{% url 'communityhome' %}" style="">Community</a>
+			<div id="index-nav-contain">
+				<div style="display: inline-block;">
+					<a class="btn btn-sm navi-btn" href="{% url 'triviahome' %}" style="">for Compete</a>&nbsp;<a class="btn btn-sm navi-btn" href="{% url 'practicehome' %}" style="">for Practice</a>&nbsp;<a class="btn btn-sm navi-btn" href="{% url 'communityhome' %}" style="">Community</a>
+				</div>
+				{% if not request.user.is_authenticated %}
+				<div style="display: inline-block;">
+					<a class="btn btn-sm auth-btn" href="{% url 'userlogin' %}">Login</a>&nbsp;<a class="btn btn-sm auth-btn" href="{% url 'usersignup' %}" style="border: solid 1px rgba(110, 110, 110, 1);">Sign up</a>
+				</div>
+				{% endif %}
 			</div>
-			{% if not request.user.is_authenticated %}
-			<div style="display: inline-block;">
-				<a class="btn btn-sm auth-btn" href="{% url 'userlogin' %}">Login</a>&nbsp;<a class="btn btn-sm auth-btn" href="{% url 'usersignup' %}" style="border: solid 1px rgba(110, 110, 110, 1);">Sign up</a>
-			</div>
-			{% endif %}
 		</div>
 	</div>
 
