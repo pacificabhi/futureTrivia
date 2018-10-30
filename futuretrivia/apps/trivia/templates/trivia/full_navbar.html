@@ -3,17 +3,17 @@
 <!-- NAVIGATION BAR -->
 <!-- Small Screen Navigation Overlay -->
 
-<div id="small_screen_nav" class="overlay p-0 m-0 bg-dark">
+<div id="small_screen_nav" class="overlay p-0 m-0" style="background-color: rgba(254, 254, 254, 1);">
 	<a href="javascript:void(0)" class="closebtn text-light" onclick="closeNav()">&times;</a>
 	<div class="overlay-content">
 		<ul class="nav flex-column">
 			{% if request.user.is_authenticated %}
 			<li class="nav-item">
-				<a class="nav-link dropdown-toggle text-light no-select" style="font-size: 15px; cursor: pointer;" role="button" data-toggle="collapse" data-target="#small_screen_dropdown"><img src="{% static 'trivia/images/userIcon.png' %}" class="rounded" width="30" height="22" alt=""> {% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}</a>
-				<div class="container collapse" id="small_screen_dropdown">
-					<a class="nav-link text-light" href="{% url 'userprofile' username=request.user.username %}">View Profile</a>
-					<a class="nav-link text-light" href="{% url 'hostedtrivia' %}">My Trivias</a>
-					<a class="nav-link text-light" href="{% url 'usersettings' %}">Settings</a>
+				<a class="nav-link dropdown-toggle text-dark no-select" style="font-size: 15px; cursor: pointer;" role="button" data-toggle="collapse" data-target="#small_screen_dropdown"><img src="{% static 'trivia/images/userIcon.png' %}" class="rounded" width="30" height="22" alt=""> {% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}</a>
+				<div class="container collapse show m-0" id="small_screen_dropdown">
+					<a class="nav-link text-dark" href="{% url 'userprofile' username=request.user.username %}">View Profile</a>
+					<a class="nav-link text-dark" href="{% url 'hostedtrivia' %}">My Trivias</a>
+					<a class="nav-link text-dark" href="{% url 'usersettings' %}">Settings</a>
 					<a class="nav-link text-danger" href="{% url 'userlogout' %}">Logout</a>
 				</div>
 			</li>
@@ -107,13 +107,13 @@
 		    text-decoration: none;
 		    font-size: 17px;
 		    font-weight: normal;
-		    color: var(--main-silver-white);
+		    color: rgba(12, 178, 67, 1);
 		    display: block;
 		    transition: 0.3s;
 		}
 
 		.overlay a:hover, .overlay a:focus {
-		    font-style: oblique;
+		    /*font-weight: bold;*/
 		}
 
 		#small_screen_dropdown a{
@@ -188,10 +188,10 @@
 		function openNav() {
 
 			var elem = document.getElementById("small_screen_nav");
-			if(elem.style.width=="80%"){
+			if(elem.style.width=="100%"){
 				elem.style.width="0%";
 			} else {
-				elem.style.width="80%";
+				elem.style.width="100%";
 			}
 		}
 
