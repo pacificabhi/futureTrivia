@@ -16,16 +16,16 @@
 	
 	.card{
 		cursor: pointer;
-		padding: 10px 15px 10px 15px;
+		padding: 6px 15px 6px 15px;
 		border-radius: 5px;
 		border-width: 1px;
 		transition: 0.4s;
 	}
 
 	.card:hover{
-		border-width: 4px !important;
+		border-width: 3px !important;
 		border-color: #1aff66 !important;
-		padding: 7px 15px 7px 15px;
+		padding: 3px 15px 3px 15px;
 	}
 
 </style>
@@ -50,8 +50,8 @@
 
 					{% for trivia in trivias.present %}
 
-					<div class="card my-3 border-success">
-						<div class="card-header" onclick="window.location.assign('{% url 'triviadetails' code=trivia.code %}')" style="cursor: pointer;">
+					<div class="card my-3 border-success" style="">
+						<div class="card-header bg-light" onclick="window.location.assign('{% url 'triviadetails' code=trivia.code %}')" style="cursor: pointer; border-color: rgba(255, 255, 255, 0); background-color: rgba(255, 255, 255, 0);">
 
 							<ul class="nav">
 								<li class="nav-item pr-3 mr-auto">
@@ -84,7 +84,7 @@
 					{% for trivia in trivias.future %}
 
 					<div class="card my-3 border-success">
-						<div class="card-header" onclick="window.location.assign('{% url 'triviadetails' code=trivia.code %}')" style="cursor: pointer;">
+						<div class="card-header" onclick="window.location.assign('{% url 'triviadetails' code=trivia.code %}')" style="cursor: pointer; border-color: rgba(255, 255, 255, 0); background-color: rgba(255, 255, 255, 0);">
 
 							<ul class="nav">
 								<li class="nav-item pr-3 mr-auto">
@@ -117,7 +117,7 @@
 					{% for trivia in trivias.past %}
 
 					<div class="card my-3 border-success">
-						<div class="card-header" onclick="window.location.assign('{% url 'triviadetails' code=trivia.code %}')" style="cursor: pointer;">
+						<div class="card-header" onclick="window.location.assign('{% url 'triviadetails' code=trivia.code %}')" style="cursor: pointer; border-color: rgba(255, 255, 255, 0); background-color: rgba(255, 255, 255, 0);">
 
 							<ul class="nav">
 								<li class="nav-item pr-3 mr-auto">
