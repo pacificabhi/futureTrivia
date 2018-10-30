@@ -50,7 +50,7 @@ class Trivia(models.Model):
 		return self.question_set.all().count()
 
 	def get_endtime(self):
-		return self.start_time + datetime.timedelta(seconds=self.portal_duration)
+		return self.end_time
 
 
 	def is_ended(self):
@@ -72,13 +72,18 @@ class Trivia(models.Model):
 		return self.start_time<=get_current_time()
 
 	def time_to_start(self):
-
 		return int((self.start_time-get_current_time()).total_seconds())
+
+	def time_to_end(self):
+
+		if not self.is_started():
+			return None
+
+		return int((get_current_time()-self.get_endtime()).total_seconds())
 
 
 	def get_rating(self):
 
-		
 		rating_list = list(map(int, self.stars.strip().split(',')))
 		sm=0
 		tot=0
