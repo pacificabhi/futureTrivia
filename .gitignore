@@ -3,4 +3,5 @@
 __pycache__
 myvenv
 futuretrivia/static
+futuretrivia/futuretrivia/settings.py
 .DS_Store
