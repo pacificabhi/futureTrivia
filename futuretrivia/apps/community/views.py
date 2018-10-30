@@ -89,6 +89,7 @@ def editTrivia(request, code):
 					trivia.individual_timing = trivia_form["individual_timing"]
 					trivia.private = trivia_form["private"]
 					trivia.ready = trivia_form["ready"]
+					trivia.set_endtime()
 
 
 					trivia.save()
