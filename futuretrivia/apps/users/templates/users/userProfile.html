@@ -11,6 +11,8 @@
 
 {% block content %}
 
+{% spaceless %}
+
 
 <script type="text/javascript">
 
@@ -62,7 +64,7 @@
 				
 			</div>
 
-			<div class="container-fluid mt-3" id="recent-activities" style="border: solid 1px rgba(220, 220, 220, 1);">
+			<div class="container-fluid mt-3" id="recent-activities" style="border: solid 1px rgba(220, 220, 220, 1); max-height: 70%; overflow-y: auto;">
 				<p class="text-dark font-weight-bold">Recent Activities</p>
 
 				<style type="text/css">
@@ -180,5 +182,5 @@
 </div>
 
 
-
+{% endspaceless %}
 {% endblock %}

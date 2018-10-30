@@ -5,6 +5,8 @@
 
 {% block content %}
 
+{% spaceless %}
+
 {% if trivia.is_fully_ended %}
 
 
@@ -324,6 +326,8 @@
 	</div>
 
 {% endif %}
+
+{% endspaceless %}
 
 
 {% endblock %}

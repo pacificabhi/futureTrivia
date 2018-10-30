@@ -1,4 +1,5 @@
 {% load static %}
+{% spaceless %}
 
 <!DOCTYPE html>
 <html>
@@ -6,7 +7,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-	<link rel="shortcut icon" href="{% static 'futuretrivia/favicon.png' %}">
+	<link rel="shortcut icon" href="{% static 'futuretrivia/favicon/favicon.ico' %}">
 
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
@@ -190,13 +191,8 @@
 	</div>
 </center>
 
-<div class="container-fluid border mt-4" style="min-height: 200px;">
-	
-</div>
-
-{% block bodyscripts %}
-
-{% endblock %}
 
 </body>
 </html>
+
+{% endspaceless %}

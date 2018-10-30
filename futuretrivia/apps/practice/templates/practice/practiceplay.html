@@ -2,7 +2,7 @@
 
 {% block title %}
 	
-	{{ trivia.name }} - Practice
+	Practice | {{ trivia.name }}
 
 {% endblock %}
 
@@ -592,9 +592,9 @@
 					<span class="text-info no-select icon-clock font-weight-bold"><span id="contest_time_left" class="ml-2 font-weight-bold" style="font-size: 12px;"></span></span>
 				</div>
 				<div class="col-md-4 text-left">
-					<button class="btn btn-info btn-sm" onclick="show_prev_ques()">Previous</button>
-					<button class="btn btn-info btn-sm" onclick="show_next_ques()">Next</button>
-					<button class="btn btn-sm btn-danger" onclick="confirm_end_test('Are you sure to end this test?');">End Test</button>
+					<button class="btn btn-info btn-sm mx-1" onclick="show_prev_ques()">Previous</button>
+					<button class="btn btn-info btn-sm mx-1" onclick="show_next_ques()">Next</button>
+					<button class="btn btn-sm btn-danger mx-1" onclick="confirm_end_test('Are you sure to end this test?');">End Test</button>
 				</div>
 			</div>
 		</div>

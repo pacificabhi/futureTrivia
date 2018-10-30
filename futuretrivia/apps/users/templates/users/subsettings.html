@@ -1,5 +1,28 @@
 {% extends 'users/settings.html' %}
 
+{% block title %}
+	
+	{% if accountset %}
+
+		Account Settings
+
+	{% elif securityset %}
+		
+		Security Settings
+		
+	{% elif additionalset %}
+
+		Additional Settings
+
+	{% elif socialset %}
+
+		Social Accounts
+
+	{% endif %}
+
+
+{% endblock %}
+
 
 {% block subsetting %}
 

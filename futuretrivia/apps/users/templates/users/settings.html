@@ -2,13 +2,6 @@
 {% load static %}
 
 
-{% block title %}
-
-	{% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}
-
-{% endblock %}
-
-
 {% if request.user.is_authenticated %}
 
 {% block content %}

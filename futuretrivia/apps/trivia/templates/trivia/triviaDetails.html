@@ -12,6 +12,8 @@
 
 {% block content %}
 
+{% spaceless %}
+
 
 {% if exist %}
 
@@ -441,5 +443,7 @@
 {% else %}
 	Not Found
 {% endif %}
+
+{% endspaceless %}
 
 {% endblock %}

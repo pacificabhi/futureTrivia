@@ -138,8 +138,8 @@ def userProfile(request, username):
 	context ={}
 	if user and user.is_active:
 		context["profile"] = user
-		recenttrivias = user.triviaresult_set.all()
-		recentpractice = user.practiceresult_set.all()
+		recenttrivias = user.triviaresult_set.filter(time_taken__gt=0).order_by("-start_time")
+		recentpractice = user.practiceresult_set.filter(time_taken__gt=0).order_by("-start_time")
 
 		context["recenttrivias"]=recenttrivias
 		context["recentpractice"]=recentpractice

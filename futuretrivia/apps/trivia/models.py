@@ -66,6 +66,10 @@ class Trivia(models.Model):
 
 		return self.start_time<=get_current_time()
 
+	def time_to_start(self):
+
+		return int((self.start_time-get_current_time()).total_seconds())
+
 
 	def get_rating(self):
 
