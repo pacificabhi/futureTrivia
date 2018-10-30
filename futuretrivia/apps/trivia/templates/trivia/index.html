@@ -413,7 +413,7 @@
 	<br><br>
 	{% if time_left %}
 	<div class="container">
-		<span class="text-success" style="font-size: 22px; font-weight: bold;">Next &#10149; <a href="{% url 'triviadetails' code=next_code %}" class="text-success" style="font-size: 16px; text-decoration: none;">{{ next_name }} </a></span><br>
+		<span class="text-success" style="font-size: 22px; font-weight: bold;">{% if next %}Next{% else %}Ongoing{% endif %} &#10149; <a href="{% url 'triviadetails' code=next_code %}" class="text-success" style="font-size: 16px; text-decoration: none;">{{ next_name }} </a></span><br>
 		<span class="text-secondary" style="font-size: 12px;">starts in</span><br>
 
 		<span style="display: inline-block; padding: 8px 8px 8px 8px;" id="time_left_container" data-timeleft="{{ time_left }}">

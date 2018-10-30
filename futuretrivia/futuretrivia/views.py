@@ -10,7 +10,7 @@ from .utility import *
 
 def index(request):
 
-	context={"next": False}
+	context={"next": False, "time_left": None}
 	nextt = None
 	now = get_current_time()
 
@@ -22,12 +22,16 @@ def index(request):
 		nextt = True
 	
 	if trivia:
-		if nextt:
+		if not nextt:
 			context["time_left"]=trivia.time_to_end()
 		else:
 			context["time_left"]=trivia.time_to_start()
 		context["next_name"]=trivia.name
 		context["next_code"]=trivia.code
+
+
+	print(context)
+	print(trivia.time_to_start())
 
 	return render(request, 'trivia/index.html', context)
 

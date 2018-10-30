@@ -83,7 +83,7 @@ class Trivia(models.Model):
 		if not self.is_started():
 			return None
 
-		return int((get_current_time()-self.get_endtime()).total_seconds())
+		return int((self.get_endtime()-get_current_time()).total_seconds())
 
 
 	def get_rating(self):
