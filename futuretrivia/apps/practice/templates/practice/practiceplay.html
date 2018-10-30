@@ -526,7 +526,7 @@
 						if(resp.success){
 							clearInterval(timer);
 							end_loader.style.display = "none";
-							confirm_message.innerHTML = "<span class='text-success'>Submission Successful</span><br><span class='text-secondary'>Score - <span class='text-info'>{0}</span></span><br><span class='text-secondary'>Time taken - <span class='text-info'>{1}</span></span><br><span class='text-secondary'>Go to <a href='/'>homepage</a></span>".format(resp.result.score, resp.result.time_taken);
+							confirm_message.innerHTML = "<span class='text-success'>Submission Successful</span><br><span class='text-secondary'>Score - <span class='text-info'>{0}</span></span><br><span class='text-secondary'>Time taken - <span class='text-info'>{1}</span></span><br><span class='text-secondary'>Go to <a href='/practice/'>Practice Section</a></span>".format(resp.result.score, resp.result.time_taken);
 							
 						} else {
 							show_top_popup(resp.error, true, 4000);
