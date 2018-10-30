@@ -13,7 +13,7 @@ def index(request):
 	context={}
 
 	now = get_current_time()
-	trivia = Trivia.objects.filter(start_time__gt=now).order_by("start_time")[0]
+	trivia = Trivia.objects.filter(start_time__gt=now).order_by("start_time").first()
 	if trivia:
 		context["time_left"]=trivia.time_to_start()
 		context["next_name"]=trivia.name

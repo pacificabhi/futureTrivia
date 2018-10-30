@@ -215,8 +215,12 @@
 
 					<span class="text-success font-weight-bold">War is on</span>
 
-				{% else %}
+				{% elif trivia.is_ended and trivia.is_fully_ended %}
 
+					<span class="text-danger font-weight-bold">Registration ended</span>
+
+				{% else %}
+					
 					<span class="text-danger font-weight-bold">ended</span>
 
 				{% endif %}

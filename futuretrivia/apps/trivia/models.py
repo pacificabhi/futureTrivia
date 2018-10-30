@@ -22,6 +22,7 @@ class Trivia(models.Model):
 	announcements = models.TextField(blank=False, null=False, max_length=5000, default="No Announcements")
 
 	start_time = models.DateTimeField(blank=True, null=True)
+	end_time = models.DateTimeField(blank=True, null=True)
 	duration = models.IntegerField(blank=False, null=False, default=0)
 	#per_questions_duration = models.IntegerField(blank=False, null=False, default=0)
 	portal_duration = models.IntegerField(blank=False, null=False, default=0)
@@ -40,6 +41,10 @@ class Trivia(models.Model):
 
 	def __str__(self):
 		return self.code
+
+	def set_endtime(self):
+
+		self.end_time = self.get_endtime()
 
 	def total_questions(self):
 		return self.question_set.all().count()
