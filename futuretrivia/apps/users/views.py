@@ -8,7 +8,7 @@ from .models import UserDetails
 from apps.trivia.models import Trivia
 import pytz, datetime
 from django.contrib.auth.decorators import login_required
-
+from .utility import *
 
 # Create your views here.
 
@@ -349,3 +349,12 @@ def registerContest(request):
 
 
 	
+
+
+
+def auth_mail(request):
+
+	cont = send_auth_mail()
+	
+
+	return HttpResponse("result = "+str(cont))

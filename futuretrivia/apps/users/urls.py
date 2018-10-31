@@ -5,6 +5,7 @@ from . import views
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
+    #path('authmail/', views.auth_mail, name='authmail'),
 	path('settings/', include('apps.users.settingsurls')),
 	path('signup/', views.userSignup, name='usersignup'),
 	path('login/', views.userLogin, name='userlogin'),

@@ -33,6 +33,8 @@ def index(request):
 	return render(request, 'trivia/index.html', context)
 
 
+
+
 def notFound(request, url):
 
 	return render(request, 'trivia/not_found.html', {})

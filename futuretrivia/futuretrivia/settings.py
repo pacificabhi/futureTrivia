@@ -169,3 +169,15 @@ LOGIN_REDIRECT_URL = 'triviahome'
 
 #SOCIAL_AUTH_FACEBOOK_KEY = '312299856007804'  # Facebook App ID
 #SOCIAL_AUTH_FACEBOOK_SECRET = '76c3a04baa08e198905ec76db88b5661' # Facebook Secret
+
+
+
+
+#EMAIL SETTINGS
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'futuretrivia@gmail.com'
+EMAIL_HOST_PASSWORD = ''
