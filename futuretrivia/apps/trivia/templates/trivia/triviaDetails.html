@@ -296,7 +296,7 @@
 				<div class="row p-2">
 					<div class="col-md">
 						{% if ended %}
-							<button class="btn btn-sm text-success font-weight-bold" style="background-color: rgba(0,0,0,0);" disabled>Ended</button>
+							
 						{% elif request.user == trivia.admin %}
 
 							<span class="text-secondary">You are admin of {{ trivia.code }}</span>
@@ -316,7 +316,7 @@
 									{% if can_register %}
 										<button class="btn btn-sm text-success font-weight-bold" style="background-color: rgba(0,0,0,0);" onclick="register_contest_and_enter(this,'{{ trivia.code }}', '{{ can_start }}')">Click to Register</button>
 									{% else %}
-										<button class="btn btn-sm text-success font-weight-bold" style="background-color: rgba(0,0,0,0);" disabled>Registration Ended</button>
+										<button class="btn btn-sm text-success font-weight-bold" style="background-color: rgba(0,0,0,0);" disabled>Registration Ended</button>	
 
 									{% endif %}
 								
