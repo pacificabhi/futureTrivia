@@ -224,7 +224,7 @@
 				}
 			};
 
-			var form = JSON.stringify(trivia_form);
+			var form = encodeURIComponent(JSON.stringify(trivia_form));
 			var token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
 			
 			var q = "csrfmiddlewaretoken="+token+"&trivia_form="+form;
