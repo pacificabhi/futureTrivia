@@ -118,8 +118,8 @@
 		{% if not trivia.is_ended and not trivia.is_started %}
 		max_opt_id = undefined;
 		temp_q_obj = undefined;
-		inittext("qstatement", "");
-		inittext("qexplanation", "");
+		inittext("qstatement", "", 200);
+		inittext("qexplanation", "", 200);
 		{% endif %}
 	});
 
@@ -402,8 +402,12 @@
 
 <script type="text/javascript">
 	
-	function inittext(elem_selector, pre_data){
+	function inittext(elem_selector, pre_data, height){
 		var id_selector = "#"+elem_selector;
+
+		if(!height){
+			height=150;
+		}
 
 		tinymce.init({
 			selector: id_selector,
@@ -415,7 +419,7 @@
 			],
 			toolbar: "undo redo | preview | codesample link image | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent",
 			menubar: "edit view insert format",
-			height: 250,
+			height: height,
 			force_br_newlines : true,
   			force_p_newlines : false,
   			forced_root_block : '',
@@ -475,7 +479,7 @@
 			elem.setAttribute("data-opt", new_i);
 
 
-			inittext(new_id, old_data);
+			inittext(new_id, old_data, 150);
 
 		}
 
@@ -553,7 +557,7 @@
 
 		qoptions.appendChild(div);
 
-		inittext(new_id, pre_text);
+		inittext(new_id, pre_text, 150);
 		$('#edit_window').animate({
 	        scrollTop: div.offsetTop
 	    }, 800, function(){

@@ -57,22 +57,39 @@
 	<div class="container-fluid">
 		{% for trivia in hostedtrivias %}
 		<div class="card my-3">
-			<div class="card-header py-1">
+			<div class="card-header py-1 px-0">
 				<div class="d-flex justify-content-between">
-					<div class="text-left">
-						<p class="text-dark text-left font-weight-bold my-0" style="font-size: 16px;">{%if trivia.ready %}<span class="text-success" style="font-size: 21px;">&check;</span>{% else %}<span class="text-danger" style="font-size: 21px;">&#9888;</span>{% endif %} {{ trivia.name }} ({{ trivia.code }})</p>
+					<div class="text-left px-1">
+						<p class="text-dark text-left font-weight-bold my-0" style="font-size: 14px;">{%if trivia.ready %}<span class="text-success" style="font-size: 21px;">&check;</span>{% else %}<span class="text-danger" style="font-size: 21px;">&#9888;</span>{% endif %} {{ trivia.name }} ({{ trivia.code }})</p>
 						<span class="text-dark icon-clock"></span> &nbsp;<span class="text-secondary">{% timezone 'Asia/Kolkata' %}{{ trivia.start_time }} IST {% endtimezone %}</span>
 					</div>
-					<div>
-						{% if trivia.is_fully_ended and not trivia.locked %}
-							<button class="btn btn-sm text-secondary font-weight-bold" onclick="lock_trivia(this ,'{{ trivia.code }}')" style="background-color: rgba(0,0,0,0)">Lock it</button>
+					<div class="mr-0" style="max-width: 30%;">
 
-						{% elif trivia.is_fully_ended and trivia.locked %}
-							<button class="btn btn-sm text-secondary font-weight-bold" onclick="" style="background-color: rgba(0,0,0,0)" disabled>Locked</button>							
-						{% endif %}
+						<div class="row">
 
-						<a class="btn btn-sm text-info font-weight-bold" href="{% url 'edittrivia' code=trivia.code %}" style="background-color: rgba(0,0,0,0)">Edit</a>
-						<a class="btn btn-sm text-info font-weight-bold" href="{% url 'triviadetails' code=trivia.code %}" style="background-color: rgba(0,0,0,0)">View</a>
+							<div class="col-md">
+							{% if trivia.is_fully_ended and not trivia.locked %}
+								<button class="btn btn-sm text-secondary font-weight-bold" onclick="lock_trivia(this ,'{{ trivia.code }}')" style="background-color: rgba(0,0,0,0)">Lock it</button>
+
+							{% elif trivia.is_fully_ended and trivia.locked %}
+								<button class="btn btn-sm text-secondary font-weight-bold" onclick="" style="background-color: rgba(0,0,0,0)" disabled>Locked</button>							
+							{% endif %}
+							</div>
+
+							<div class="col-md">
+							{% if trivia.is_started %}
+								<a class="btn btn-sm text-info font-weight-bold" href="{% url 'edittrivia' code=trivia.code %}" style="background-color: rgba(0,0,0,0)">See Questions</a>
+							{% else %}
+								<a class="btn btn-sm text-info font-weight-bold" href="{% url 'edittrivia' code=trivia.code %}" style="background-color: rgba(0,0,0,0)">Edit</a>
+
+							{% endif %}
+
+							</div>
+
+							<div class="col-md">
+								<a class="btn btn-sm text-info font-weight-bold" href="{% url 'triviadetails' code=trivia.code %}" style="background-color: rgba(0,0,0,0)">View</a>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
