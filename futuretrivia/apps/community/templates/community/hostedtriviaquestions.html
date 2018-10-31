@@ -406,7 +406,7 @@
 		var id_selector = "#"+elem_selector;
 
 		if(!height){
-			height=150;
+			height=100;
 		}
 
 		tinymce.init({
@@ -479,7 +479,7 @@
 			elem.setAttribute("data-opt", new_i);
 
 
-			inittext(new_id, old_data, 150);
+			inittext(new_id, old_data, 100);
 
 		}
 
@@ -557,7 +557,7 @@
 
 		qoptions.appendChild(div);
 
-		inittext(new_id, pre_text, 150);
+		inittext(new_id, pre_text, 100);
 		$('#edit_window').animate({
 	        scrollTop: div.offsetTop
 	    }, 800, function(){
@@ -770,7 +770,7 @@
 
 			<div class="form-group text-left">
 				<label for="qstatement" class="my-1">Question</label>
-				<textarea id="qstatement" maxlength="5000" style="height: 150px; max-height: 200px;" onfocus="" required=""></textarea><span class="text-danger qformerror"></span>
+				<textarea id="qstatement" maxlength="5000" style="height: 100px; max-height: 200px;" onfocus="" required=""></textarea><span class="text-danger qformerror"></span>
 			</div>
 
 			<p class="text-secondary font-weight-bold text-left" style="font-size: 14px;">Options</p>
@@ -800,7 +800,7 @@
 
 			<div class="form-group text-left">
 				<label for="qexplanation" class="my-1">Explaination</label>
-				<textarea id="qexplanation" maxlength="5000" style="height: 150px; max-height: 200px;" onfocus=""></textarea><span class="text-danger qformerror"></span>
+				<textarea id="qexplanation" maxlength="5000" style="height: 100px; max-height: 200px;" onfocus=""></textarea><span class="text-danger qformerror"></span>
 			</div>
 
 		</form>
