@@ -30,9 +30,6 @@ def index(request):
 		context["next_code"]=trivia.code
 
 
-	print(context)
-	print(trivia.time_to_start())
-
 	return render(request, 'trivia/index.html', context)
 
 

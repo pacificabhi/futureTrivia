@@ -695,7 +695,7 @@
 
 			};
 
-			var form = JSON.stringify(temp_q_obj);
+			var form = encodeURIComponent(JSON.stringify(temp_q_obj));
 			//console.log(form);
 			var token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
 
