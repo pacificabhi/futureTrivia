@@ -448,7 +448,15 @@
 	</div>
 	{% endif %}
 
-	<p class="mt-4"><button class="btn auth-btn" onclick="alert('send us an email at futuretrivia@gmail.com')" style="border: solid 1px rgba(110, 110, 110, 1); font-size: 14px;">{% if not request.user.is_authenticated %}Sign Up & {% endif %}Host Trivia</button></p>
+	{% if request.user.is_authenticated %}
+
+		<p class="mt-4"><button class="btn auth-btn" onclick="alert('send us an email at futuretrivia@gmail.com')" style="border: solid 1px rgba(110, 110, 110, 1); font-size: 14px;">Host Trivia</button></p>
+
+	{% else %}
+
+		<p class="mt-4"><a class="btn auth-btn" href="{% url 'usersignup' %}" style="border: solid 1px rgba(110, 110, 110, 1); font-size: 14px;">Host Trivia</a></p>
+
+	{% endif %}
 
 
 </div>
