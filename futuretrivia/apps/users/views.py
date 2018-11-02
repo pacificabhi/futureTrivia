@@ -166,6 +166,9 @@ def userSignup(request):
 
 		ud = UserDetails.objects.create(user = u)
 
+		send_email_confirmation_mail(request.get_host(), ud, email)
+				
+		
 		login(request, u)
 
 		return JsonResponse(context)
