@@ -171,7 +171,7 @@
 <center>
 
 {% if request.user.is_authenticated and not request.user.userdetails.confirmed %}
-	<p class="text-dark p-0 m-0 py-2" style="font-size: 12px;" id="confirm_email_info_box">Please check your inbox for a confirmation email. Click the link in the email to confirm your <b>{{ request.user.email }}</b>. <a href="" style="text-decoration: none;">Change email address</a> / <a href="{% url 'confirmemail' %}?action=sendconfirmationemail" style="text-decoration: none;">Resend confirmation email</a></p>
+	<p class="text-dark p-0 m-0 py-2" style="font-size: 12px;" id="confirm_email_info_box">Please check your inbox for a confirmation email. Click the link in the email to confirm your <b>{{ request.user.email }}</b>. <a href="{% url 'accountsetting' %}" style="text-decoration: none;">Change email address</a> / <a href="{% url 'confirmemail' %}?action=sendconfirmationemail" style="text-decoration: none;">Resend confirmation email</a></p>
 {% endif %}
 
 <div class="container fixed-top p-0" id="top_popup" style="max-width: 600px;">
