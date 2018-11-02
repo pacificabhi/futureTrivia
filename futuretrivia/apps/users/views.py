@@ -44,18 +44,26 @@ def userConfirmEmail(request):
 
 	elif action == 'confirmemail':
 		token = request.GET.get("token")
+		if not request.user.is_authenticated:
+			nxt = reverse('confirmemail')+"?action=confirmmail&token="+token
+			return HttpResponseRedirect(reverse('userlogin')+nxt)
+
+
 		ud = request.user.userdetails
 
 		if ud.confirm_token == token:
 			ud.confirmed = True
 			ud.confirm_token = ""
 			ud.save()
+			context["email_confirmed"] = True
 
 		else:
 			context["error"] = "Invlid link or link expired"
 
-	print(context)
+	else:
+		return render(request, 'trivia/not_found.html', {})
 
+	
 	return render(request, 'users/confirmemail.html', context)
 
 
