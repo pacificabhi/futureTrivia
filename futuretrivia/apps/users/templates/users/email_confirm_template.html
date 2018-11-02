@@ -1,0 +1,8 @@
+<html>
+<body>
+
+Thank you for registering to FutureTrivia.&nbsp;You can click on on following link to confirm your email address.<br><br>
+<a href="https://{{ host }}{% url 'confirmemail' %}?action=confirmemail&token={{ confirm_token }}" style="padding: 8px 15px 8px 15px; background-color: rgba(12, 178, 67, 0.9); color: #fff; border: solid 0px blue; border-radius: 4px; cursor: pointer; text-decoration: none; font-size: 13px; font-weight: bold;">Confirm Email address</a><br><br> or alternatively, you can copy following url to your browser to confirm you email address.<br><br><a href="https://{{ host }}{% url 'confirmemail' %}?action=confirmemail&token={{ confirm_token }}">https://{{ host }}{% url 'confirmemail' %}?action=confirmemail&token={{ confirm_token }}</a>
+
+</body>
+</html>

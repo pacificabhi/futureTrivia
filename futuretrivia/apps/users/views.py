@@ -18,6 +18,38 @@ def dashboard(request):
 		
 	return render(request, 'users/dashboard.html',{})
 
+@login_required
+def userConfirmEmail(request):
+
+	action = request.GET.get("action")
+
+	if not action:
+		return render(request, 'trivia/not_found.html', {})
+
+	context = {}
+
+	if action == 'sendconfirmationemail':
+
+		ud = request.user.userdetails
+
+		if not ud.confirmed:
+			res = send_email_confirmation_mail(request.get_host(), ud, request.user.email)
+			if res:
+				context["email_resend"] = True
+			else:
+				context["error"] = "Please try again"
+
+		else:
+			context["error"] = "Your Email is already confirmed"
+
+	elif action == 'confirmemail':
+		pass
+
+
+
+	return render(request, 'users/confirmemail.html', context)
+
+
 def userLogin(request):
 
 	nxt = request.GET.get("next")
@@ -156,66 +188,85 @@ def userProfile(request, username):
 def userSettings(request):
 	context={}
 
-	return HttpResponseRedirect(reverse('accountsettings'))
-
 	if not request.user.is_authenticated:
 		return HttpResponseRedirect(reverse('userlogin'))
 
+	tab = request.GET.get("tab")
+	
+	if tab == 'account':
+		context["accounttab"]=True
+	elif tab == 'security':
+		context["securitytab"]=True
+	else:
+		context["accounttab"]=True
 
 	return render(request, 'users/settings.html', context)
 
 @login_required
 def accountSettings(request):
-
+	context = {"success": False}
 
 	if request.method == "POST":
 		errors = []
-		context = {"success": True}
 		if not request.user.is_authenticated:
-			context["success"]=False
-			errors.append("You are not loggedin")
+			errors.append("You are not logged in")
 			context["errors"]=errors
 			return JsonResponse(context)
 
-		fname = request.POST.get("fname").strip().title()
-		lname = request.POST.get("lname").strip().title()
-		email = request.POST.get("email").strip().lower()
-		
+		settype = request.POST.get("settype")
 
-		nerr = invalid_name(fname, lname)
+		if settype == "fullname":
 
-		if nerr:
-			errors.append(nerr)
+			fname = request.POST.get("fname").strip().title()
+			lname = request.POST.get("lname").strip().title()
+			
 
-		
-		if request.user.email != email:
-			if user_exists(email):
-				errors.append("Email already taken")
-			elif not check_email_dns(email):
-				errors.append("Invalid Email")
+			nerr = invalid_name(fname, lname)
 
+			if nerr:
+				errors.append(nerr)
+			
+			if errors:
+				context["errors"]=errors
+				return JsonResponse(context)
 
-		if errors:
-			context["success"]=False
-			context["errors"]=errors
+			request.user.first_name = fname
+			request.user.last_name = lname
+			request.user.save()
+			context["success"] = True
 			return JsonResponse(context)
 
-		request.user.first_name = fname
-		request.user.last_name = lname
-		request.user.email = email
+		if settype == "email":
 
-		request.user.save()
-		context["success"] = True
-
-		return JsonResponse(context)
-
-	if not request.user.is_authenticated:
-		return HttpResponseRedirect(reverse('userlogin'))
-	
-	context={"accountclass": "border-success", "accountset": True}
+			email = request.POST.get("email").strip().lower()
 
 
-	return render(request, 'users/subsettings.html', context)
+			if request.user.email == email:
+				errors.append("New email can not be same as previous email")
+				context["errors"]=errors
+				return JsonResponse(context)
+			
+			else:
+				
+				if user_exists(email):
+					errors.append("Email already taken")
+				elif not check_email_dns(email):
+					errors.append("Invalid Email")
+
+				if errors:
+					context["errors"]=errors
+					return JsonResponse(context)
+
+			request.user.email = email
+			request.user.save()
+
+
+			context["success"] = True
+			return JsonResponse(context)
+
+
+	return JsonResponse(context)
+
 
 @login_required
 def securitySettings(request):
@@ -265,59 +316,21 @@ def securitySettings(request):
 
 		return JsonResponse(context)
 
-	if not request.user.is_authenticated:
-		return HttpResponseRedirect(reverse('userlogin'))
-
-	context={"securityclass": "border-success", "securityset": True}
 
 
-	return render(request, 'users/subsettings.html', context)
-
-
-
-
-@login_required
-def socialSettings(request):
-
-	if not request.user.is_authenticated:
-		return HttpResponseRedirect(reverse('userlogin'))
-
-
-	if request.method == "POST":
-		pass
-
-	context={"socialclass": "border-success", "socialset": True}
-
-
-	return render(request, 'users/subsettings.html', context)
-
-
-
-
-
-@login_required
-def additionalSettings(request):
-
-	if not request.user.is_authenticated:
-		return HttpResponseRedirect(reverse('userlogin'))
-
-
-	if request.method == "POST":
-		pass
-
-	context={"additionalclass": "border-success", "additionalset": True}
-
-
-	return render(request, 'users/subsettings.html', context)
-	
 
 
 
 def registerContest(request):
-	context={"success": False}
+	context={"success": False, "auth": True}
 
 	if not request.user.is_authenticated:
-		context["error"] = "Sign in to Register"
+		context["error"] = "You are not logged in"
+		context["auth"] = False
+		return JsonResponse(context)
+
+	if not is_account_confirmed(request):
+		context["error"] = "Your email is not confirmed. Confirm your email to register for contest"
 		return JsonResponse(context)
 
 	code = request.GET.get("code")

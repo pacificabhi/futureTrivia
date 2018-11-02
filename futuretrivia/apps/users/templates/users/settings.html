@@ -6,47 +6,48 @@
 
 {% block content %}
 		
+<style type="text/css">
+	label{
+		font-size: 10px;
+	}
+	input{
+		max-width: 300px;
+		max-height: 26px;
+		font-size: 13px !important;
+	}
+</style>
+
 
 <script type="text/javascript">
-
+	window.onload=function(){
+		var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+		var stblk = document.getElementById("settingsnavigation");
+		var xbtn = document.getElementById("settingsnavigationbtn");
+		xbtn.style.display = "block";
+		if(width > 800){
+			stblk.classList.add("show");
+			xbtn.style.display="none";
+			xbtn.disabled = true;
+		}
+		
+	};
 </script>
-
-
 
 <div class="container">
 	<div class="row py-4">
 		<div class="col-md-3 py-3 text-left">
 
-			<script type="text/javascript">
-				window.onload=function(){
-					var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-					var stblk = document.getElementById("settingsnavigation");
-					var xbtn = document.getElementById("settingsnavigationbtn");
-					xbtn.style.display = "block";
-					if(width > 800){
-						stblk.classList.add("show");
-						xbtn.style.display="none";
-						xbtn.disabled = true;
-					}
-					
-				};
-			</script>
+			
 
 			<button class="btn btn-success btn-block dropdown-toggle" type="button" data-toggle="collapse" data-target="#settingsnavigation" id="settingsnavigationbtn" style="display: none;">Settings</button>
 			<div class="m-0 p-0 collapse" id="settingsnavigation">
 			<div class="container rounded py-2 text-light" id="settingsHead">
 				<ul class="nav nav-tabs flex-column">
 				    <li class="nav-item btn btn-sm">
-				    	<a class="btn btn-sm btn-block text-success text-left {{ accountclass }}" href="{% url 'accountsettings' %}"><span class="icon-profile-male"></span> Account Settings</a>
+				    	<a class="btn btn-sm btn-block text-success text-left {{ accountclass }}" href="{% url 'usersettings' %}?tab=account"><span class="icon-profile-male"></span> Account Settings</a>
 				    </li>
 				    <li class="nav-item btn btn btn-sm">
-				    	<a class="btn btn-sm btn-block text-success text-left {{ securityclass }}" href="{% url 'securitysettings' %}"><span class="icon-shield"></span> Security</a>
-				    </li>
-				    <li class="nav-item btn btn btn-sm">
-				    	<a class="btn btn-sm btn-block text-success text-left {{ socialclass }}" href="{% url 'socialsettings' %}"><span class="icon-globe"></span> Social Accounts</a>
-				    </li>
-				    <li class="nav-item btn btn btn-sm">
-				    	<a class="btn btn-sm btn-block text-success text-left {{ additionalclass }}" href="{% url 'additionalsettings' %}"><span class="icon-puzzle"></span> Additional Settings</a>
+				    	<a class="btn btn-sm btn-block text-success text-left {{ securityclass }}" href="{% url 'usersettings' %}?tab=security"><span class="icon-shield"></span> Login &amp; Security</a>
 				    </li>
 			  	</ul>
 				
@@ -56,18 +57,22 @@
 
 		<div class="col-md-9 py-3">
 			<div class="container border rounded pt-3 text-left text-dark">
-				{% block subsetting %}
-				
+				{% if accounttab %}
 
-				{% endblock %}
+					{% include 'users/accountsetting.html' %}
+
+				{% elif securitytab %}
+					
+					{% include 'users/securitysetting.html' %}
+
+
+				{% endif %}
 			</div>
 				
 		</div>
 	</div>
 	
 </div>
-
-
 
 {% endblock %}
 
@@ -77,6 +82,7 @@
 		window.location.assign("{% url 'userlogin' %}");	
 	}
 </script>
+
 
 
 {% endif %}

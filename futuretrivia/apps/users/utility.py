@@ -1,20 +1,28 @@
-from django.core.mail import send_mail
+import secrets
+from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
+from django.template.loader import render_to_string
 
 
-def send_auth_mail():
+def send_email_confirmation_mail(host, ud, to):
 
-	pass
-
-	"""
-	subject = 'Thank you for registering to our site'
-	message = ' it  means a world to us '
+	context = {"host": host}
+	subject = 'Email Confirmation'
+	token = secrets.token_urlsafe
+	ud.confirm_token = token
+	context["confirm_token"] = token
+	message = render_to_string('users/email_confirm_template.html', context)
 	email_from = settings.EMAIL_HOST_USER
-	recipient_list = ['',]
+	recipient_list = [to,]
 
-	send_mail( subject, message, email_from, recipient_list )
+	msg = EmailMessage(subject=subject, body=message, from_email=email_from, to=recipient_list)
+	msg.content_subtype = "html"  # Main content is now text/html
+	res = msg.send()
+	ud.save()
+	return res
 
-	"""
 
 
-
+def is_account_confirmed(request):
+	
+	return request.user.userdetails.confirmed
