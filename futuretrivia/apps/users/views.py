@@ -43,9 +43,18 @@ def userConfirmEmail(request):
 			context["error"] = "Your Email is already confirmed"
 
 	elif action == 'confirmemail':
-		pass
+		token = request.GET.get("token")
+		ud = request.user.userdetails
 
+		if ud.confirm_token == token:
+			ud.confirmed = True
+			ud.confirm_token = ""
+			ud.save()
 
+		else:
+			context["error"] = "Invlid link or link expired"
+
+	print(context)
 
 	return render(request, 'users/confirmemail.html', context)
 

@@ -19,11 +19,12 @@
 </script>
 
 	<div class="container-fluid mt-5">
-		
+		{% if email_resend %}
 		<div class="container-fluid" id="error-wrap">
 			<p class="font-weight-bold text-success no-select" style="font-size: 25px;">&#10004; Email Sent</p>
 			<p class="font-weight-bold text-secondary no-select" style="max-width: 700px;">Please check your inbox for a confirmation email. Click the link in the email to confirm your <span class="text-dark">{{ request.user.email }}</span>. <a href="#" style="text-decoration: none;">Change email address</a></p>
 		</div>
+		{% endif %}
 
 	</div>
 

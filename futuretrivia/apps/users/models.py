@@ -8,10 +8,12 @@ class UserDetails(models.Model):
 
 	user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
 	trivias = models.ManyToManyField(Trivia)
-	security_question = models.CharField(max_length=100, blank=True, null=True)
-	security_answer = models.CharField(max_length=100, blank=True, null=True)
+	confirmed = models.BooleanField(blank=False, null=False, default=False)
+	confirm_token = models.CharField(max_length=256 ,blank=True, null=False, default="")
+	
+	emails = models.TextField(blank=False, null=False, default="{}")
 	country = models.CharField(max_length=100, blank=True, null=True, default="India")
-	last_active = models.DateTimeField(blank=True, null=True)
+
 
 
 	def __str__(self):
