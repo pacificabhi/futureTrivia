@@ -59,7 +59,7 @@ def userConfirmEmail(request):
 			context["email_confirmed"] = True
 
 		else:
-			context["error"] = "Invlid link or link expired"
+			context["error"] = "Invalid link or link expired"
 
 	else:
 		return render(request, 'trivia/not_found.html', {})
@@ -275,7 +275,14 @@ def accountSettings(request):
 					context["errors"]=errors
 					return JsonResponse(context)
 
+
 			request.user.email = email
+			ud = request.user.userdetails
+			res = send_email_confirmation_mail(request.get_host(), ud, request.user.email)
+			if not res:
+				context["errors"]=["Something went wrong. Please Try Again"]
+				return JsonResponse(context)
+
 			request.user.save()
 
 

@@ -10,6 +10,7 @@ def send_email_confirmation_mail(host, ud, to):
 	subject = 'Email Confirmation'
 	token = secrets.token_urlsafe()
 	ud.confirm_token = token
+	ud.confirmed = False
 	context["confirm_token"] = token
 	message = render_to_string('users/email_confirm_template.html', context)
 	email_from = settings.EMAIL_HOST_USER
