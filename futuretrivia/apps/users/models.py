@@ -18,3 +18,7 @@ class UserDetails(models.Model):
 
 	def __str__(self):
 		return self.user.username
+
+	def is_account_confirmed(self):
+	
+		return self.confirmed
