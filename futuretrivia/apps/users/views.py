@@ -41,6 +41,7 @@ def userConfirmEmail(request):
 
 		else:
 			context["error"] = "Your Email is already confirmed"
+			context["already"] = True
 
 	elif action == 'confirmemail':
 		token = request.GET.get("token")
