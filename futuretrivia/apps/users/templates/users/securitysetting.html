@@ -14,7 +14,7 @@
 			</div>
 			<div class="form-group">
 		    	<label for="cpass">Current Password</label>
-		    	<input type="password" class="form-control" id="cpass" placeholder="Current Password">
+		    	<input type="password" class="form-control" id="cpass" placeholder="Current Password" autocomplete="off.">
 			</div>
 			<div class="form-group">
 				<label for="pass">Password</label>
@@ -63,6 +63,7 @@
 					var resp = JSON.parse(this.responseText);
 					if(resp.success == true){
 						show_top_popup("Password Updated", true, 3000);
+						window.loaction.reload();
 						sloader.style.display = "none";
 						sbtn.disabled = false;
 						
