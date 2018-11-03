@@ -73,6 +73,8 @@ class Trivia(models.Model):
 
 	def is_started(self):
 
+		if not self.start_time:
+			return None
 		return self.start_time<=get_current_time()
 
 	def time_to_start(self):
