@@ -180,4 +180,4 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'futuretrivia@gmail.com'
-EMAIL_HOST_PASSWORD = '@Future1forMe'
+EMAIL_HOST_PASSWORD = ''

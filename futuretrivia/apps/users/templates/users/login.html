@@ -104,7 +104,7 @@
 		<div class="input-group mt-1 form-list" style="">
 			<div class="container p-1" style="">
 				<input type="text" class="mt-2 floating-input-box text-dark" placeholder="" id="id_username" required>
-				<label class="floating-input-label" for="id_username">User Handle</label>
+				<label class="floating-input-label" for="id_username">Username</label>
 			</div>
 		</div>
 
@@ -117,13 +117,13 @@
 
 		<div class="input-group mt-1" style="">
 			<div class="container p-1" style="">
-				<button onclick="alert('send us an email at futuretrivia@gmail.com')" class=" btn btn-sm float-right text-primary">Reset Password</button>
+				<a href="{% url 'resetpassword' %}" class=" btn btn-sm float-right text-primary">Reset Password</a>
 			</div>
 		</div>
 
 		<div class="input-group mt-1" style="">
 			<div class="container p-1" style="">
-				<button class="btn btn-outline-success px-5" onclick="login_user(this.nextSibling)" id="reg_btn">Login</button><span class="loader ml-2" id="loginloader"></span>
+				<button class="btn btn-sm auth-btn px-5 text-success" onclick="login_user(this.nextSibling)" id="reg_btn">&#10004; Login</button><span class="loader ml-2" id="loginloader"></span>
 			</div>
 		</div>
 

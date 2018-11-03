@@ -62,7 +62,7 @@
 				if(this.readyState == 4 && this.status == 200){
 					var resp = JSON.parse(this.responseText);
 					if(resp.success == true){
-						show_popup("Password Updated");
+						show_top_popup("Password Updated", true, 3000);
 						sloader.style.display = "none";
 						sbtn.disabled = false;
 						

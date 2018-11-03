@@ -68,6 +68,44 @@ def userConfirmEmail(request):
 	return render(request, 'users/confirmemail.html', context)
 
 
+def userResetPassword(request):
+	
+	action = request.GET.get("action")
+
+	if request.is_ajax() and action == "sendresetmail":
+		context = {"success": False}
+
+		if request.user.is_authenticated:
+			context["error"] = "already logged in"
+			context["already"] = True
+			return JsonResponse(context)
+
+		username = request.GET.get("username").strip()
+		user = get_user(username)
+
+		if not user:
+			context["error"] = "No account found"
+			return JsonResponse(context)
+
+		if not user.userdetails.is_account_confirmed():
+			context["error"] = "Your email address is not confirmed. Please contact us at </b>futuretrivia@gmail.com</b>"
+			return JsonResponse(context)
+
+		res = send_password_reset_mail(user)
+		if not res:
+			context["error"] = "Something went wrong. Please try after sometime"
+			return JsonResponse(context)
+
+		context["success"] = True
+		context["success_msg"] = "<span class='text-success'>&#10004; New Password is sent to you registered email address. Please check your inbox for new password and change it after you first log in</span><br><br><a class='btn btn-sm auth-btn' href='/users/login/'>Log in</a>"
+		return JsonResponse(context)
+
+
+	if request.user.is_authenticated:
+		return HttpResponseRedirect(reverse('triviahome'))
+
+	return render(request, 'users/reset_password.html', {})
+
 def userLogin(request):
 
 	nxt = request.GET.get("next")
