@@ -44,7 +44,8 @@ class Trivia(models.Model):
 
 	def set_endtime(self):
 
-		self.end_time = self.get_endtime()
+		self.end_time = self.start_time + datetime.timedelta(seconds=self.portal_duration)
+		
 
 	def total_questions(self):
 		return self.question_set.all().count()
