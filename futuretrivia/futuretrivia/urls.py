@@ -19,7 +19,7 @@ from .import views
 
 urlpatterns = [
 	path('', views.index, name='index'),
-    #path('oauth/', include('social_django.urls', namespace='social')),
+    path('about/', include('apps.about.urls')),
     path('users/', include('apps.users.urls')),
     path('trivia/', include('apps.trivia.urls')),
     path('practice/', include('apps.practice.urls')),

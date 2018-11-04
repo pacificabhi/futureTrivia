@@ -10,7 +10,7 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
 	<link href='https://fonts.googleapis.com/css?family=Aclonica' rel='stylesheet'>
 
-	<title>Learn, Practice and Compete | Host your Quiz | Host Online Tests | FutureTrivia</title>
+	<title>{% block title %}{% endblock %}</title>
 
 	<style type="text/css">
 
@@ -60,47 +60,7 @@
 		    top: 0;
 		}
 
-		.count{
-			position: relative;
-			display: inline-block;
-			padding: 6px 14px 4px 14px;
-			background-color: rgba(12, 178, 67, 0.9)/*rgba(255, 133, 51, 1)*/;
-			transition: all 0.7s;
-			color: #fff;
-			font-weight: bold;
-			box-shadow: 1px 1px 1px rgba(12, 178, 67, 1);
-
-			-webkit-user-select: none;  
-			-moz-user-select: none;    
-			-ms-user-select: none;      
-			user-select: none;
-
-		}
-
-		.blinker-colon{
-			position: relative;
-			display: inline-block;
-			font-weight: bold;
-			color: rgba(12, 178, 67, 1);
-			padding: 3px 5px 3px 5px;
-			font-size: 25px;
-			transform: translateY(-10px);
-			animation:blinkingText 1s infinite;
-
-			-webkit-user-select: none;  
-			-moz-user-select: none;    
-			-ms-user-select: none;      
-			user-select: none;
-		}
-
-		@keyframes blinkingText{
-		    0%{     color: rgba(12, 178, 67, 1);    }
-		    49%{ color: rgba(12, 178, 67, 1); }
-		    50%{    color: transparent; }
-		    99%{    color:transparent;  }
-		    100%{   color: rgba(12, 178, 67, 1);    }
-		}
-
+		
 		.navi-btn{
 			color: rgb(42, 183, 91);
 			background-color: rgba(0, 0, 0, 0);
@@ -260,89 +220,8 @@
 	</style>
 
 
-	<script type="text/javascript">
-		
-		window.onload=function(){
-			nav_top = document.getElementById("index-nav");
-			document.getElementById("small_screen_nav").style.left="100%";
-			doc = document.documentElement;
-			time_left = parseInt(document.getElementById("time_left_container").getAttribute("data-timeleft"));
-			
-			days_left = document.getElementById("days_left");
-			hrs_left = document.getElementById("hrs_left");
-			mins_left = document.getElementById("mins_left");
-			secs_left = document.getElementById("secs_left");
-			days_title = document.getElementById("days_title");
-			hrs_title = document.getElementById("hrs_title");
-			mins_title = document.getElementById("mins_title");
-			secs_title = document.getElementById("secs_title");
-			countdown();
-			timer = setInterval(countdown, 1000);
-		};
 
-		window.onscroll=function(){
-			//var eleTop = $(ele).offset().top;
-			//var bodyTop = $(window).scrollTop();
-			var bodyTop = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
-
-			//console.log("ele = "+navHeight+" , bodyTop = "+ bodyTop);
-
-			if(bodyTop >= nav_top.offsetTop){
-				//fixnameHead.style.position = "fixed";
-				nav_top.style.boxShadow="0px 3px 2px rgba(200,200,200,1)";
-				nav_top.style.backgroundColor = "rgba(255, 255, 255, 1)";
-				
-			} else {
-				//fixnameHead.style.position = "fixed";
-				nav_top.style.backgroundColor = "rgba(252, 252, 252, 1)";
-				nav_top.style.boxShadow="0px 3px 2px rgba(200,200,200,0)";
-			}
-
-		};
-
-		function countdown(){
-			time_left-=1;
-			
-			
-			if(time_left<0){
-				window.location.reload();
-			}
-			var days = Math.floor(time_left/86400);
-			var rem = time_left%86400;
-			var hours = Math.floor(rem/3600);
-			rem = rem%3600;
-			var mins = Math.floor(rem/60);
-			var sec = rem%60;
-
-			days_left.innerHTML=days;
-			hrs_left.innerHTML=hours;
-			mins_left.innerHTML=mins;
-			secs_left.innerHTML=sec;
-
-			if(days==1){
-				days_title.innerHTML="Day";
-			}
-
-			if(hours==1){
-				hrs_title.innerHTML="hr";
-			} else {
-				hrs_title.innerHTML="hrs";
-			}
-
-			if(mins==1){
-				mins_title.innerHTML="min";
-			} else {
-				mins_title.innerHTML="mins";
-			}
-
-			if(sec==1){
-				secs_title.innerHTML="sec";
-			} else {
-				secs_title.innerHTML="secs";
-			}
-
-		}
-
+	<script>
 
 		function openNav() {
 
@@ -369,7 +248,7 @@
 		<div>
 			<div id="index-nav-contain">
 				<div style="display: inline-block;">
-					<a class="btn btn-sm navi-btn" href="{% url 'triviahome' %}" style="">for Compete</a>&nbsp;<a class="btn btn-sm navi-btn" href="{% url 'practicehome' %}" style="">for Practice</a>&nbsp;<a class="btn btn-sm navi-btn" href="{% url 'communityhome' %}" style="">Community</a>
+					<a class="btn btn-sm navi-btn" href="{% url 'triviahome' %}" style="">for Compete</a>&nbsp;<a class="btn btn-sm navi-btn" href="{% url 'practicehome' %}" style="">for Practice</a>&nbsp;<a class="btn btn-sm navi-btn" href="{% url 'communityhome' %}" style="">Community</a>&nbsp;<a class="btn btn-sm navi-btn" href="{% url 'abouthome' %}" style="">About</a>
 				</div>
 				{% if not request.user.is_authenticated %}
 				<div style="display: inline-block;">
@@ -419,52 +298,21 @@
 			<li class="nav-item">
 				<a class="btn btn-sm navi-btn" href="{% url 'communityhome' %}" style="">Community</a>
 			</li>
+
+			<li class="nav-item">
+				<a class="btn btn-sm navi-btn" href="{% url 'abouthome' %}" style="">About</a>
+			</li>
 		</ul>
 	</div>
 </div>
 
 
+{% block content %}
 
+{% endblock %}
 
-<div class="pt-4" style="background-color: rgba(252, 252, 252, 1);">
-	<span class=" p-0" style="font-size: 24px; letter-spacing: 0px; color: rgb(52, 76, 76);">Practice Quizes, Prepare for online tests</span><br>
-	<span class="text-secondary p-0" style="font-size: 20px; letter-spacing: 0px;">Learn, Practice and Compete</span>
-	<br><br>
-	{% if time_left %}
-	<div class="container">
-		<span class="text-success" style="font-size: 22px; font-weight: bold;">{% if next %}Next{% else %}Ongoing{% endif %} &#10149; <a href="{% url 'triviadetails' code=next_code %}" class="text-success" style="font-size: 16px; text-decoration: none;">{{ next_name }} </a></span><br>
-		<span class="text-secondary" style="font-size: 12px;">{% if next %}starts in{% else %}ends in{% endif %}</span><br>
-
-		<span style="display: inline-block; padding: 8px 8px 8px 8px;" id="time_left_container" data-timeleft="{{ time_left }}">
-			<div class="count" id="days_left_container"><span id="days_left">?</span><br><span style="font-size:10px;" id="days_title">Days</span></div>
-			<div class="blinker-colon">:</div>
-			<div class="count" id="hrs_left_container"><span id="hrs_left">?</span><br><span style="font-size:10px;" id="hrs_title">Hrs</span></div>
-			<div class="blinker-colon">:</div>
-			<div class="count" id="mins_left_container"><span id="mins_left">?</span><br><span style="font-size:10px;" id="mins_title">Mins</span></div>
-			<div class="blinker-colon">:</div>
-			<div class="count" id="secs_left_container"><span id="secs_left">?</span><br><span style="font-size:10px;" id="secs_title">Secs</span></div>
-		</span>
-		<br>
-	</div>
-	{% endif %}
-
-	{% if request.user.is_authenticated %}
-
-		<p class="mt-4"><button class="btn auth-btn" onclick="alert('send us an email at futuretrivia@gmail.com')" style="border: solid 1px rgba(110, 110, 110, 1); font-size: 14px;">Host Trivia</button></p>
-
-	{% else %}
-
-		<p class="mt-4"><a class="btn auth-btn" href="{% url 'usersignup' %}" style="border: solid 1px rgba(110, 110, 110, 1); font-size: 14px;">Sign up & Host Trivia</a></p>
-
-	{% endif %}
-
-
-</div>
 
 </center>
-
-
-<div style="height: 300px;"></div>
 
 
 </body>

@@ -30,7 +30,7 @@ def index(request):
 		context["next_code"]=trivia.code
 
 
-	return render(request, 'trivia/index.html', context)
+	return render(request, 'about/index.html', context)
 
 
 
