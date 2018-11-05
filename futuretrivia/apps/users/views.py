@@ -395,7 +395,7 @@ def registerContest(request):
 		context["auth"] = False
 		return JsonResponse(context)
 
-	if not request.user.userdetails.is_account_confirmed(request):
+	if not request.user.userdetails.is_account_confirmed():
 		context["error"] = "Your email is not confirmed. Confirm your email to register for contest"
 		return JsonResponse(context)
 

@@ -19,7 +19,7 @@ function register_contest_and_enter(btn, code){
 				
 			}
 		} else if(this.readyState == 4){
-			btn.innerHTML = "Register";
+			btn.innerHTML = "Click to Register";
 			btn.disabled=false;
 		}
 	};
