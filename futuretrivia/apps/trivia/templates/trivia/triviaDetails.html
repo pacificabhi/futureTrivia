@@ -84,9 +84,16 @@
 		}
 	}
 
-	#adminIcon{
+	#adminIconContainer{
 		position: absolute;
 		top: -40px;
+		width: 70px;
+		right: 0;
+		max-width: 70px;
+	}
+
+	#adminIcon{
+		position: relative;
 		height: 70px;
 		width: 70px;
 		right: 0;
@@ -98,7 +105,7 @@
 	}
 	
 	@media screen and (max-width: 768px){
-		#adminIcon{
+		#adminIconContainer{
 			position: relative;
 
 		}
@@ -120,7 +127,11 @@
 		<!-- Admin Icon -->
 
 		<div class="col-md-2 mx-auto text-center">
-			<div class="card rounded" id="adminIcon"></div>
+			<div id="adminIconContainer">
+				<span class="card rounded" id="adminIcon"></span>
+				<span style="cursor: pointer;" class="text-secondary" onclick="window.location.assign('{% url 'userprofile' username=trivia.admin.username %}');">@{{ trivia.admin.username }}</span>
+			</div>
+		
 		</div>
 
 		<!-- Contest main Detail -->
