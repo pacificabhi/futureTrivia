@@ -11,6 +11,7 @@ from time import sleep
 # Create your views here.
 
 
+
 def communityHome(request):
 
 	return render(request, 'community/communityhome.html', {})

@@ -31,6 +31,7 @@ def get_question(q_obj):
 		options.append(option)
 
 	question["options"] = options
+	question["explainaion"] = q_obj.explaination
 
 	return question
 
