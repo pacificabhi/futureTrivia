@@ -557,6 +557,7 @@
 								} else {
 									$("input[type=radio]").attr("disabled", true);
 								}
+								show_next_ques();
 							}
 							show_success_msg();
 						} else {
@@ -707,7 +708,7 @@
 			</div>
 
 			<div class="container-fluid" id="q_control_panel">
-				<button class="btn btn-success btn-sm" onclick="submit_answer(this, this.nextSibling)" id="qsubmitbtn">Submit</button><span class="loader ml-2" id="qsubmitloader"></span><span id="success_msg" class="text-success ml-1 font-weight-bold"> saved</span>
+				<button class="btn btn-success btn-sm" onclick="submit_answer(this, this.nextSibling)" id="qsubmitbtn">Submit & Next</button><span class="loader ml-2" id="qsubmitloader"></span><span id="success_msg" class="text-success ml-1 font-weight-bold"> saved</span>
 			</div>
 
 			<style type="text/css">
