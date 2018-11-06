@@ -10,24 +10,19 @@ from .utility import *
 
 def index(request):
 
-	context={"next": False, "time_left": None}
+	context={"time_left": None}
 	nextt = None
 	now = get_current_time()
 
-	trivia = Trivia.objects.filter(start_time__lte=now, end_time__gt=now).order_by("end_time").first()
-
-	if not trivia:
-		trivia = Trivia.objects.filter(start_time__gt=now).order_by("start_time").first()
-		context["next"] = True
-		nextt = True
+	trivia = Trivia.objects.filter(start_time__gt=now).order_by("-start_time").first()
 	
 	if trivia:
-		if not nextt:
-			context["time_left"]=trivia.time_to_end()
-		else:
-			context["time_left"]=trivia.time_to_start()
+		context["next_time_left"]=trivia.time_to_start()
 		context["next_name"]=trivia.name
 		context["next_code"]=trivia.code
+
+	ongoing = Trivia.objects.filter(start_time__lte=now, end_time__gt=now).order_by('end_time')
+	context["ongoing"] = ongoing
 
 
 	return render(request, 'about/index.html', context)

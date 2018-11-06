@@ -1,4 +1,5 @@
 {% extends 'about/baseabout.html' %}
+{% load tz %}
 
 {% block title %}
 
@@ -34,7 +35,7 @@
 		time_left-=1;
 		
 		
-		if(time_left<0){
+		if(time_left<=0){
 			window.location.reload();
 		}
 		var days = Math.floor(time_left/86400);
@@ -118,20 +119,48 @@
 	    100%{   color: rgba(12, 178, 67, 1);    }
 	}
 
+	#ongoing-window{
+		display: block;
+		position: fixed;
+		margin: 0;
+		left: 0;
+		z-index: 99999;
+		background-color: rgba(254, 254, 254, 1);
+		width: 100%;
+		height: 100vh;
+	}
+
 
 
 </style>
+
+<div style="" id="ongoing-window">
+	<div class="container"><button class="btn btn-sm text-success font-weight-bold bg-light" onclick="this.parentElement.parentElement.style.display='none';">&#9756; Go Back</button></div>
+	
+	<p class="text-dark" style="font-size: 22px; font-weight: bold;">Ongoing Trivias</p>
+
+	<div class="container">
+		<ul class="list-group text-left">
+			{% for trivia in ongoing %}
+				<li class="list-group-item d-flex justify-content-between align-items-center font-weight-bold text-success"><a href="{% url 'triviadetails' code=trivia.code %}" class="text-success" style="text-decoration: none;">{{ trivia.name }}</a><span class="badge badge-light badge-pill"><span class="text-dark icon-clock font-weight-bold"> End Time - </span> &nbsp;<span class="text-secondary">{% timezone 'Asia/Kolkata' %}{{ trivia.end_time }} IST {% endtimezone %}</span></span></li>
+			{% empty %}
+				No Ongoing Trivias
+			{% endfor %}
+		</ul>
+
+	</div>
+</div>
 
 <div class="pt-4" style="background-color: rgba(252, 252, 252, 1);">
 	<span class=" p-0" style="font-size: 24px; letter-spacing: 0px; color: rgb(52, 76, 76);">Practice Quizes, Prepare for online tests</span><br>
 	<span class="text-secondary p-0" style="font-size: 20px; letter-spacing: 0px;">Learn, Practice and Compete</span>
 	<br><br>
-	{% if time_left %}
+	{% if next_time_left %}
 	<div class="container">
-		<span class="text-success" style="font-size: 22px; font-weight: bold;">{% if next %}Next{% else %}Ongoing{% endif %} &#10149; <a href="{% url 'triviadetails' code=next_code %}" class="text-success" style="font-size: 16px; text-decoration: none;">{{ next_name }} </a></span><br>
-		<span class="text-secondary" style="font-size: 12px;">{% if next %}starts in{% else %}ends in{% endif %}</span><br>
+		<span class="text-success" style="font-size: 22px; font-weight: bold;"><a href="{% url 'triviadetails' code=next_code %}" class="text-success" style="font-size: 16px; text-decoration: none;">Next Trivia &#10149; {{ next_name }} </a></span><br>
+		<span class="text-secondary" style="font-size: 12px;">starts in</span><br>
 
-		<span style="display: inline-block; padding: 8px 8px 8px 8px;" id="time_left_container" data-timeleft="{{ time_left }}">
+		<span style="display: inline-block; padding: 8px 8px 8px 8px;" id="time_left_container" data-timeleft="{{ next_time_left }}">
 			<div class="count" id="days_left_container"><span id="days_left">?</span><br><span style="font-size:10px;" id="days_title">Days</span></div>
 			<div class="blinker-colon">:</div>
 			<div class="count" id="hrs_left_container"><span id="hrs_left">?</span><br><span style="font-size:10px;" id="hrs_title">Hrs</span></div>
@@ -143,6 +172,8 @@
 		<br>
 	</div>
 	{% endif %}
+
+	<button class="btn auth-btn" onclick="document.getElementById('ongoing-window').style.display='block';" style="border: solid 1px rgba(110, 110, 110, 1); font-size: 14px;">Click to see ongoing Trivias</button>
 
 	{% if request.user.is_authenticated %}
 
