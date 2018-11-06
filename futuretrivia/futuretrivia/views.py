@@ -14,7 +14,7 @@ def index(request):
 	nextt = None
 	now = get_current_time()
 
-	trivia = Trivia.objects.filter(start_time__gt=now).order_by("-start_time").first()
+	trivia = Trivia.objects.filter(start_time__gt=now).order_by("start_time").first()
 	
 	if trivia:
 		context["next_time_left"]=trivia.time_to_start()
