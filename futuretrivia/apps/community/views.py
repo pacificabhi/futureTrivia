@@ -312,6 +312,7 @@ def editQuestion(request, code): #view to get question or save it
 							q_obj.negative_score = negative_score
 							q_obj.correct_answer = correct_answer
 							q_obj.title = title
+							#print(q_obj.explaination)
 							q_obj.save()
 
 							context["success"] = True

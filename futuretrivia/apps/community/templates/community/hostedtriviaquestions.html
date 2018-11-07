@@ -420,9 +420,10 @@
 			toolbar: "undo redo | preview | codesample link image | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent",
 			menubar: "edit view insert format",
 			height: height,
-			force_br_newlines : true,
-  			force_p_newlines : false,
-  			forced_root_block : '',
+			//force_br_newlines : true,
+  			//force_p_newlines : false,
+  			//forced_root_block : '',
+
 			//mobile: { theme: 'mobile' },
 
 
@@ -613,7 +614,7 @@
 	function create_ques_temp_object(){
 
 		var qstatement = tinymce.get("qstatement").getContent();
-		var qexplanation = tinymce.get("qexplanation").getContent();
+		var qexplaination = tinymce.get("qexplanation").getContent();
 		var positive_score = document.getElementById("qpos_score").value;
 		var negative_score = document.getElementById("qneg_score").value;
 		var title = document.getElementById("qtitle").value.trim();
@@ -637,17 +638,17 @@
 			}
 
 		}
-		//console.log("correct_answer "+ correct_answer)
 		
 		temp_q_obj.title = title;
 		temp_q_obj.statement = qstatement;
 		//console.log(qstatement);
-		temp_q_obj.explanation = qexplanation;
+		temp_q_obj.explaination = qexplaination;
 		temp_q_obj.positive_score = positive_score;
 		temp_q_obj.negative_score = negative_score;
 		temp_q_obj.options = options;
 		temp_q_obj.correct_answer = correct_answer;
 
+		console.log(temp_q_obj)
 	}
 
 
