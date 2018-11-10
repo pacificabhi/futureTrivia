@@ -9,5 +9,6 @@ urlpatterns = [
 	path('submitanswer/', views.submitPracticeAnswer, name='submitpracticeanswer'),
 	path('endtest/', views.endPracticeTest, name='endpracticetest'),
 	path('result/', views.practiceResult, name='practiceresult'),
+	path('practicestars/', views.practiceStars, name='practicestars'),
 
 ]

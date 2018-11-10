@@ -233,7 +233,7 @@ def endPracticeTest(request):
 	if request.method == "POST":
 
 		code = request.POST.get("code")
-		print(code)
+		#print(code)
 		if not code:
 			print("Not Code")
 			context["error"] = "Trivia does not exist"
@@ -242,6 +242,12 @@ def endPracticeTest(request):
 
 		trivia = Trivia.objects.filter(code=code, locked=True, private=False, ready=True).first()
 		if trivia:
+
+			result = PracticeResult.objects.filter(user=request.user, trivia=trivia, stars__gt=0).count()
+	
+			if result:
+				context["already_rated"] = True
+					
 			result = PracticeResult.objects.filter(user=request.user, trivia=trivia, time_taken=0).first()
 			if result:
 				time_taken = None
@@ -277,3 +283,62 @@ def endPracticeTest(request):
 def practiceResult(request):
 
 	pass
+
+
+def practiceStars(request):
+	
+	context = {"success": False}
+
+	if not request.user.is_authenticated:
+		context["error"] = "You are not logged in"
+		return JsonResponse(context)
+
+
+	code = request.GET.get("code")
+	#print(code)
+	if not code:
+		#print("Not Code")
+		context["error"] = "Trivia does not exist"
+		return JsonResponse(context)
+
+
+	trivia = Trivia.objects.filter(code=code, locked=True, private=False, ready=True).first()
+	if not trivia:
+		context["error"] = "Trivia does not exist"
+		return JsonResponse(context)
+
+	result = PracticeResult.objects.filter(user=request.user, trivia=trivia, stars__gt=0).count()
+	
+	if result:
+		context["already"] = True
+		context["error"] = "You already rated %s (%s)"%(trivia.name, trivia.code)
+		return JsonResponse(context)
+	
+	result = PracticeResult.objects.filter(user=request.user, trivia=trivia, stars=0).first()
+
+	if not result:
+		context["error"] = "You did not tried this trivia"
+		return JsonResponse(context)
+
+
+	stars = request.GET.get("stars")
+
+	if stars:
+		stars=int(stars)
+		if stars>0 and stars<=5:
+			result.stars=stars
+			stars_list  = list(map(int, trivia.stars.strip().split(',')))
+			stars_list[stars-1]+=1
+			trivia.stars = ",".join(list(map(str, stars_list)))
+			trivia.save()
+			result.save()
+			context["success"] = True
+
+		else:
+			context["error"] = "You can only give stars from 1 to 5"
+
+	else:
+		context = "Invalid Stars"
+
+
+	return JsonResponse(context)
