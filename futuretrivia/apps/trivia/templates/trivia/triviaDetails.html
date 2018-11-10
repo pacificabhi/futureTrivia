@@ -166,13 +166,14 @@
 		<!-- Contest main Detail -->
 
 		<div class="col-md-6" style="text-align: left;">
-			<p class="text-dark" style="font-size: 22px;">{{ trivia.name }}</p>
-			<p class=" p-0 px-3"><span class="text-secondary" style="font-size: 12px;"><span class="{{ trivia.get_rating.color }} font-weight-bold">{{ trivia.get_rating.rating }}{% if trivia.get_rating.yes %} &#9733;{% endif %}</span> - {{ trivia.get_rating.total }} reviews</span>
+			<div class="text-dark py-0" style="font-size: 22px;"><span class="container-fluid p-0 m-0">{{ trivia.name }}</span><br><span class="text-secondary" style="font-size: 12px;">{{ trivia.quote }}</span>
+			</div>
+			<div class=" p-0 px-3">
 
-			<div class="fb-like" data-href="https://{{ request.get_host }}{% url 'triviadetails' code=trivia.code %}" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
+			<span class="text-secondary py-1" style="font-size: 12px;"><span class="{{ trivia.get_rating.color }} font-weight-bold">{{ trivia.get_rating.rating }}{% if trivia.get_rating.yes %} &#9733;{% endif %}</span> - {{ trivia.get_rating.total }} reviews</span><br><div class="fb-like" data-href="https://{{ request.get_host }}{% url 'triviadetails' code=trivia.code %}" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
 
 
-			</p>
+			</div>
 			<div class="container-fluid my-1" style="font-size: 11px;">
 				 <ul class="nav">
 				 	{% if private %}
