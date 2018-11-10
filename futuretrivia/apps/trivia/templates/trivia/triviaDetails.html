@@ -9,6 +9,9 @@
 
 {% endblock %}
 
+
+
+
 {% block plugins %}
 
 <div id="fb-root"></div>
@@ -30,6 +33,18 @@
 
 
 {% if exist %}
+
+{% block headscripts %}
+
+<meta property="og:url" content="https://{{ request.get_host }}{% url 'triviadetails' code=trivia.code %}" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="{{ trivia.name }}" />
+<meta property="og:description" content="{{ trivia.quote }}" />
+<meta property="og:image" content="{% if trivia.poster %}{{ trivia.poster }}{% else %}https://{{ request.get_host }}{% static 'trivia/images/defaultTrivia.png' %}{% endif %}" />
+
+{% endblock %}
+
+
 
 {% if not private or authentic %}
 <style type="text/css">
