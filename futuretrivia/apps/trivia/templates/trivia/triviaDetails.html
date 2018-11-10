@@ -47,6 +47,23 @@
 
 
 {% if not private or authentic %}
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		$.post(
+		    'https://graph.facebook.com',
+		    {
+		        id: 'https://{{ request.get_host }}{% url 'triviadetails' code=trivia.code %}',
+		        scrape: true
+		    },
+		    function(response){
+		        console.log(response);
+		    }
+		);
+	});
+</script>
+
+
 <style type="text/css">
 
 	#triviaPoster{
