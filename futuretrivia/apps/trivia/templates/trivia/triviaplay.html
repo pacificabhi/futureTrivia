@@ -308,8 +308,8 @@
 			question_objects_array="";
 			curr_ques=0;
 			timer=setInterval(function(){
-
-			}, 100000);
+				
+			},100000000000);
 			contest_loader_interval=setInterval(loadContest, 100000);
 			total_questions=0;
 			loadContest();
@@ -327,6 +327,7 @@
 						contest_time_left=resp.time_left;
 						total_questions=question_objects_array.length;
 						create_navigation();
+						clearInterval(timer);
 						timer = setInterval(set_timer, 1000);
 						show_ques(curr_ques);
 					} else {
@@ -348,7 +349,7 @@
 
 		function loadContest(){
 			get_questions();
-			clearInterval(timer);
+			
 			//set_timer();
 
 		}
