@@ -50,7 +50,7 @@
 
 <script type="text/javascript">
 	$(document).ready(function(){
-		$.post(
+		$.get(
 		    'https://graph.facebook.com',
 		    {
 		        id: 'https://{{ request.get_host }}{% url 'triviadetails' code=trivia.code %}',
