@@ -170,7 +170,7 @@
 			</div>
 			<div class=" p-0 px-3">
 
-			<span class="text-secondary py-1" style="font-size: 12px;"><span class="{{ trivia.get_rating.color }} font-weight-bold">{{ trivia.get_rating.rating }}{% if trivia.get_rating.yes %} &#9733;{% endif %}</span> - {{ trivia.get_rating.total }} reviews</span><br><div class="fb-like" data-href="https://{{ request.get_host }}{% url 'triviadetails' code=trivia.code %}" data-layout="standard" data-action="like" data-size="small" data-share="true"></div>
+			<span class="text-secondary py-1" style="font-size: 12px;"><span class="{{ trivia.get_rating.color }} font-weight-bold">{{ trivia.get_rating.rating }}{% if trivia.get_rating.yes %} &#9733;{% endif %}</span> - {{ trivia.get_rating.total }} reviews</span><br><div class="fb-like" data-href="https://{{ request.get_host }}{% url 'triviadetails' code=trivia.code %}" data-layout="standard" data-action="like" data-size="small" data-show-faces="false" data-share="true"></div>
 
 
 			</div>
