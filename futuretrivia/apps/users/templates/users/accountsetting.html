@@ -19,7 +19,7 @@
 				<input type="text" class="form-control" id="lname" placeholder="Last Name" value="{{ request.user.last_name }}">
 			</div>
 			<div class="form-group">
-				<button type="submit" class="btn btn-outline-success btn-sm px-4" id="save-btn" style="" onclick="saveNameSettings(this, this.nextSibling)">Save Changes</button><span class="loader ml-2"></span>
+				<button type="submit" class="btn btn-sm px-4 text-success font-weight-bold" id="save-btn" style="background-color: transparent;" onclick="saveNameSettings(this, this.nextSibling)">&#9755; Save Changes</button><span class="loader ml-2"></span>
 			</div>
 			<div class="form-group">
 
@@ -33,7 +33,7 @@
 			</div>
 
 			<div class="form-group">
-				<button type="submit" class="btn btn-outline-success btn-sm px-4" id="save-btn" style="" onclick="saveEmailSettings(this, this.nextSibling)">Update Email</button><span class="loader ml-2"></span>
+				<button type="submit" class="btn btn-sm px-4 text-success font-weight-bold" id="save-btn" style="background-color: transparent;" onclick="saveEmailSettings(this, this.nextSibling)">&#9745; Update Email</button><span class="loader ml-2"></span>
 			</div>
 
 		</form>
