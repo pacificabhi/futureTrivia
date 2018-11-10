@@ -9,6 +9,20 @@
 
 {% endblock %}
 
+{% block plugins %}
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = 'https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v3.2&appId=312299856007804&autoLogAppEvents=1';
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+{% endblock %}
+
 
 {% block content %}
 
@@ -138,7 +152,12 @@
 
 		<div class="col-md-6" style="text-align: left;">
 			<p class="text-dark" style="font-size: 22px;">{{ trivia.name }}</p>
-			<p class=" p-0 px-3"><span class="text-secondary" style="font-size: 12px;"><span class="{{ trivia.get_rating.color }} font-weight-bold">{{ trivia.get_rating.rating }}{% if trivia.get_rating.yes %} &#9733;{% endif %}</span> - {{ trivia.get_rating.total }} reviews</span></p>
+			<p class=" p-0 px-3"><span class="text-secondary" style="font-size: 12px;"><span class="{{ trivia.get_rating.color }} font-weight-bold">{{ trivia.get_rating.rating }}{% if trivia.get_rating.yes %} &#9733;{% endif %}</span> - {{ trivia.get_rating.total }} reviews</span>
+
+			<div class="fb-like" data-href="https://{{ request.get_host }}{% url 'triviadetails' code=trivia.code %}" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
+
+
+			</p>
 			<div class="container-fluid my-1" style="font-size: 11px;">
 				 <ul class="nav">
 				 	{% if private %}
