@@ -40,7 +40,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:title" content="{{ trivia.name }}" />
 <meta property="og:description" content="{{ trivia.quote }}" />
-<meta property="og:image" content="{% if trivia.poster %}{{ trivia.poster }}{% else %}https://{{ request.get_host }}{% static 'trivia/images/defaultTrivia.png' %}{% endif %}" />
+<meta property="og:image" content="https://{{ request.get_host }}{% static 'trivia/images/userIcon.png' %}" />
 
 {% endblock %}
 
