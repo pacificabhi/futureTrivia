@@ -422,6 +422,23 @@ def securitySettings(request):
 			context["errors"]=errors
 			return JsonResponse(context)
 
+		auth_base = user.userdetails.auth_base
+		if auth_base!=1:
+			if auth_base==2:
+				context["error"] = "Your account is connected to facebook. You cannot change your password. Use facebook to login"
+			
+			return JsonResponse(context)
+
+		chk = authenticate(username=request.user.username, password=cpass)
+
+		if not chk:
+			context["success"]=False
+			errors.append("Wrong old Password")
+			context["errors"]=errors
+			return JsonResponse(context)
+
+
+
 		cpass = request.POST.get("cpass")
 		passwd = request.POST.get("pass")
 		cnfpass = request.POST.get("cnfpass")
@@ -438,13 +455,6 @@ def securitySettings(request):
 			context["errors"]=errors
 			return JsonResponse(context)
 
-		chk = authenticate(username=request.user.username, password=cpass)
-
-		if not chk:
-			context["success"]=False
-			errors.append("Wrong Password")
-			context["errors"]=errors
-			return JsonResponse(context)
 
 		request.user.set_password(passwd)
 		request.user.save()
