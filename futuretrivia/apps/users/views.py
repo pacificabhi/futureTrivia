@@ -414,10 +414,10 @@ def securitySettings(request):
 
 	if request.method == "POST":
 		errors = []
-		context = {"success": True}
+		context = {"success": False}
 
 		if not request.user.is_authenticated:
-			context["success"]=False
+			#context["success"]=False
 			errors.append("You are not loggedin")
 			context["errors"]=errors
 			return JsonResponse(context)
@@ -432,7 +432,7 @@ def securitySettings(request):
 		chk = authenticate(username=request.user.username, password=cpass)
 
 		if not chk:
-			context["success"]=False
+			#context["success"]=False
 			errors.append("Wrong old Password")
 			context["errors"]=errors
 			return JsonResponse(context)
@@ -444,13 +444,13 @@ def securitySettings(request):
 		cnfpass = request.POST.get("cnfpass")
 		
 		if passwd != cnfpass:
-			context["success"]=False
+			#context["success"]=False
 			errors.append("Confirm Password do not match")
 			context["errors"]=errors
 			return JsonResponse(context)
 
 		if not validate_password(passwd):
-			context["success"]=False
+			#context["success"]=False
 			errors.append("Password must be 8 characters long")
 			context["errors"]=errors
 			return JsonResponse(context)
