@@ -422,7 +422,7 @@ def securitySettings(request):
 			context["errors"]=errors
 			return JsonResponse(context)
 
-		auth_base = user.userdetails.auth_base
+		auth_base = request.user.userdetails.auth_base
 		if auth_base!=1:
 			if auth_base==2:
 				context["error"] = "Your account is connected to facebook. You cannot change your password. Use facebook to login"
