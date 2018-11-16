@@ -138,6 +138,14 @@ def userResetPassword(request):
 			context["error"] = "No account found"
 			return JsonResponse(context)
 
+		auth_base = user.userdetails.auth_base
+
+		if auth_base!=1:
+			if auth_base==2:
+				context["error"] = "Your account is connected to facebook. You cannot change your password. Use facebook to login"
+			
+			return JsonResponse(context)			
+
 		if not user.userdetails.is_account_confirmed():
 			context["error"] = "Your email address is not confirmed. Please contact us at </b>futuretrivia@gmail.com</b>"
 			return JsonResponse(context)
