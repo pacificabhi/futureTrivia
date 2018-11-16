@@ -75,7 +75,7 @@ function fblogin(){
 		} else {
 			fb_btn = document.getElementById("fb-login-btn");
 			fb_btn.disabled=false;
-			fb_btn.innerHTML="Login with Facebook"
+			fb_btn.innerHTML="Continue with Facebook"
 			b_btn.disabled=false;
 			show_top_popup("something went wrong", true, 5000);
 		}
@@ -98,7 +98,7 @@ function do_request(user){
 			} else {
 				var fb_btn = document.getElementById("fb-login-btn");
 				fb_btn.disabled=false;
-				fb_btn.innerHTML="Login with Facebook";
+				fb_btn.innerHTML="Continue with Facebook";
 				show_top_popup(resp.error, true, 4500);
 			}
 		} else if(this.readyState == 4 && this.status == 403){
