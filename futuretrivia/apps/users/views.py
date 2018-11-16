@@ -425,8 +425,9 @@ def securitySettings(request):
 		auth_base = request.user.userdetails.auth_base
 		if auth_base!=1:
 			if auth_base==2:
-				context["error"] = "Your account is connected to facebook. You cannot change your password. Use facebook to login"
-			
+				errors.append = "Your account is connected to facebook. You cannot change your password. Use facebook to login"
+				context["errors"] = errors
+
 			return JsonResponse(context)
 
 		chk = authenticate(username=request.user.username, password=cpass)
