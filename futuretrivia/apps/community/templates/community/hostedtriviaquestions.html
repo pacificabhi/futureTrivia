@@ -819,7 +819,9 @@
 
 <div class="container px-1 py-2">
 	
-	<p class="text-success font-weight-bold" style="font-size: 18px;">All Questions of {{ trivia.code }}</p>
+	<p class="text-success font-weight-bold" style="font-size: 18px;">{{ trivia.code }}</p>
+
+	<p class="text-dark">Total Questions - <span class="font-weight-bold">{{ trivia.total_questions }}</span></p>
 
 	<div class="container-fluid" style="transition: 0.2s !important;">
 		{% for ques in trivia.question_set.all %}

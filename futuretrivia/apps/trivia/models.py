@@ -42,6 +42,7 @@ class Trivia(models.Model):
 	def __str__(self):
 		return self.code
 
+
 	def set_endtime(self):
 
 		self.end_time = self.start_time + datetime.timedelta(seconds=self.portal_duration)
