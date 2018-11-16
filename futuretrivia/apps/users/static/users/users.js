@@ -113,7 +113,7 @@ function do_request(user){
 	var token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
 
 	var q = "csrfmiddlewaretoken="+token+"&user="+user;
-	xhttp.open("POST", "{% url 'fblogin' %}", true);
+	xhttp.open("POST", "/users/fblogin/", true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 	xhttp.send(q);
