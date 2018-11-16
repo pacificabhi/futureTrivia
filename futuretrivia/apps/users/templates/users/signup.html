@@ -1,4 +1,5 @@
 {% extends 'users/baseauth.html' %}
+{% load static %}
 
 {% block title %}
 	Sign up for Future Trivia
@@ -9,6 +10,8 @@
 {% endblock %}
 
 {% block headscripts %}
+
+<script src="{% static 'users/users.js' %}"></script>
 
 
 <script type="text/javascript">
@@ -25,6 +28,7 @@
 			document.getElementById("form_error_container").style.display="none";
 			var reg_btn = document.getElementById("reg_btn");
 			reg_btn.disabled=true;
+			document.getElementById("fb-login-btn").disabled=true;
 			reg_btn.innerHTML="Creating Account...";
 			$("input").attr("disabled", true);
 			loader.style.display="inline-block";
@@ -46,6 +50,7 @@
 						document.getElementById("form_error").innerHTML=s;
 						document.getElementById("form_error_container").style.display="block";
 						reg_btn.disabled=false;
+						document.getElementById("fb-login-btn").disabled=false;
 						reg_btn.innerHTML="Sign up";
 						$("input").attr("disabled", false);
 						loader.style.display="none";
@@ -92,7 +97,14 @@
 				<h6>Sign Up for <a href="{% url 'index' %}" style="text-decoration: none;" class="text-success">FutureTrivia</a></h6>
 			</div>
 		</div>
-		<form onsubmit="return false">
+
+		<div id="btn-control" style="">
+			<button class="btn btn-sm btn-primary btn-block" onclick="fblogin()" id="fb-login-btn">Sign up with facebook</button><br>
+			<button class="btn btn-sm auth-btn btn-block" style="background-color: transparent;" onclick="document.getElementById('baseauthform').style.display='block'; this.style.display='none';" id="baseauthbtn">Sign up with Email</button>
+		</div>
+
+
+		<form onsubmit="return false" id="baseauthform" style="display: none;">
 			<div class="container-fluid m-0 p-0 form_error_container" style="text-align: left;" id="form_error_container">
 				<div class="alert alert-danger form_error"  id="form_error">
 				</div>

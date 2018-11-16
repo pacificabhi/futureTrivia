@@ -44,6 +44,9 @@ def fbUserLogin(request):
 	if "email" in j.keys():
 		email = j["email"]
 
+	if user_exists(email):
+		email=""
+
 	#check if first timer
 	fbuser = FbUser.objects.filter(uid=uid).first()
 	if fbuser:
