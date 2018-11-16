@@ -13,6 +13,8 @@
 
 			</div>
 			<div class="form-group">
+				<label for="uname">Username</label>
+		    	<input type="text" class="form-control" id="uname" placeholder="Username" value="{{ request.user.username }}" data-toggle="tooltip" data-trigger="focus" title="username can only contain alphabets, numbers and _ and atleast contains 6 characters" required>
 		    	<label for="fname">First Name</label>
 		    	<input type="text" class="form-control" id="fname" placeholder="First Name" value="{{ request.user.first_name }}" required>
 				<label for="lname">Last Name</label>
@@ -44,16 +46,23 @@
 
 <script type="text/javascript">
 	
+	$(document).ready(function(){
+	    $('[data-trigger="focus"]').tooltip({trigger: "focus"}); 
+	});
+
+
 	function saveNameSettings(sbtn, sloader){
 
 		var fname = document.getElementById("fname").value;
 		var lname = document.getElementById("lname").value;
+		var uname = document.getElementById("uname").value;
+		uname = uname.trim();
 		fname = fname.trim();
 		lname = lname.trim();
 
 		//var email = document.getElementById("email").value;
 		//email = email.trim();
-		if(fname.length>0){
+		if(fname.length>0 && uname.length>0){
 			document.getElementById("form_error").style.display="none";
 			sbtn.disabled=true;
 			sloader.style.display="inline-block";
@@ -92,8 +101,10 @@
 			var token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
 			fname=encodeURIComponent(fname);
 			lname=encodeURIComponent(lname);
+			uname=encodeURIComponent(uname);
+
 			type="fullname";
-			var q = "fname="+fname+"&lname="+lname+"&settype="+type+"&csrfmiddlewaretoken="+token;
+			var q = "fname="+fname+"&uname="+uname+"&lname="+lname+"&settype="+type+"&csrfmiddlewaretoken="+token;
 			xhttp.open("POST", "{% url 'accountsettings' %}", true);
 			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 			xhttp.send(q);

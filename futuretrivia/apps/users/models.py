@@ -10,6 +10,7 @@ class UserDetails(models.Model):
 	trivias = models.ManyToManyField(Trivia)
 	confirmed = models.BooleanField(blank=False, null=False, default=False)
 	confirm_token = models.CharField(max_length=256 ,blank=True, null=False, default="")
+	auth_base = models.IntegerField(blank=False, null=False, default=1)
 	
 	emails = models.TextField(blank=False, null=False, default="{}")
 	country = models.CharField(max_length=100, blank=True, null=True, default="India")
@@ -22,3 +23,13 @@ class UserDetails(models.Model):
 	def is_account_confirmed(self):
 	
 		return self.confirmed
+
+
+class FbUser(models.Model):
+
+	user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
+	uid = models.CharField(max_length=100, blank=False, null=False, unique=True)
+
+	def __str__(self):
+
+		return self.user.username

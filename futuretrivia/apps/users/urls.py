@@ -8,6 +8,7 @@ urlpatterns = [
     #path('authmail/', views.auth_mail, name='authmail'),
 	path('settings/', include('apps.users.settingsurls')),
 	path('signup/', views.userSignup, name='usersignup'),
+	path('fblogin/', views.fbUserLogin, name='fblogin'),
 	path('login/', views.userLogin, name='userlogin'),
 	path('logout/', views.userLogout, name='userlogout'),
     path('registercontest/', views.registerContest, name='registercontest'),

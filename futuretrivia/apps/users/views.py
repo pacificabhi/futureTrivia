@@ -4,13 +4,61 @@ from django.urls import reverse
 from .user_validation import *
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
-from .models import UserDetails
+from .models import UserDetails, FbUser
 from apps.trivia.models import Trivia
 import pytz, datetime
 from django.contrib.auth.decorators import login_required
 from .utility import *
+import json, requests
 
 # Create your views here.
+
+#proxies = {'http': 'http://edcguest:edcguest@172.31.102.29:3128','https': 'https://edcguest:edcguest@172.31.102.29:3128','ftp': 'ftp://edcguest:edcguest@172.31.102.29:3128'}
+proxies=None
+
+def fbUserLogin(request):
+
+	if request.user.is_authenticated:
+		return JsonResponse({"success": True})
+
+	context={"success": False}
+	u=request.POST.get("user")
+	u=json.loads(u)
+	access_token=u["authResponse"]["accessToken"]
+	uid=u["authResponse"]["userID"]
+	url = "https://graph.facebook.com/%s?redirect=false&access_token=%s&fields=email,name"%(uid, access_token)
+	r=requests.get(url, proxies=proxies)
+	j=json.loads(r.content.decode('ascii'))
+
+	if "error" in j.keys():
+		context["error"]="Invalid Login"
+		return JsonResponse(context)
+
+	name=j["name"].strip().split()
+	fname=name[0]
+	lname=""
+	if len(name)>1:
+		lname=name[-1]
+
+	email=""
+	if "email" in j.keys():
+		email = j["email"]
+
+	#check if first timer
+	fbuser = FbUser.objects.filter(uid=uid).first()
+	if fbuser:
+		login(request,fbuser.user)
+		context["success"]=True
+		return JsonResponse(context)
+
+
+	usr = User.objects.create(username=uid, email=email, first_name=fname, last_name=lname)
+	ud = UserDetails.objects.create(user=usr, confirmed=True, auth_base=2)
+	fbuser = FbUser.objects.create(user=usr, uid=uid)
+	login(request, usr)
+	context["success"] = True
+
+	return JsonResponse(context)
 
 def dashboard(request):
 	if True:
@@ -127,11 +175,18 @@ def userLogin(request):
 			errors.append("No Account Found")
 		elif not u.is_active:
 			errors.append("Acount is deactivated. Contact us to activate it.")
+
 		else:
-			#print(u)
-			u=authenticate(username=u.username, password=password)
-			if not u:
-				errors.append("Wrong Password")
+			auth_base = u.userdetails.auth_base
+			if auth_base!=1:
+				errors.append("Invalid Login")
+				if auth_base==2:
+					errors.append("Your account is linked with facebook. Please use facebook to login into your account")
+			else:
+				u=authenticate(username=u.username, password=password)
+				if not u:
+					errors.append("Wrong Password")
+
 
 
 		if errors:
@@ -278,8 +333,14 @@ def accountSettings(request):
 
 			fname = request.POST.get("fname").strip().title()
 			lname = request.POST.get("lname").strip().title()
-			
+			uname = request.POST.get("uname").strip().lower()
 
+			if uname!=request.user.username:
+				if not validate_username(uname):
+					errors.append("Invalid Username")
+				elif user_exists(uname):
+					errors.append("Username already taken")
+			
 			nerr = invalid_name(fname, lname)
 
 			if nerr:
@@ -291,6 +352,7 @@ def accountSettings(request):
 
 			request.user.first_name = fname
 			request.user.last_name = lname
+			request.user.username = uname
 			request.user.save()
 			context["success"] = True
 			return JsonResponse(context)
