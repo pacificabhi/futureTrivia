@@ -11,7 +11,7 @@ from apps.trivia.utility import get_answer_status
 
 def practiceHome(request):
 
-	trivias = Trivia.objects.filter(locked=True, ready=True, private=False)
+	trivias = Trivia.objects.filter(locked=True, ready=True, private=False).order_by('-start_time')
 	context={"trivias": trivias}
 
 	return render(request, 'practice/practicehome.html', context)
