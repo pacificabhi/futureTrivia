@@ -430,6 +430,11 @@ def securitySettings(request):
 
 			return JsonResponse(context)
 
+			
+		cpass = request.POST.get("cpass")
+		passwd = request.POST.get("pass")
+		cnfpass = request.POST.get("cnfpass")
+
 		chk = authenticate(username=request.user.username, password=cpass)
 
 		if not chk:
@@ -440,9 +445,6 @@ def securitySettings(request):
 
 
 
-		cpass = request.POST.get("cpass")
-		passwd = request.POST.get("pass")
-		cnfpass = request.POST.get("cnfpass")
 		
 		if passwd != cnfpass:
 			#context["success"]=False
