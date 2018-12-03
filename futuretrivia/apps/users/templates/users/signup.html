@@ -1,15 +1,15 @@
-{% extends 'users/baseauth.html' %}
+{% extends 'about/baseabout.html' %}
 {% load static %}
 
 {% block title %}
 	Sign up for Future Trivia
 {% endblock %}
 
-{% block navmenu %}
-	<!--<a href="{% url 'userlogin' %}" class="btn btn-success btn-sm nav-menu-item" role="button">Login</a>-->
-{% endblock %}
 
 {% block headscripts %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'futuretrivia/futuretrivia.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'users/authusers.css' %}">
 
 <script src="{% static 'users/users.js' %}"></script>
 

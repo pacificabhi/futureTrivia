@@ -1,19 +1,17 @@
-{% extends 'users/baseauth.html' %}
+{% extends 'about/baseabout.html' %}
 {% load static %}
 
 {% block title %}
 	Login to Future Trivia
 {% endblock %}
 
-{% block navmenu %}
-	<!--<a href="{% url 'usersignup' %}" class="btn btn-success btn-sm nav-menu-item" role="button">Signup</a>-->
-{% endblock %}
 
-{% block content %}
+
 
 
 {% block headscripts %}
-
+<link rel="stylesheet" type="text/css" href="{% static 'futuretrivia/futuretrivia.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'users/authusers.css' %}">
 <script src="{% static 'users/users.js' %}"></script>
 
 
@@ -79,6 +77,8 @@
 
 {% endblock %}
 
+
+{% block content %}
 
 
 

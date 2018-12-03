@@ -61,7 +61,7 @@
 	text-align: left;
 	background-color: var(--main-silver-white);
 	text-align: center;
-	box-shadow: 2px 3px 4px rgba(150, 150, 150, 1);
+	box-shadow: 1px 1px 1px rgba(150, 150, 150, 1);
 }
 
 .form_error_container{
