@@ -361,9 +361,7 @@
 						{% if ended %}
 
 							{% if trivia in request.user.userdetails.trivias.all %}
-								{% if can_start %}
 								<a class="btn btn-sm text-success font-weight-bold" style="background-color: rgba(0,0,0,0);" {% if not can_start %}disabled{% endif %} href="{% url 'triviaplay' code=trivia.code %}">&#10150; Click to Enter</a>
-								{% endif %}
 
 							{% endif %}
 
