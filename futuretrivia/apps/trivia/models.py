@@ -51,6 +51,9 @@ class Trivia(models.Model):
 	def total_questions(self):
 		return self.question_set.all().count()
 
+	def total_registered(self):
+		return self.userdetails_set.all().count()
+
 	def get_endtime(self):
 
 		if self.end_time:

@@ -337,8 +337,8 @@
 
 			<div class="row p-2">
 				<div class="col-md">
-					
-					<a class="btn btn-sm text-info font-weight-bold" href="{% url 'trivialeaderboard' code=trivia.code %}" style="background-color: rgba(0,0,0,0);">&#9839; Leaderbord</a><br>
+					<a class="btn btn-sm text-success" href="#" style="background-color: rgba(0,0,0,0); font-size: 12px;">&#9755; {{ trivia.total_registered }} registered</a><br>
+					<a class="btn btn-sm text-info font-weight-bold" href="{% url 'trivialeaderboard' code=trivia.code %}" style="background-color: rgba(0,0,0,0);">&#9839; Leaderbord</a>
 				</div>
 			</div>
 
